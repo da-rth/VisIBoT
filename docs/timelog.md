@@ -14,6 +14,9 @@
 
 ## Week 1
 
-### 2 Oct 2020
-
+### 02 Oct 2020
+* *0.5 hours* Watched [USENIX Security ’17 - Understanding Mirai Botnet2](https://www.youtube.com/watch?v=1pywzRTJDaY)
 * *0.5 hours* Meeting with project supervisor
+* *0.1 hours* Created MS Teams chat with supervisor and discussed project
+* *0.5 hours* Setup private GitHub Repository and gave supervisor access
+* *1.0 hours* Experimenting with BadPackets API via Postman and reading documentation
