@@ -6,4 +6,5 @@
 
 ### Summary
 A browser-based visualisation tool that maps the geolocation and lifespan information of Mirai (IoT) Botnets.
-Visualised data-sets will be collected, correlated and pre-processed through various APIs such as [BadPackets](https://docs.badpackets.net/), [Ripe NCC](https://www.ripe.net/) and (MaxMind)[https://www.maxmind.com/en/home].
+
+Visualised data-sets will be collected, correlated and pre-processed through various APIs such as [BadPackets](https://docs.badpackets.net/), [Ripe NCC](https://www.ripe.net/) and [MaxMind](https://www.maxmind.com/en/home).
