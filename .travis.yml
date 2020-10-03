@@ -1,13 +1,13 @@
 matrix:
   include:
     - language: python
-      python: 3.8
-      before_script:
+      python:
+      - - "3.8"
+      install:
         - cd src/backend
-        - python -m venv venv
-        - source venv/bin/activate
         - pip install -r requirements.txt
       script:
+        - cd src/backend
         - python -m unittest discover
         - python -m pylama badpackets
 
