@@ -1,0 +1,6 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.pythonPath": "src/backend/venv/bin/python",
+    "python.linting.pylamaEnabled": true
+}
