@@ -1,0 +1,14 @@
+matrix:
+  include:
+    - language: python
+      python: 3.8
+      before_script:
+        - cd src/backend
+        - python -m venv venv
+        - source venv/bin/activate
+        - pip install -r requirements.txt
+      script:
+        - python -m unittest discover
+        - python -m pylama badpackets
+
+    - language: node_js
