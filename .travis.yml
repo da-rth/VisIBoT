@@ -3,11 +3,10 @@ matrix:
     - language: python
       python:
       - - "3.8"
-      install:
+      before_script:
         - cd src/backend
         - pip install -r requirements.txt
       script:
-        - cd src/backend
         - python -m unittest discover
         - python -m pylama badpackets
 
