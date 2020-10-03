@@ -1,7 +1,6 @@
 from requests import Session
 from urllib.parse import urljoin
 
-
 class BadPacketsSession(Session):
     def __init__(self, api_url=None, api_token=None, *args, **kwargs):
         super(BadPacketsSession, self).__init__(*args, **kwargs)

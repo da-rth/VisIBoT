@@ -1,1 +1,1 @@
-from .session import BadPacketsSession
+from badpackets.wrapper import BadPacketsAPI
