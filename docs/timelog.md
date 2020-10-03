@@ -25,3 +25,4 @@
 ### 03 Oct 2020
 * *0.5 hours* Researching python unittest module for project backend testing
 * *3.0 hours* Code: Cleaning up tests, documentation and implemnting .env file(s) for project
+* *1.0 hours* Setup travis CI/CD Pipeline for project
