@@ -20,3 +20,8 @@
 * *0.1 hours* Created MS Teams chat with supervisor and discussed project
 * *0.5 hours* Setup private GitHub Repository and gave supervisor access
 * *1.0 hours* Experimenting with BadPackets API via Postman and reading documentation
+* *3.0 hours* Code: Created an initial API wrapper (and tests) for BadPackets API in Python
+
+### 03 Oct 2020
+* *0.5 hours* Researching python unittest module for project backend testing
+* *3.0 hours* Code: Cleaning up tests, documentation and implemnting .env file(s) for project
