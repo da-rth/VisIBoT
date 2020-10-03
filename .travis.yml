@@ -9,5 +9,3 @@ matrix:
       script:
         - python -m unittest discover
         - python -m pylama badpackets
-
-    - language: node_js
