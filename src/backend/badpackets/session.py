@@ -9,7 +9,6 @@ class BadPacketsSession(Session):
         self.headers.update({
             'Accept': 'application/json',
             'Authorization': f'Token {api_token}'
-            #'User-Agent': f'Bad Packets Python API Wrapper/1.0'
         })
 
     def request(self, method, url, *args, **kwargs):
