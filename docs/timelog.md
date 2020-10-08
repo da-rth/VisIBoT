@@ -28,3 +28,12 @@
 * *0.5 hours* Researching python unittest module for project backend testing
 * *3.0 hours* Code: Cleaning up tests, documentation and implemnting .env file(s) for project
 * *1.0 hours* Setup travis CI/CD Pipeline for project
+### 05 Oct 2020
+* *1.0 hours* Reading IEEE paper [Identifying and Characterizing Bashlite and Mirai C&C Servers](https://ieeexplore.ieee.org/document/8969728)
+### 07 Oct 2020
+* *0.5 hours* Sketching [project architecture diagram](https://cdn.discordapp.com/attachments/419266711745855490/763523431911129098/unknown.png)
+* *1.0 hours* Working on Bad Packets API Wrapper
+### 08 Oct 2020
+* *1.0 hours* Researching suitable IPLocation APIs
+
+
