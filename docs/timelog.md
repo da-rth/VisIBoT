@@ -35,5 +35,6 @@
 * *1.0 hours* Working on Bad Packets API Wrapper
 ### 08 Oct 2020
 * *1.0 hours* Researching suitable IPLocation APIs
-
+### 09 Oct 2020
+* *1.0 hours* Created an hourly async task for processing API data in main.py
 
