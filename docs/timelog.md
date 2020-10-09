@@ -37,4 +37,5 @@
 * *1.0 hours* Researching suitable IPLocation APIs
 ### 09 Oct 2020
 * *1.0 hours* Created an hourly async task for processing API data in main.py
+* *0.5 hours* Set up nuxt.js and express.js projects in src/ and renamed old backend to 'processing'"
 
