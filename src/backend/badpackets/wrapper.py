@@ -1,5 +1,4 @@
 from badpackets.session import BadPacketsSession
-import requests
 import urllib
 
 SUPPORTED_QUERY_PARAMS = [
@@ -40,8 +39,8 @@ class BadPacketsAPI():
     def __init__(self, api_url=None, api_token=None, verbose=False):
         if api_token is None:
             raise ValueError("An API key is required to use BadPackets")
-        
-        api_url = "https://api.badpackets.net/v1/" if api_url is None else api_url
+
+        api_url = "https://api.badpackets.net/v1/" if not api_url else api_url
         self.session = BadPacketsSession(api_url, api_token)
 
     def ping(self):

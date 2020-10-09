@@ -8,7 +8,7 @@ import asyncio
 load_dotenv(verbose=True)
 
 last_seen_after_days = (datetime.today() - timedelta(days=int(os.getenv("BADPACKETS_DAYS_BEFORE")))).strftime('%Y-%m-%dT%H:%M:%SZ')
-hourly_minute = 30
+hourly_minute = 15
 query_params = {
     'tags': 'IoT',
     'limit': 10,
