@@ -1,0 +1,36 @@
+{
+  "name": "VisIBoT",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "nuxt-dev": "nuxt-ts",
+    "nuxt-build": "nuxt-ts build",
+    "nuxt-start": "nuxt-ts start",
+    "nuxt-generate": "nuxt-ts generate",
+    "exp-start": "node backend/server.js",
+    "exp-dev": "nodemon backend/server.js",
+    "test": "jest",
+    "eslint": "eslint src --ext .js,.vue --ignore-path .gitignore .",
+    "eslintfix": "eslint src --fix --ext .js,.vue --ignore-path .gitignore ."
+  },
+  "dependencies": {
+    "@nuxt/typescript-runtime": "^2.0.0",
+    "bootstrap": "^4.5.2",
+    "bootstrap-vue": "^2.17.3",
+    "core-js": "^3.6.5",
+    "eslint": "^7.10.0",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4",
+    "nuxt": "^2.14.6"
+  },
+  "devDependencies": {
+    "@nuxt/types": "^2.14.6",
+    "@nuxt/typescript-build": "^2.0.3",
+    "@vue/test-utils": "^1.1.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^26.5.0",
+    "jest": "^26.5.0",
+    "ts-jest": "^26.4.1",
+    "vue-jest": "^3.0.4"
+  }
+}
