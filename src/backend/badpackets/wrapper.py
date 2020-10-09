@@ -38,16 +38,11 @@ Raises:
 class BadPacketsAPI():
 
     def __init__(self, api_url=None, api_token=None, verbose=False):
-        api_url if api_url else "https://api.badpackets.net/v1/"
+        if api_token is None:
+            raise ValueError("An API key is required to use BadPackets")
+        
+        api_url = "https://api.badpackets.net/v1/" if api_url is None else api_url
         self.session = BadPacketsSession(api_url, api_token)
-        self.verbose = verbose
-
-        try:
-            self.ping().raise_for_status()
-            if self.verbose:
-                print("BadPackets API: Authenticated token")
-        except requests.exceptions.HTTPError as BadPacketsInvalidApiToken:
-            raise BadPacketsInvalidApiToken
 
     def ping(self):
         return self.session.get('ping')
