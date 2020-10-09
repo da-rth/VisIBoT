@@ -5,7 +5,7 @@ import GmapCluster from 'vue2-google-maps/dist/components/cluster'
 Vue.use(VueGoogleMaps, {
   load: {
     key: process.env.GOOGLE_API_KEY,
-    libraries: 'visualization', // This is required if you use the Autocomplete plugin
+    libraries: 'drawing', // This is required if you use the Autocomplete plugin
   },
 })
 
