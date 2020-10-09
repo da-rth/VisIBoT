@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 export default {
   srcDir: "frontend/",
   generate: {
@@ -21,8 +23,10 @@ export default {
   ],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [
-  ],
+  plugins: [{
+    src: '@/plugins/gmaps.js',
+    ssr: false
+  }],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -31,6 +35,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/typescript
     '@nuxt/typescript-build',
+    '@nuxtjs/dotenv',
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -41,5 +46,6 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    transpile: [/^vue2-google-maps($|\/)/]
   }
 }
