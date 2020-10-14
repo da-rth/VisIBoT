@@ -1,12 +1,11 @@
 <template>
-  
-  <div>
+  <div >
     <GmapMap
       ref="gmap"
       :center="center"
       :zoom.sync="zoomLevel"
       map-type-id="terrain"
-      style="width: 100vw; height: 100vh; z-index: 1"
+      style="width: 100vw; height: 100vh; z-index: 1; position: absolute; top: 0; left: 0;"
       :options="mapOptions"
     >
       <gmap-cluster>
@@ -19,10 +18,10 @@
       </gmap-cluster>
     </GmapMap>
 
-    <div class="visiMapBottomBar">
-      <p class="visiMapBottomBar--text">  Zoom level: {{ zoomLevel }} | Bots Online: 1234</p>
+        <div class="visiMapBottomBar">
+        <p class="visiMapBottomBar--text">  Zoom level: {{ zoomLevel }} | Bots Online: 1234</p>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -417,6 +416,7 @@ export default {
   mounted() {
     this.$refs.gmap.$on('zoom_changed', (zoomLevel) => {this.zoomLevel = zoomLevel})
   },
+
   data: function () {
     return {
       zoomLevel: 7,
@@ -460,10 +460,10 @@ export default {
 
 <style scoped>
 .visiMapBottomBar {
-  height: 2vh;
+  height: 42px;
   width: 100vw;
-  background: #181818;
-  border-top: 1px solid #515151;
+  background:#1c1c1c;
+  border-top: 1px dashed #666;
   z-index: 100;
   position: absolute;
   bottom: 0;
