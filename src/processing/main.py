@@ -29,6 +29,9 @@ def process_results(results_json):
     #print(results_json['next'])
 
 async def process_badpackets():
+    
+    await asyncio.sleep(1)
+
     for param, value in params_to_process.items():
         params = base_params.copy()
         params[param] = value
