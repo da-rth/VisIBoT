@@ -52,3 +52,7 @@ class BadPacketsAPI():
                 raise ValueError(f'Unsupported query parameter: {param}')
         url_params = urllib.parse.urlencode(params)
         return self.session.get(f'query?{url_params}')
+    
+    def get_url(self, url):
+        url_params = url.split('/')[-1]
+        return self.session.get(f'{url_params}')
