@@ -1,8 +1,15 @@
+aiohttp==3.6.3
+async-timeout==3.0.1
+attrs==20.2.0
 certifi==2020.6.20
 chardet==3.0.4
+dnspython==2.0.0
+geoip2==4.1.0
 idna==2.10
+maxminddb==2.0.3
 mccabe==0.6.1
 mongoengine==0.20.0
+multidict==4.7.6
 pycodestyle==2.6.0
 pydocstyle==5.1.1
 pyflakes==2.2.0
@@ -12,3 +19,4 @@ python-dotenv==0.14.0
 requests==2.24.0
 snowballstemmer==2.0.0
 urllib3==1.25.11
+yarl==1.5.1
