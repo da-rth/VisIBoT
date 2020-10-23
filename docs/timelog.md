@@ -39,3 +39,21 @@
 * *1.0 hours* Created an hourly async task for processing API data in main.py
 * *0.5 hours* Set up nuxt.js and express.js projects in src/ and renamed old backend to 'processing'"
 
+## Week 3
+* *1.0 hours* Updating travis .yml to allow pylama and unittest scripts to execute on push to master
+* *3.0 hours* Added Google Maps API to frontend nuxt.js framework and experimented with map styling and pointer clustering
+
+## Week 4
+### 15 Oct 2020
+* *1.0 hours* Updating styling for frontend Google Maps dashboard map
+* *2.0 hours* Creating initial badpackets async loop for querying multiple requests with different parameters
+
+## Week 5
+### 22 Oct 2020
+* *2.0 hours* Coding asynchronous background task implementation for badpackets hourly processing script
+* *0.5 hours* Applied for VirusTotal Academic API token
+### 23 Oct 2020
+* *1.0 hours* Reading documentation on setting up auto-updating for maxminds GeoIP2 Lite database
+* *5.0 hours* Coding various utility functions, mongodb integration and maxminds GeoIP2 integration into backend processing script
+* *1.0 hours* Researched using VirusTotal as malware binary static analysis for identifying intersting strings such as IP addresses
+
