@@ -1,22 +1,26 @@
 import geoip2.database
 import maxminddb
-# import json
+
+
+def geo_db_path(type):
+    return f'/var/lib/GeoIP/GeoLite2-{type}.mmdb'
 
 
 def geoip_info(ip_address):
-    """Retrieves Geolocation information for a given IP address using the MaxMinds GeoIP2 Lite Database
+    """Retrieves Geolocation information for a given IP address
+    using the MaxMinds GeoIP2 Lite Database
 
     Args:
         ip_address (String): The IP Address to be looked up in database
 
     Returns:
-        [Dict]: The resulting geolocation information for the given IP, 
+        [Dict]: The resulting geolocation information for the given IP,
         including coordintes, ASN information, etc...
     """
     try:
         result = dict()
 
-        with geoip2.database.Reader('/var/lib/GeoIP/GeoLite2-City.mmdb') as reader:
+        with geoip2.database.Reader(geo_db_path('City')) as reader:
             response = reader.city(ip_address)
 
             result["city"] = {
@@ -34,8 +38,8 @@ def geoip_info(ip_address):
                 "lat": response.location.latitude,
                 "lng": response.location.longitude,
             }
-            
-        with geoip2.database.Reader('/var/lib/GeoIP/GeoLite2-ASN.mmdb') as reader:
+
+        with geoip2.database.Reader(geo_db_path('ASN')) as reader:
             response = reader.asn(ip_address)
             result["asn"] = {
                 "number": response.autonomous_system_number,
@@ -47,12 +51,10 @@ def geoip_info(ip_address):
         return result
     except (FileNotFoundError, maxminddb.InvalidDatabaseError) as e:
         # TODO: Add log here
-        raise
+        raise e
     except (geoip2.errors.AddressNotFoundError):
         # TODO: Add address not found log here
         pass
     except (ValueError):
         # TODO: Add bad IP log here
         pass
-
-# print(json.dumps(geoip_info('82.24.38.130'), indent=2))

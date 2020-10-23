@@ -7,10 +7,11 @@ URL_REGEX = r'\b((?:(ftp|https?):?/?/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(
 IPv4_REGEX = r'[0-9]+(?:\.[0-9]+){3}'
 IPv6_REGEX = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
 
+
 def url_parser(input_str):
     """
     Parses a string for URLs and returns a list.
-    Method accounts for some obfuscation such 
+    Method accounts for some obfuscation such
     as backslashes and unicode hex character codes
 
     Args:
@@ -24,7 +25,8 @@ def url_parser(input_str):
 
     if urls:
         # Remove any backslashes from URL
-        return [url[0].replace('\\','') for url in urls]
+        return [url[0].replace('\\', '') for url in urls]
+
 
 def ip_parser(input_str):
     """
@@ -40,5 +42,3 @@ def ip_parser(input_str):
     ipv6_addresses = re.findall(IPv6_REGEX, input_str)
 
     return [ip[0] if type(ip) == tuple else ip for ip in ipv4_addresses + ipv6_addresses]
-
-print(ip_parser(myString))

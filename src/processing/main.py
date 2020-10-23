@@ -4,58 +4,61 @@ from datetime import datetime, timedelta
 from requests.exceptions import HTTPError
 from contextlib import suppress
 import os
-import json
 import asyncio
 
-load_dotenv(verbose=True)
+# Constants
 
+HOURLY_AT_MIN = 15
 
-hourly_minute = 15
-base_params = {
+BASE_PARAMS = {
     'limit': 1000,
     'protocol': 'tcp',
 }
-params_to_process = {
-    'payload': 'chmod',
-    'post_data': 'chmod',
-    'tags': 'IoT',
-    'tags': 'Mirai',
-}
+
+PROC_PARAMS = [
+    ('payload', 'chmod'),
+    ('post_data', 'chmod'),
+    ('tags', 'IoT'),
+    ('tags', 'Mirai'),
+]
+
 
 def process_results(results_json):
     print(f"Total results: {results_json['count']} | Current results: {len(results_json['results'])} | has next: {results_json['next'] != None}")
 
+
 async def process_badpackets(first_run=False):
     if first_run:
-        print(f"Performing first run. Querying last 24h of results from BadPackets.")
-    
-    for param, value in params_to_process.items():
+        print("Performing first run. Querying last 24h of results from BadPackets.")
+
+    for param, value in PROC_PARAMS:
 
         after_dt = (
             datetime.today() - timedelta(hours=24 if first_run else 1)
         ).strftime('%Y-%m-%dT%H:%M:%SZ')
-        
-        params = base_params.copy()
+
+        params = BASE_PARAMS.copy()
         params['last_seen_after'] = after_dt
         params[param] = value
-        
+
         print(f"\nQuerying param: {param}={value} | Last seen after: {after_dt}")
-    
+
         with suppress(HTTPError, AttributeError):
             await asyncio.sleep(1)
             results_json = bp_api.query(params).json()
             process_results(results_json)
-            
+
             while results_json['next']:
                 await asyncio.sleep(1)
                 results_json = bp_api.get_url(results_json['next']).json()
                 process_results(results_json)
 
+
 async def hourly_processing_task():
-    print(f"Initialised hourly task. Executes at minute {hourly_minute}\n")
+    print(f"Initialised hourly task. Executes at minute {HOURLY_AT_MIN}\n")
     while True:
         dtnow = datetime.now()
-        if dtnow.minute == hourly_minute and dtnow.second == 0:
+        if dtnow.minute == HOURLY_AT_MIN and dtnow.second == 0:
             await asyncio.gather(
                 asyncio.to_thread(process_badpackets),
                 asyncio.sleep(1)
@@ -63,6 +66,8 @@ async def hourly_processing_task():
 
 
 if __name__ == "__main__":
+    load_dotenv(verbose=True)
+
     bp_api = BadPacketsAPI(
         api_url=os.getenv("BADPACKETS_API_URL"),
         api_token=os.getenv("BADPACKETS_API_TOKEN")

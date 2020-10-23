@@ -1,4 +1,5 @@
-from mongoengine import *
+from mongoengine import connect, Document, StringField
+from mongoengine import IntField, URLField, DateTimeField, DictField
 from dotenv import load_dotenv
 from datetime import datetime
 import os
@@ -6,6 +7,7 @@ import os
 load_dotenv(verbose=True)
 
 connect(host=os.getenv("MONGODB_URL"))
+
 
 class BadPacketsResult(Document):
     """
@@ -30,14 +32,20 @@ class BadPacketsResult(Document):
 
 class BadPacketsIPAddress(Document):
     """
-    Server/IP Address information pulled from payload data of BadPackets results
+    Server/IP Address information pulled from payload data of
+    BadPackets results
     """
     ip_address = StringField(required=True, primary_key=True, unique=True)
     ip_geodata = DictField(required=True)
-    domain = StringField()
-    server_type = StringField(required=True, choices=["C2", "Loader", "Report", "Bot"])
-    last_seen = DateTimeField(default=datetime.utcnow)
     vt_ip_url = URLField()
+    domain = StringField()
+    last_seen = DateTimeField(default=datetime.utcnow)
+    server_type = StringField(required=True, choices=[
+        "C2",
+        "Loader",
+        "Report",
+        "Bot"
+    ])
 
     meta = {
         "indexes": ["ip_address", "server_type"],
