@@ -33,7 +33,7 @@ class BadPacketsIPAddress(Document):
     Server/IP Address information pulled from payload data of BadPackets results
     """
     ip_address = StringField(required=True, primary_key=True, unique=True)
-    ip_geolocation = StringField(required=True)
+    ip_geodata = DictField(required=True)
     domain = StringField()
     server_type = StringField(required=True, choices=["C2", "Loader", "Report", "Bot"])
     last_seen = DateTimeField(default=datetime.utcnow)
