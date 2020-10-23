@@ -31,7 +31,7 @@
 ### 05 Oct 2020
 * *1.0 hours* Reading IEEE paper [Identifying and Characterizing Bashlite and Mirai C&C Servers](https://ieeexplore.ieee.org/document/8969728)
 ### 07 Oct 2020
-* *0.5 hours* Sketching [project architecture diagram](https://cdn.discordapp.com/attachments/419266711745855490/763523431911129098/unknown.png)
+* *0.5 hours* Sketching [project architecture diagram](https://i.imgur.com/txPNTbT.png)
 * *1.0 hours* Working on Bad Packets API Wrapper
 ### 08 Oct 2020
 * *1.0 hours* Researching suitable IPLocation APIs
@@ -56,4 +56,5 @@
 * *1.0 hours* Reading documentation on setting up auto-updating for maxminds GeoIP2 Lite database
 * *5.0 hours* Coding various utility functions, mongodb integration and maxminds GeoIP2 integration into backend processing script
 * *1.0 hours* Researched using VirusTotal as malware binary static analysis for identifying intersting strings such as IP addresses
+* *0.5 hours* Created markdown file [here](architecture.md) as documentation for project architecture
 
