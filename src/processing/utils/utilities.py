@@ -23,7 +23,12 @@ def url_parser(input_str):
     Returns:
         list : A list of string URLs
     """
-    input_strs = input_str.replace("\\/", "/").encode().decode('unicode_escape').replace('\\','').split(';')
+    input_strs = input_str.replace("\\/", "/") \
+        .encode() \
+        .decode('unicode_escape') \
+        .replace('\\', '') \
+        .split(';')
+
     urls = []
     for s in input_strs:
         url = re.search(URL_REGEX, s)
@@ -40,6 +45,7 @@ def ip_parser(input_str):
 def ipv6_parser(input_str):
     address = re.search(IPv6_REGEX, input_str)
     return address.group() if address else None
+
 
 def useragent_parser(ua_str):
     user_agent = user_agents.parse(ua_str)
@@ -61,6 +67,7 @@ def useragent_parser(ua_str):
         }
     }
 
+
 def validate_url(url):
     """Determines if a given URL is valid:
     - hostname is legal and points to real IP
@@ -81,12 +88,12 @@ def validate_url(url):
             host = socket.gethostbyaddr(ip)[0]
         except (IndexError, socket.herror):
             return False
-    
+
     elif validators.domain(host):
         ip = socket.gethostbyname(host)
         if ip in BAD_IPS:
             return False
-    
+
     return (host, ip) if host and ip else False
 
 
@@ -99,4 +106,3 @@ def time_until(next_mins):
         next_dt = now_dt.replace(second=0, minute=next_mins)
 
     return next_dt.strftime('%H:%M:%S')
-

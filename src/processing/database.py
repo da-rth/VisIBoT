@@ -9,6 +9,7 @@ load_dotenv(verbose=True)
 
 database = connect(host=os.getenv("MONGODB_URL"))
 
+
 class GeoData(Document):
     """
     Server/IP Address information pulled from payload data of
@@ -54,6 +55,3 @@ class Result(Document):
     tags = ListField(DictField(required=True), required=True)
     payload_urls = ListField(ReferenceField(Payload))
     updated_at = DateTimeField(default=datetime.utcnow)
-    
-
-

@@ -38,16 +38,18 @@ executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS)
 
 
 def store_result(event_id, result_data):
-    if db.Result.objects(event_id=event_id): return
+    if db.Result.objects(event_id=event_id):
+        return
 
     result_geodata = geoip_info(result_data['source_ip_address'])
 
-    if not result_geodata: return
+    if not result_geodata:
+        return
 
     post_payload_data = result_data['post_data'] + result_data['payload']
     payload_urls = url_parser(post_payload_data)
     valid_payload_urls = []
-    
+
     for url in payload_urls:
 
         url_existing_payload = db.Payload.objects(payload_url=url).first()
@@ -58,7 +60,8 @@ def store_result(event_id, result_data):
 
         valid_url_info = validate_url(url)
 
-        if not valid_url_info: return
+        if not valid_url_info:
+            return
 
         url_hostname, url_ip = valid_url_info
         url_ip_geodata = geoip_info(url_ip)
@@ -86,7 +89,7 @@ def store_result(event_id, result_data):
         ).save()
 
         valid_payload_urls.append(url)
-    
+
     # Create Result entry
     result_data['payload_urls'] = valid_payload_urls
     db.Result(**result_data).save()
@@ -134,13 +137,13 @@ def query_badpackets(first_run=False):
 
 
 def background_process_task(first_run=False):
-    results = { each['event_id'] : each for each in query_badpackets(first_run) }
+    results = {res['event_id']: res for res in query_badpackets(first_run)}
     res_len = len(results)
 
     print(f"\nTotal BadPackets results to process: {res_len}\n")
 
     futures = [executor.submit(store_result, evt, res) for evt, res in results.items()]
-    
+
     for i, future in enumerate(concurrent.futures.as_completed(futures)):
         print(f"Processed {i+1}/{res_len} results", end="\r")
 
@@ -150,11 +153,11 @@ def background_process_task(first_run=False):
 def init_processing_loop():
     while True:
         dtnow = datetime.utcnow()
-        
+
         if (dtnow.minute == HOURLY_AT_MIN and dtnow.second == 0):
             print("Hourly processing script triggered\n")
             executor.submit(background_process_task)
-        
+
         time.sleep(1)
 
 
@@ -178,4 +181,3 @@ if __name__ == "__main__":
     except (KeyboardInterrupt):
         print("\nClosing processing script. Waiting on Threads to finish...")
         executor.shutdown(wait=True)
-
