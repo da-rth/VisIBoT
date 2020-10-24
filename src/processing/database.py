@@ -1,19 +1,45 @@
-from mongoengine import connect, Document, StringField
+from mongoengine import connect, Document, StringField, ListField
 from mongoengine import IntField, URLField, DateTimeField, DictField
+from mongoengine import ReferenceField
 from dotenv import load_dotenv
 from datetime import datetime
 import os
 
 load_dotenv(verbose=True)
 
-connect(host=os.getenv("MONGODB_URL"))
+database = connect(host=os.getenv("MONGODB_URL"))
+
+class GeoData(Document):
+    """
+    Server/IP Address information pulled from payload data of
+    BadPackets results
+    """
+    ip_address = StringField(required=True, primary_key=True)
+    updated_at = DateTimeField(default=datetime.utcnow)
+    data = DictField(required=True)
+    server_type = StringField(required=True, choices=[
+        "C2 Server",
+        "Loader Server",
+        "Report Server",
+        "Bot"
+    ])
 
 
-class BadPacketsResult(Document):
+class Payload(Document):
+    """
+    Malware payload information retrieved from BadPackets results
+    """
+    payload_url = URLField(required=True, primary_key=True)
+    vt_scan_url = URLField(required=True)
+    ip_address = StringField(required=True)
+    updated_at = DateTimeField(default=datetime.utcnow)
+
+
+class Result(Document):
     """
     BadPackets Result JSON information
     """
-    event_id = StringField(required=True, primary_key=True, unique=True)
+    event_id = StringField(required=True, primary_key=True)
     source_ip_address = StringField(required=True)
     country = StringField(required=True, max_length=4)
     user_agent = StringField(required=True)
@@ -22,55 +48,11 @@ class BadPacketsResult(Document):
     target_port = IntField(required=True)
     protocol = StringField(required=True)
     event_count = IntField(required=True)
-    first_seen = DateTimeField(required=True)
-    last_seen = DateTimeField(required=True)
-
-    meta = {
-        "indexes": ["event_id"],
-    }
-
-
-class BadPacketsIPAddress(Document):
-    """
-    Server/IP Address information pulled from payload data of
-    BadPackets results
-    """
-    ip_address = StringField(required=True, primary_key=True, unique=True)
-    ip_geodata = DictField(required=True)
-    vt_ip_url = URLField()
-    domain = StringField()
-    last_seen = DateTimeField(default=datetime.utcnow)
-    server_type = StringField(required=True, choices=[
-        "C2",
-        "Loader",
-        "Report",
-        "Bot"
-    ])
-
-    meta = {
-        "indexes": ["ip_address", "server_type"],
-    }
+    first_seen = StringField(required=True)
+    last_seen = StringField(required=True)
+    tags = ListField(DictField(required=True), required=True)
+    payload_urls = ListField(ReferenceField(Payload))
+    updated_at = DateTimeField(default=datetime.utcnow)
+    
 
 
-class BadPacketsPayload(Document):
-    """
-    Malware payload information retrieved from BadPackets results
-    """
-    bp_event_id = StringField(required=True, primary_key=True, unique=True)
-    ip_address = StringField(required=True)
-    payload_url = URLField(required=True)
-    virustotal_url = URLField(required=True)
-
-    meta = {
-        "indexes": ["bp_event_id", "ip_address"],
-    }
-
-
-class BadPacketsTag(Document):
-    """
-    BadPackets tag for a given API result
-    """
-    bp_event_id = StringField(required=True, primary_key=True, unique=True)
-    cve = StringField()
-    category = StringField()
-    description = StringField()

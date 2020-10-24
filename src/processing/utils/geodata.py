@@ -46,8 +46,6 @@ def geoip_info(ip_address):
                 "organisation": response.autonomous_system_organization,
 
             }
-            print(response)
-
         return result
     except (FileNotFoundError, maxminddb.InvalidDatabaseError) as e:
         # TODO: Add log here
