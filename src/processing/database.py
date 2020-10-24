@@ -17,6 +17,7 @@ class GeoData(Document):
     ip_address = StringField(required=True, primary_key=True)
     updated_at = DateTimeField(default=datetime.utcnow)
     data = DictField(required=True)
+    user_agent = DictField(required=False)
     server_type = StringField(required=True, choices=[
         "C2 Server",
         "Loader Server",

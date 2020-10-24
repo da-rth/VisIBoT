@@ -1,8 +1,9 @@
 import re
 import validators
-from urllib.parse import urlparse
 import socket
-
+import user_agents
+from datetime import datetime
+from urllib.parse import urlparse
 
 BAD_IPS = ['0.0.0.0', socket.gethostbyname('some.bad.ip')]
 URL_REGEX = r'(ftp|https?):\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
@@ -40,6 +41,25 @@ def ipv6_parser(input_str):
     address = re.search(IPv6_REGEX, input_str)
     return address.group() if address else None
 
+def useragent_parser(ua_str):
+    user_agent = user_agents.parse(ua_str)
+
+    return {
+        "str": ua_str,
+        "browser": {
+            "family": user_agent.browser.family,
+            "version": user_agent.browser.version_string
+        },
+        "os": {
+            "family": user_agent.os.family,
+            "version": user_agent.os.version_string
+        },
+        "device": {
+            "family": user_agent.device.family,
+            "brand": user_agent.device.brand,
+            "model": user_agent.device.model
+        }
+    }
 
 def validate_url(url):
     """Determines if a given URL is valid:
@@ -70,4 +90,13 @@ def validate_url(url):
     return (host, ip) if host and ip else False
 
 
+def time_until(next_mins):
+    now_dt = datetime.utcnow()
+
+    if now_dt.minute >= next_mins:
+        next_dt = now_dt.replace(second=0, minute=next_mins, hour=now_dt.hour+1)
+    else:
+        next_dt = now_dt.replace(second=0, minute=next_mins)
+
+    return next_dt.strftime('%H:%M:%S')
 

@@ -3,25 +3,29 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from requests.exceptions import HTTPError
 from contextlib import suppress
-from tqdm import tqdm
-from utils.utilities import url_parser, validate_url
+from utils.utilities import url_parser, validate_url, useragent_parser, time_until
 from utils.geodata import geoip_info
 import concurrent.futures
-import dateutil.parser
 import database as db
 import os
-import asyncio
 import time
 
-# Constants
+load_dotenv(verbose=True)
 
+# Constants
+FIRST_RUN = True
+FIRST_RUN_HOURS = 24
+
+MAX_THREADS = 8
 HOURLY_AT_MIN = 30
+
+BP_URL = os.getenv("BADPACKETS_API_URL")
+BP_KEY = os.getenv("BADPACKETS_API_KEY")
 
 BASE_PARAMS = {
     'limit': 1000,
     'protocol': 'tcp',
 }
-
 PROC_PARAMS = [
     ('payload', 'chmod'),
     ('post_data', 'chmod'),
@@ -30,7 +34,7 @@ PROC_PARAMS = [
 ]
 
 
-executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS)
 
 
 def store_result(event_id, result_data):
@@ -91,31 +95,17 @@ def store_result(event_id, result_data):
     result_geodata = db.GeoData(
         ip_address=result_data['source_ip_address'],
         server_type="Report Server" if valid_payload_urls else "Bot",
+        user_agent=useragent_parser(result_data['user_agent']),
         data=result_geodata,
         updated_at=datetime.utcnow()
     ).save()
-
-def process_results(results):
-    print(f"\nTotal BadPackets results to process: {len(results)}\n")
-    results = { each['event_id'] : each for each in results }
-    results_length = len(results)
-
-    futures = []
-    
-    for evt, res in results.items():
-        futures.append(executor.submit(store_result, evt, res))
-    
-    for i, future in enumerate(concurrent.futures.as_completed(futures)):
-        print(f"Processed {i}/{results_length} results", end="\r")
-
-    print(f"\nCompleted processing. Waiting until: {ceil_dt(datetime.utcnow(), timedelta(minutes=30)).strftime('%H:%M:%S')}\n\n", end="\r")
 
 
 def query_badpackets(first_run=False):
     all_results = []
 
     after_dt = (
-        datetime.utcnow() - timedelta(hours=6 if first_run else 1)
+        datetime.utcnow() - timedelta(hours=FIRST_RUN_HOURS if first_run else 1)
     ).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     print(f"Querying results from BadPackets last seen after {after_dt}")
@@ -125,63 +115,67 @@ def query_badpackets(first_run=False):
         params['last_seen_after'] = after_dt
         params[param] = value
 
-        print(f" -> Querying param: {param}={value} | Last seen after: {after_dt}")
+        print(f" -> Querying param: {param}={value}")
 
         with suppress(HTTPError, AttributeError):
             time.sleep(1)
             results_json = bp_api.query(params).json()
             all_results += results_json['results']
-            page_num = 1
+            page_num = 2
 
             while results_json['next']:
-                page_num += 1
                 print("    ... Querying Page", page_num)
                 time.sleep(1)
                 results_json = bp_api.get_url(results_json['next']).json()
                 all_results += results_json['results']
+                page_num += 1
 
-    return tuple(all_results)
+    return all_results
 
 
 def background_process_task(first_run=False):
-    all_bp_results = query_badpackets(first_run)
-    process_results(all_bp_results)
+    results = { each['event_id'] : each for each in query_badpackets(first_run) }
+    res_len = len(results)
+
+    print(f"\nTotal BadPackets results to process: {res_len}\n")
+
+    futures = [executor.submit(store_result, evt, res) for evt, res in results.items()]
+    
+    for i, future in enumerate(concurrent.futures.as_completed(futures)):
+        print(f"Processed {i+1}/{res_len} results", end="\r")
+
+    print(f"Completed processing. Waiting until next cycle at: {time_until(HOURLY_AT_MIN)} (UTC)\n", end="\r")
 
 
-def ceil_dt(dt, delta):
-    return dt + (datetime.min - dt) % delta
+def init_processing_loop():
+    while True:
+        dtnow = datetime.utcnow()
+        
+        if (dtnow.minute == HOURLY_AT_MIN and dtnow.second == 0):
+            print("Hourly processing script triggered\n")
+            executor.submit(background_process_task)
+        
+        time.sleep(1)
 
 
 if __name__ == "__main__":
-    load_dotenv(verbose=True)
 
-    bp_api = BadPacketsAPI(
-        api_url=os.getenv("BADPACKETS_API_URL"),
-        api_token=os.getenv("BADPACKETS_API_TOKEN")
-    )
-    
+    bp_api = BadPacketsAPI(api_url=BP_URL, api_token=BP_KEY)
     bp_api.ping().raise_for_status()
-    print("BadPackets API: Authenticated token")
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    print("BadPackets API: Authenticated token\n")
+
+    time.sleep(1)
 
     try:
-        first_run = True
-        print(f"Initialised hourly task. Executes at minute {HOURLY_AT_MIN}\n")
+        if FIRST_RUN:
+            print("Preparing first run...\n")
+            background_process_task(first_run=True)
 
-        while True:
-            dtnow = datetime.utcnow()
-            
-            if (dtnow.minute == HOURLY_AT_MIN and dtnow.second == 0) or first_run:
-                print("Hourly processing script triggered\n")
+        print(f"Waiting until next cycle at: {time_until(HOURLY_AT_MIN)} (UTC)\n", end="\r")
+        init_processing_loop()
 
-                executor.submit(background_process_task, (first_run))
-                first_run = False
-            
-            time.sleep(1)
+    except (KeyboardInterrupt):
+        print("\nClosing processing script. Waiting on Threads to finish...")
+        executor.shutdown(wait=True)
 
-    except (asyncio.CancelledError, KeyboardInterrupt):
-        print("Closing processing script...")
-    finally:
-        loop.close()
