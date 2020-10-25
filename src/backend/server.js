@@ -1,13 +1,20 @@
 const express = require('express')
+const bodyParser = require("body-parser")
+const cors = require("cors")
 const { connectDB } = require("./database")
 const app = express()
 const port = 3000
 
 require("dotenv").config()
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+if (process.env.NODE_ENV === "development") {
+  console.log("Developer Mode")
+  app.use(require("morgan")("dev"))
+}
+
+app.use(cors())
+app.use(require("./routes"))
+app.use(bodyParser.json())
 
 connectDB()
 
