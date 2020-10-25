@@ -1,6 +1,6 @@
 from virus_total_apis import PublicApi as VirusTotalPublicApi
 import os
-import json
+# import json
 
 """
 VirusTotal Public API
