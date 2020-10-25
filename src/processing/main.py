@@ -2,12 +2,13 @@ from badpackets import BadPacketsAPI
 from dotenv import load_dotenv
 from datetime import datetime
 from utils.misc import time_until
+from pathlib import Path
 import utils.badpackets as bp_utils
 import concurrent.futures
 import os
 import time
 
-load_dotenv(verbose=True)
+load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
 
 # Constants
 FIRST_RUN = True
