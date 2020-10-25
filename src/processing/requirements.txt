@@ -20,11 +20,14 @@ pymongo==3.11.0
 python-dateutil==2.8.1
 python-dotenv==0.14.0
 requests==2.24.0
+ripe.atlas.cousteau==1.4.2
 six==1.15.0
 snowballstemmer==2.0.0
+socketIO-client==0.7.2
 ua-parser==0.10.0
 urllib3==1.25.11
 user-agents==2.2.0
 validators==0.18.1
-virustotal-python==0.0.9
+virustotal-api==1.1.11
+websocket-client==0.57.0
 yarl==1.5.1
