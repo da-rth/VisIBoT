@@ -9,7 +9,7 @@ import database as db
 import time
 
 
-FIRST_RUN_HOURS = 12
+FIRST_RUN_HOURS = 24
 BASE_PARAMS = {
     'limit': 1000,
     'protocol': 'tcp',
@@ -134,6 +134,7 @@ def store_result(event_id, result_data):
         valid_payload_urls.append(url)
 
     # Create Result entry
+    result_data['user_agent'] = useragent_parser(result_data['user_agent'])
     result_data['payload_urls'] = valid_payload_urls
     db.Result(**result_data).save()
 
@@ -141,7 +142,6 @@ def store_result(event_id, result_data):
     result_geodata = db.GeoData(
         ip_address=result_data['source_ip_address'],
         server_type="Report Server" if valid_payload_urls else "Bot",
-        user_agent=useragent_parser(result_data['user_agent']),
         data=result_geodata,
         updated_at=datetime.utcnow()
     ).save()

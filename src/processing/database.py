@@ -18,7 +18,6 @@ class GeoData(Document):
     ip_address = StringField(required=True, primary_key=True)
     updated_at = DateTimeField(default=datetime.utcnow)
     data = DictField(required=True)
-    user_agent = DictField(required=False)
     server_type = StringField(required=True, choices=[
         "C2 Server",
         "Loader Server",
@@ -44,7 +43,7 @@ class Result(Document):
     event_id = StringField(required=True, primary_key=True)
     source_ip_address = StringField(required=True)
     country = StringField(required=True, max_length=4)
-    user_agent = StringField(required=True)
+    user_agent = DictField(required=True)
     payload = StringField(required=True)
     post_data = StringField(required=True)
     target_port = IntField(required=True)
