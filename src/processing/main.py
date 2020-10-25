@@ -20,7 +20,17 @@ BP_KEY = os.getenv("BADPACKETS_API_KEY")
 executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS)
 
 
-def background_process_task(first_run=False):
+def process_task(first_run=False):
+    """
+    The main processing task which runs in a background thread
+
+    Args:
+        first_run (bool, optional): Defaults to False.
+            Specifies if the process is the first run. If so,
+            collect results last seen from current time - FIRST_RUN_HOURS
+            instead of 1 hour.
+    """
+
     results = {res['event_id']: res for res in bp_utils.query_badpackets(bp_api, first_run)}
     res_len = len(results)
 
@@ -38,18 +48,23 @@ def background_process_task(first_run=False):
 
 
 def init_processing_loop():
+    """
+    The main processing loop which runs continually until
+    a KeyboardInterrupt is detected. Each loop sleeps for 1 second
+    and the processing task executes once per hour at: HH::HOURLY_AT_MIN:00
+    """
+
     while True:
         dtnow = datetime.utcnow()
 
         if (dtnow.minute == HOURLY_AT_MIN and dtnow.second == 0):
             print("Hourly processing script triggered\n")
-            executor.submit(background_process_task)
+            executor.submit(process_task)
 
         time.sleep(1)
 
 
 if __name__ == "__main__":
-
     bp_api = BadPacketsAPI(api_url=BP_URL, api_token=BP_KEY)
     bp_api.ping().raise_for_status()
 
@@ -60,7 +75,7 @@ if __name__ == "__main__":
     try:
         if FIRST_RUN:
             print("Preparing first run...\n")
-            background_process_task(first_run=True)
+            process_task(first_run=True)
         print(f"Starting processing loop. Next cycle at: {time_until(HOURLY_AT_MIN)} (UTC)\n", end="\r")
         init_processing_loop()
     except (KeyboardInterrupt):

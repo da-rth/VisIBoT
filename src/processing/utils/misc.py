@@ -12,16 +12,17 @@ IPv6_REGEX = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7
 
 
 def url_parser(input_str):
-    """The provided string is
+    """
+    The provided string is
     - encoded and decoded to escape any unicode used for obfuscation
     - stripped of any backslashes
     And is searched with a URL regular expression which accepts ftp/http/https URLs
 
     Args:
-        input_str (String): A string to be parsed for any URLs
+        input_str (str): A string to be parsed for any URLs
 
     Returns:
-        list : A list of string URLs
+        list: A list of string URLs
     """
     input_strs = input_str.replace("\\/", "/") \
         .encode() \
@@ -39,16 +40,48 @@ def url_parser(input_str):
 
 
 def ip_parser(input_str):
+    """
+    Parses an input string for an IPv4 address
+
+    Args:
+        input_str (str): An input string which may
+            contain an IPv4 address.
+
+    Returns:
+        str: IPv4 Address
+    """
     address = re.search(IPv4_REGEX, input_str)
     return address.group() if address else None
 
 
 def ipv6_parser(input_str):
+    """
+    Parses an input string for an IPv6 address
+
+    Args:
+        input_str (str): An input string which may
+        contain an IPv6 address.
+
+    Returns:
+        str: IPv6 Address
+    """
     address = re.search(IPv6_REGEX, input_str)
     return address.group() if address else None
 
 
 def useragent_parser(ua_str):
+    """
+    Given a user-agent input string, a dictionary containing
+    information about the agent OS, browser and device is returned.
+
+    If user-agent is invalid, dict will contain null results.
+
+    Args:
+        ua_str (str): The user-agent string to be parsed
+
+    Returns:
+        dict: contains organised info of user-agent in dict format
+    """
     user_agent = user_agents.parse(ua_str)
 
     return {
@@ -70,16 +103,17 @@ def useragent_parser(ua_str):
 
 
 def validate_url(url):
-    """Determines if a given URL is valid:
+    """
+    Determines if a given URL is valid:
     - hostname is legal and points to real IP
     - ip is legal and points to some hostname
 
     Args:
-        url (String): The URL to be validated
+        url (str): The URL to be validated
 
     Returns:
-        Bool: False is returned if URL is invalid
-        Tuple: (ip, hostname) of URL is returned if valid
+        bool: False is returned if URL is invalid
+        tuple: (ip, hostname) of URL is returned if valid
     """
     host = urlparse(url).hostname
     ip = ip_parser(url)
@@ -99,6 +133,20 @@ def validate_url(url):
 
 
 def time_until(next_mins):
+    """
+    Given N minutes, this function calculates the
+    timestamp (in UTC) when the Nth minute next occurs.
+
+    Example: If the time is 16:43:02 and we run time_until(15)
+    the string 17:15:00 will be returned.
+
+    Args:
+        next_mins (int): The number of minutes past the hour to
+            get next timestamp for.
+
+    Returns:
+        str: a string timestamp (UTC) in format HH:MM:SS
+    """
     now_dt = datetime.utcnow()
 
     if now_dt.minute >= next_mins:

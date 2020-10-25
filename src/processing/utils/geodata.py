@@ -3,7 +3,25 @@ import maxminddb
 
 
 def geo_db_path(type):
-    return f'/var/lib/GeoIP/GeoLite2-{type}.mmdb'
+    """
+    Returns the full path of a specific GeoLite2 database
+
+    Args:
+        type (str): The type of database path to retrieve (ASN, City, Country)
+
+    Raises:
+        ValueError: An invalid database type has been provided
+
+    Returns:
+        str: The absolute path to the specified database.
+    """
+    if type not in ['ASN', 'City', 'Country']:
+        raise ValueError(
+            "Invalid GeoLite2 Database type provided.\n"
+            "Type must be: 'ASN', 'City' or 'Country'"
+        )
+    else:
+        return f'/var/lib/GeoIP/GeoLite2-{type}.mmdb'
 
 
 def geoip_info(ip_address):
@@ -11,11 +29,11 @@ def geoip_info(ip_address):
     using the MaxMinds GeoIP2 Lite Database
 
     Args:
-        ip_address (String): The IP Address to be looked up in database
+        ip_address (str): The IP Address to be looked up in database
 
     Returns:
-        [Dict]: The resulting geolocation information for the given IP,
-        including coordintes, ASN information, etc...
+        [dict]: The resulting geolocation information for the given IP,
+            including coordintes, ASN information, etc...
     """
     try:
         result = dict()

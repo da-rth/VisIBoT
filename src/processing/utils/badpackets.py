@@ -23,6 +23,19 @@ PROC_PARAMS = [
 
 
 def query_badpackets(api, first_run=False):
+    """
+    Queries the BadPackets API for N param combinations in PROC_PARAMS
+    If the initial query result contains more than 1 page, all remaining
+    pages are also queried and collected.
+
+    Args:
+        api (BadPacketsAPI): The BadPackets wrapper API instance to be used.
+        first_run (bool, optional): Defaults to False. Determines if FIRST_RUN_HOURS
+            should be used to calculated after_dt instead of the default (1 hour).
+
+    Returns:
+        list: A list of BadPackets Results (dictionaries)
+    """
     all_results = []
 
     after_dt = (
@@ -55,6 +68,19 @@ def query_badpackets(api, first_run=False):
 
 
 def store_result(event_id, result_data):
+    """
+    Takes a given event_id and results dict for a BadPackets result
+    and processes it:
+    - ignore if result is already stored or no geodata can be found
+    - extract URls in payload data and process each URL
+        - validate and obtain IP and hostname for each URL
+        - add new Payload & GeoData entry for each URL / IP
+    - insert new Result and GeoData entry for the given result
+
+    Args:
+        event_id (str): The event_id of the given BadPackets Result
+        result_data (dict): The dictionary (JSON Object) result data
+    """
     if db.Result.objects(event_id=event_id):
         return
 
