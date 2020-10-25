@@ -3,9 +3,11 @@ async-timeout==3.0.1
 attrs==20.2.0
 certifi==2020.6.20
 chardet==3.0.4
+decorator==4.4.2
 dnspython==2.0.0
 geoip2==4.1.0
 idna==2.10
+iplookup==1.0.5
 maxminddb==2.0.3
 mccabe==0.6.1
 mongoengine==0.20.0
@@ -15,8 +17,14 @@ pydocstyle==5.1.1
 pyflakes==2.2.0
 pylama==7.7.1
 pymongo==3.11.0
+python-dateutil==2.8.1
 python-dotenv==0.14.0
 requests==2.24.0
+six==1.15.0
 snowballstemmer==2.0.0
+ua-parser==0.10.0
 urllib3==1.25.11
+user-agents==2.2.0
+validators==0.18.1
+virustotal-python==0.0.9
 yarl==1.5.1
