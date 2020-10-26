@@ -1,24 +1,18 @@
-language: node_js
-node_js: 14
-
-cache:
-  bundler: true
-  directories:
-  - src/node_modules
-
-jobs:
+matrix:
   include:
-    - stage: linting
-      install:
+    - language: python
+      python: 3.8
+      before_script:
+        - cd src/processing
+        - pip install -r requirements.txt
+      script:
+        - python -m pylama
+        - python -m unittest discover
+    
+    - language: node_js
+      node_js: 14
+      before_script:
         - cd src
         - npm install
-        - cd processing
-        - pip install -r requirements
       script:
-        - cd src
         - npm run eslint
-        - cd processing
-        - python -m pylama
-    - stage: testing
-      script:
-        - python -m unittest discover
