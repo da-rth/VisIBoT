@@ -1,17 +1,21 @@
 <template>
   <div>
-    <map-sidebar/>
+    <map-sidebar />
     <client-only>
-      <client-map/>
+      <client-map />
     </client-only>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'parent-component',
+  name: "ParentComponent",
   components: {
-    ClientMap: () => { if (process.client){ return import('@/components/MapView/Map.vue') } },
+    ClientMap: () => {
+      if (process.client) {
+        return import("@/components/MapView/Map.vue")
+      }
+    },
   },
 }
 </script>

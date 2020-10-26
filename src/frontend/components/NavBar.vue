@@ -1,7 +1,12 @@
 <template>
-    <div>
-
-      <b-navbar id="navbar" toggleable="md" type="light" variant="light" style="z-index: 102">
+  <div>
+    <b-navbar
+      id="navbar"
+      toggleable="md"
+      type="light"
+      variant="light"
+      style="z-index: 102"
+    >
       <b-navbar-brand class="d-md-none">
         🤖 VisI<span style="color: #00587a">BoT</span>
       </b-navbar-brand>
@@ -28,8 +33,7 @@
             <b-dropdown-item href="#">FA</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
-
       </b-collapse>
     </b-navbar>
-</div>
+  </div>
 </template>

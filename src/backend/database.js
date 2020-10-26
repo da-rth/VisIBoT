@@ -11,7 +11,7 @@ const Database = {
         useUnifiedTopology: true,
         useFindAndModify: false,
       })
-      console.log('MongoDB: connected')
+      console.log("MongoDB: connected")
     } catch (e) {
       console.error("MongoDB: failed to connect...", e)
       process.exit(1)

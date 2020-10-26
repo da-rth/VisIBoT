@@ -1,6 +1,14 @@
 <template>
-  <div style="height: 100%; width: 100%; background: #242424; position: absolute; top: 0; left: 0;">
-
+  <div
+    style="
+      height: 100%;
+      width: 100%;
+      background: #242424;
+      position: absolute;
+      top: 0;
+      left: 0;
+    "
+  >
     <b-overlay
       :show="markersLoading || activeMarkerLoading"
       bg-color="#181818"
@@ -9,37 +17,42 @@
       :no-fade="false"
       style="cursor: progress; background: #242424"
     >
-      <marker-modal :active-marker="activeMarker" ref="markerModal" />
+      <marker-modal ref="markerModal" :active-marker="activeMarker" />
 
       <template #overlay>
         <div class="text-center" style="width: 100%">
           <b-spinner variant="primary" label="Spinning" />
-          <h4 v-if="markersLoading" style="color: white;">Loading map...</h4>
+          <h4 v-if="markersLoading" style="color: white">Loading map...</h4>
         </div>
       </template>
 
       <l-map
-        style="width: 100vw; height: 100vh; z-index: 1"
         ref="map"
+        style="width: 100vw; height: 100vh; z-index: 1"
         :center="{ lat: 10.0, lng: 10.0 }"
         :zoom="4"
-        :minZoom="3"
-        :maxZoom="10"
-        :options="{zoomControl: false, attributionControl: false}"
+        :min-zoom="3"
+        :max-zoom="10"
+        :options="{ zoomControl: false, attributionControl: false }"
         :bounds="bounds"
-        :maxBounds="bounds"
-        :maxBoundsViscosity="1.0"
+        :max-bounds="bounds"
+        :max-bounds-viscosity="1.0"
       >
-        <l-tile-layer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"></l-tile-layer>
-        <l-control-zoom v-if="!markersLoading" position="bottomright"></l-control-zoom>
+        <l-tile-layer
+          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+        ></l-tile-layer>
+        <l-control-zoom
+          v-if="!markersLoading"
+          position="bottomright"
+        ></l-control-zoom>
         <v-marker-cluster>
-            <l-marker
-              v-for="marker in markers"
-              v-bind:key="marker._id"
-              name="fade"
-              @click="showMarkerModal(marker)"
-              :lat-lng="[marker.position.lat, marker.position.lng]"
-            />
+          <l-marker
+            v-for="marker in markers"
+            :key="marker._id"
+            name="fade"
+            :lat-lng="[marker.position.lat, marker.position.lng]"
+            @click="showMarkerModal(marker)"
+          />
         </v-marker-cluster>
       </l-map>
     </b-overlay>
@@ -47,56 +60,61 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios"
 
 export default {
-  head() {
-    return {
-      link: [
-        {
-          rel: "stylesheet",
-          href:
-            "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css"
-        },
-        {
-          rel: "stylesheet",
-          href:
-            "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css"
-        }
-      ]
-    };
-  },
-  mounted() {
-    this.$refs.markerModal.$on("hidden.bs.modal", (this.hideMarkerModal))
-  },
-  async beforeMount() {
-    await axios.get('http://localhost:8080/api/geolocations')
-    .then(async (response) => {
-      this.markers = response.data
-      this.markersLoading = false
-    }).catch((error) => {
-      console.log(error);
-    });
-  },
   data: function () {
     return {
       activeMarker: null,
       activeMarkerLoading: false,
       markers: [],
       markersLoading: true,
-      bounds: [[-88, -200], [90, 200]],
+      bounds: [
+        [-88, -200],
+        [90, 200],
+      ],
     }
+  },
+  head() {
+    return {
+      link: [
+        {
+          rel: "stylesheet",
+          href:
+            "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css",
+        },
+        {
+          rel: "stylesheet",
+          href:
+            "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css",
+        },
+      ],
+    }
+  },
+  mounted() {
+    this.$refs.markerModal.$on("hidden.bs.modal", this.hideMarkerModal)
+  },
+  async beforeMount() {
+    await axios
+      .get("http://localhost:8080/api/geolocations")
+      .then(async (response) => {
+        this.markers = response.data
+        this.markersLoading = false
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   },
   methods: {
     showMarkerModal: async function (marker) {
       this.activeMarker = null
       this.activeMarkerLoading = true
       this.activeMarker = marker
-      await new Promise(r => setTimeout(r, 2000))
+      await new Promise((r) => setTimeout(r, 2000))
       this.activeMarkerLoading = false
       this.$refs.markerModal.show()
     },
-  }
+  },
 }
 </script>
 
@@ -104,7 +122,7 @@ export default {
 .visiMapBottomBar {
   height: 42px;
   width: 100vw;
-  background:#1c1c1c;
+  background: #1c1c1c;
   border-top: 1px dashed #666;
   z-index: 500;
   position: absolute;
@@ -119,15 +137,16 @@ export default {
 .hide {
   display: none;
 }
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }
 
 .vue2leaflet-map {
-    background: #222222;
+  background: #222222;
 }
 
 .marker-cluster-large,
@@ -140,32 +159,51 @@ export default {
 }
 
 @keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Firefox < 16 */
 @-moz-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Safari, Chrome and Opera > 12.1 */
 @-webkit-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Internet Explorer */
 @-ms-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Opera < 12.1 */
 @-o-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-
 </style>

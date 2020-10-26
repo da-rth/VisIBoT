@@ -1,29 +1,36 @@
 <template>
-    <b-modal
-      centered
-      scrollable
-      size="lg"
-      ref="modal"
-      :title="activeMarker ? `Information for: ${activeMarker._id}` : 'Loading information...'"
-      header-border-variant="dark"
-      header-bg-variant="dark"
-      header-text-variant="light"
-    >
-      <b-container fluid>
-        <h1>some text</h1>
-      </b-container>
-    </b-modal>
+  <b-modal
+    ref="modal"
+    centered
+    scrollable
+    size="lg"
+    :title="
+      activeMarker
+        ? `Information for: ${activeMarker._id}`
+        : 'Loading information...'
+    "
+    header-border-variant="dark"
+    header-bg-variant="dark"
+    header-text-variant="light"
+  >
+    <b-container fluid>
+      <h1>some text</h1>
+    </b-container>
+  </b-modal>
 </template>
 
 <script>
 export default {
-    props: {
-        activeMarker: Object,
+  props: {
+    activeMarker: {
+      type: Object,
+      default: null,
     },
-    methods: {
-        show: function () {
-            this.$refs.modal.show()
-        }
-    }
+  },
+  methods: {
+    show: function () {
+      this.$refs.modal.show()
+    },
+  },
 }
 </script>

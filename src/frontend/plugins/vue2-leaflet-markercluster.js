@@ -1,13 +1,13 @@
-import Vue from "vue";
-import * as L from "leaflet";
-import Vue2LeafletMarkerCluster from "vue2-leaflet-markercluster";
-Vue.component("v-marker-cluster", Vue2LeafletMarkerCluster);
-Vue.component("v-marker", Vue2LeafletMarkerCluster);
+import Vue from "vue"
+import * as L from "leaflet"
+import Vue2LeafletMarkerCluster from "vue2-leaflet-markercluster"
+Vue.component("VMarkerCluster", Vue2LeafletMarkerCluster)
+Vue.component("VMarker", Vue2LeafletMarkerCluster)
 const LeafletPlugin = {
   install(Vue) {
     // Expose Leaflet
     Vue.prototype.$L = L
-  }
-};
+  },
+}
 
-Vue.use(LeafletPlugin);
+Vue.use(LeafletPlugin)
