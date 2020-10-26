@@ -13,3 +13,10 @@ matrix:
         script:
           - python -m unittest discover
           - python -m pylama
+    - language: node_js
+      - stage: testing
+        before_script:
+          - cd src
+          - npm install
+        script:
+          - npm run eslint
