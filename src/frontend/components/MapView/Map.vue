@@ -1,33 +1,20 @@
 <template>
   <div style="height: 100%; width: 100%; background: #242424; position: absolute; top: 0; left: 0;">
 
-    <b-modal
-      centered
-      scrollable
-      ref="markerModal"
-      size="lg"
-      :title="activeMarker ? `Information for: ${activeMarker._id}` : 'Loading information...'"
-      header-border-variant="dark"
-      header-bg-variant="dark"
-      header-text-variant="light"
-    >
-      <b-container fluid>
-        <h1>some text</h1>
-      </b-container>
-    </b-modal>
-
     <b-overlay
-      :show="loading"
+      :show="markersLoading || activeMarkerLoading"
       bg-color="#181818"
       opacity="0.7"
       spinner-variant="primary"
       :no-fade="false"
       style="cursor: progress; background: #242424"
     >
+      <marker-modal :active-marker="activeMarker" ref="markerModal" />
+
       <template #overlay>
-        <div class="text-center" style="width: 200px;">
+        <div class="text-center" style="width: 100%">
           <b-spinner variant="primary" label="Spinning" />
-          <h4 style="color: white;">Loading map...</h4>
+          <h4 v-if="markersLoading" style="color: white;">Loading map...</h4>
         </div>
       </template>
 
@@ -39,12 +26,12 @@
         :minZoom="3"
         :maxZoom="10"
         :options="{zoomControl: false, attributionControl: false}"
-        :bounds="maxBounds"
-        :maxBounds="maxBounds"
+        :bounds="bounds"
+        :maxBounds="bounds"
         :maxBoundsViscosity="1.0"
       >
         <l-tile-layer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"></l-tile-layer>
-        <l-control-zoom v-if="!loading" position="bottomright"></l-control-zoom>
+        <l-control-zoom v-if="!markersLoading" position="bottomright"></l-control-zoom>
         <v-marker-cluster>
             <l-marker
               v-for="marker in markers"
@@ -85,34 +72,30 @@ export default {
   async beforeMount() {
     await axios.get('http://localhost:8080/api/geolocations')
     .then(async (response) => {
-      this.loading = false
       this.markers = response.data
+      this.markersLoading = false
     }).catch((error) => {
       console.log(error);
     });
   },
   data: function () {
     return {
-      loading: true,
-      loadingPercent: 0,
-      maxBounds: [
-        //south west
-        [-88, -200],
-        //north east
-        [90, 200]
-      ],
-      markers: [],
       activeMarker: null,
+      activeMarkerLoading: false,
+      markers: [],
+      markersLoading: true,
+      bounds: [[-88, -200], [90, 200]],
     }
   },
   methods: {
-    showMarkerModal: function (marker) {
-      this.$refs.markerModal.show()
-      this.activeMarker = marker
-    },
-    hideMarkerModal: function () {
+    showMarkerModal: async function (marker) {
       this.activeMarker = null
-    }
+      this.activeMarkerLoading = true
+      this.activeMarker = marker
+      await new Promise(r => setTimeout(r, 2000))
+      this.activeMarkerLoading = false
+      this.$refs.markerModal.show()
+    },
   }
 }
 </script>
