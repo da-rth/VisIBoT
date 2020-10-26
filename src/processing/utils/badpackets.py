@@ -3,7 +3,7 @@ import sys; sys.path.append("..")
 from datetime import datetime, timedelta
 from requests.exceptions import HTTPError
 from contextlib import suppress
-from utils.misc import url_parser, validate_url, useragent_parser
+from utils.misc import url_parser, validate_url, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
 import database as db
 import time
@@ -12,14 +12,21 @@ import time
 FIRST_RUN_HOURS = 24
 BASE_PARAMS = {
     'limit': 1000,
-    'protocol': 'tcp',
 }
 PROC_PARAMS = [
-    ('payload', 'chmod'),
-    ('post_data', 'chmod'),
-    ('tags', 'IoT'),
-    ('tags', 'Mirai'),
+    [('payload', 'chmod')],
+    [('post_data', 'chmod')],
+    [('tags', 'Mirai')],
+    [('tags', 'Botnet')],
 ]
+
+
+def has_botnet_tag(tags):
+    for tag in tags:
+        desc = tag['description'].lower()
+        category = tag['category'].lower()
+        if "scan" in desc or "botnet" in category:
+            return True
 
 
 def query_badpackets(api, first_run=False):
@@ -44,12 +51,16 @@ def query_badpackets(api, first_run=False):
 
     print(f"Querying results from BadPackets last seen after {after_dt}")
 
-    for param, value in PROC_PARAMS:
+    for param_list in PROC_PARAMS:
         params = BASE_PARAMS.copy()
         params['last_seen_after'] = after_dt
-        params[param] = value
 
-        print(f" -> Querying param: {param}={value}")
+        param_str =  "&".join([f"{p}={v}" for p, v in param_list])
+        
+        for param, value in param_list:
+            params[param] = value
+
+        print(f" -> Querying params: {param_str}")
 
         with suppress(HTTPError, AttributeError):
             time.sleep(1)
@@ -81,67 +92,87 @@ def store_result(event_id, result_data):
         event_id (str): The event_id of the given BadPackets Result
         result_data (dict): The dictionary (JSON Object) result data
     """
-    if db.Result.objects(event_id=event_id):
-        return
+    scanned_payloads = []
+    now = datetime.utcnow()
+    existing_result = db.Result.objects(event_id=event_id).first()
 
-    result_geodata = geoip_info(result_data['source_ip_address'])
+    if existing_result:
+        existing_result.updated_at = now
+        return existing_result.save()
 
-    if not result_geodata:
-        return
+    payload_data = result_data['post_data'] + result_data['payload']
+    validated_urls = [validate_url(url) for url in url_parser(payload_data)]
+    validated_urls = [url for url in validated_urls if url]
 
-    post_payload_data = result_data['post_data'] + result_data['payload']
-    payload_urls = url_parser(post_payload_data)
-    valid_payload_urls = []
+    for url_info in validated_urls:
+        url, hostname, ip = url_info
+        existing_payload = db.Payload.objects(url=url).first()
 
-    for url in payload_urls:
+        if existing_payload:
+            existing_payload.updated_at = now
+            existing_payload.save()
+            scanned_payloads.append(existing_payload.id)
+            continue
+        
+        
+        existing_geodata = db.GeoData.objects(ip_address=ip).first()
 
-        url_existing_payload = db.Payload.objects(payload_url=url).first()
+        if existing_geodata:
+            existing_geodata.updated_at = now
+            existing_geodata.save()
 
-        if url_existing_payload:
-            url_existing_payload.updated_at = datetime.utcnow()
-            return
+        geodata = geoip_info(ip)
 
-        valid_url_info = validate_url(url)
-
-        if not valid_url_info:
-            return
-
-        url_hostname, url_ip = valid_url_info
-        url_ip_geodata = geoip_info(url_ip)
-        url_existing_geodata = db.GeoData.objects(ip_address=url_ip).first()
-
-        if (not url_ip_geodata):
-            return
-
-        if url_existing_geodata:
-            url_existing_geodata.updated_at = datetime.utcnow()
-            return
+        if not geodata:
+            continue
 
         db.GeoData(
-            ip_address=url_ip,
-            data=url_ip_geodata,
+            ip_address=ip,
+            hostname=hostname,
+            data=geodata,
             server_type="Loader Server",
             updated_at=datetime.utcnow()
         ).save()
 
-        db.Payload(
-            payload_url=url,
-            ip_address=url_ip,
-            vt_scan_url="http://virustotal.com/TODO",
+        payload = db.Payload(
+            url=url,
+            scan_url="http://virustotal.com/TODO",
+            ip_address=ip,
             updated_at=datetime.utcnow()
         ).save()
 
-        valid_payload_urls.append(url)
+        scanned_payloads.append(payload.id)
 
+    existing_geodata = db.GeoData.objects(ip_address=result_data['source_ip_address']).first()
+
+    if existing_geodata:
+        existing_geodata.updated_at = now
+        existing_geodata.save()
+    else:
+        result_geodata = geoip_info(result_data['source_ip_address'])
+
+        if result_geodata:
+            ip = result_data['source_ip_address']
+            hostname = get_ip_hostname(ip)
+
+            if has_botnet_tag(result_data['tags']):
+                server_type = "Bot"
+            elif scanned_payloads and "<?xml" not in result_data['post_data']:
+                server_type = "Report Server"
+            else:
+                server_type = "Unknown"
+            
+            existing_geodata = db.GeoData(
+                ip_address=ip,
+                hostname=hostname,
+                server_type=server_type,
+                data=result_geodata,
+                updated_at=datetime.utcnow()
+            ).save()
+    
     # Create Result entry
+    result_data['source_ip_address'] = existing_geodata.id
     result_data['user_agent'] = useragent_parser(result_data['user_agent'])
-    result_data['payload_urls'] = valid_payload_urls
-    db.Result(**result_data).save()
+    result_data['scanned_payloads'] = scanned_payloads
 
-    # Create GeoData entry
-    result_geodata = db.GeoData(
-        ip_address=result_data['source_ip_address'],
-        server_type="Report Server" if valid_payload_urls else "Bot",
-        data=result_geodata,
-        updated_at=datetime.utcnow()
-    ).save()
+    db.Result(**result_data).save()

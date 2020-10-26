@@ -7,6 +7,12 @@ const port = 8080
 
 require("dotenv").config()
 
+connectDB()
+
+require("./models/Result")
+require("./models/Payload")
+require("./models/GeoData")
+
 if (process.env.NODE_ENV === "development") {
   console.log("Developer Mode")
   app.use(require("morgan")("dev"))
@@ -15,8 +21,6 @@ if (process.env.NODE_ENV === "development") {
 app.use(cors())
 app.use(require("./routes"))
 app.use(bodyParser.json())
-
-connectDB()
 
 app.listen(port, () => {
   console.log(`VisIBoT Backend listening at http://localhost:${port}`)

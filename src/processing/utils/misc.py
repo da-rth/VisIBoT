@@ -101,6 +101,11 @@ def useragent_parser(ua_str):
         }
     }
 
+def get_ip_hostname(ip):
+    try:
+        return socket.gethostbyaddr(ip)[0]
+    except (IndexError, socket.herror):
+        return None
 
 def validate_url(url):
     """
@@ -112,7 +117,7 @@ def validate_url(url):
         url (str): The URL to be validated
 
     Returns:
-        bool: False is returned if URL is invalid
+        None: False is returned if URL is invalid
         tuple: (ip, hostname) of URL is returned if valid
     """
     host = urlparse(url).hostname
@@ -122,14 +127,14 @@ def validate_url(url):
         try:
             host = socket.gethostbyaddr(ip)[0]
         except (IndexError, socket.herror):
-            return False
+            return None
 
     elif validators.domain(host):
         ip = socket.gethostbyname(host)
         if ip in BAD_IPS:
-            return False
+            return None
 
-    return (host, ip) if host and ip else False
+    return (url, host, ip) if host and ip else None
 
 
 def time_until(next_mins):
