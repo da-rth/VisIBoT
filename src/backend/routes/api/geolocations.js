@@ -20,11 +20,13 @@ router
             return {
                 ...geodata,
                 data: {
-                    "city": geodata.data.city.names[lang] ?? null,
-                    "country": geodata.data.country.names[lang] ?? null,
-                    "continent": geodata.data.continent.code,
-                    "lat": geodata.data.coordinates.lat,
-                    "lng": geodata.data.coordinates.lng,
+                    city: geodata.data.city.names[lang] ?? null,
+                    country: geodata.data.country.names[lang] ?? null,
+                    continent: geodata.data.continent.code,
+                },
+                position: {
+                  lat: geodata.data.coordinates.lat,
+                  lng: geodata.data.coordinates.lng,
                 }
             }
         })

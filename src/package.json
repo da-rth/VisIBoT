@@ -16,6 +16,7 @@
   "dependencies": {
     "@nuxt/typescript-runtime": "^2.0.0",
     "@nuxtjs/dotenv": "^1.4.1",
+    "axios": "^0.21.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.17.3",
     "core-js": "^3.6.5",
@@ -27,7 +28,8 @@
     "mongoose": "^5.10.10",
     "nodemon": "^2.0.4",
     "nuxt": "^2.14.6",
-    "vue2-google-maps": "^0.10.7"
+    "nuxt-leaflet": "0.0.22",
+    "vue2-leaflet-markercluster": "^3.1.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.6",
