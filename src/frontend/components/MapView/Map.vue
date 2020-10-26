@@ -1,13 +1,58 @@
 <template>
   <div style="height: 100%; width: 100%; background: #242424; position: absolute; top: 0; left: 0;">
-    <b-overlay :show="loading" bg-color="#181818" opacity="0.7" spinner-variant="primary" :no-fade="false" style="cursor: progress; background: #242424">
-      <l-map style="width: 100vw; height: 100vh; z-index: 1" :center="center" :zoom="zoom" :minZoom="minZoom" :maxZoom="maxZoom" :options="{zoomControl: false, attributionControl: false}">
+
+    <b-modal
+      centered
+      scrollable
+      ref="markerModal"
+      size="lg"
+      :title="activeMarker ? `Information for: ${activeMarker._id}` : 'Loading information...'"
+      header-border-variant="dark"
+      header-bg-variant="dark"
+      header-text-variant="light"
+    >
+      <b-container fluid>
+        <h1>some text</h1>
+      </b-container>
+    </b-modal>
+
+    <b-overlay
+      :show="loading"
+      bg-color="#181818"
+      opacity="0.7"
+      spinner-variant="primary"
+      :no-fade="false"
+      style="cursor: progress; background: #242424"
+    >
+      <template #overlay>
+        <div class="text-center" style="width: 200px;">
+          <b-spinner variant="primary" label="Spinning" />
+          <h4 style="color: white;">Loading map...</h4>
+        </div>
+      </template>
+
+      <l-map
+        style="width: 100vw; height: 100vh; z-index: 1"
+        ref="map"
+        :center="{ lat: 10.0, lng: 10.0 }"
+        :zoom="4"
+        :minZoom="3"
+        :maxZoom="10"
+        :options="{zoomControl: false, attributionControl: false}"
+        :bounds="maxBounds"
+        :maxBounds="maxBounds"
+        :maxBoundsViscosity="1.0"
+      >
         <l-tile-layer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"></l-tile-layer>
-        <l-control-zoom position="bottomright"  ></l-control-zoom>
+        <l-control-zoom v-if="!loading" position="bottomright"></l-control-zoom>
         <v-marker-cluster>
-            <l-marker v-for="marker in markers" v-bind:key="marker._id" name="fade" :lat-lng="[marker.position.lat, marker.position.lng]">
-              <l-popup :content="'hello'"></l-popup>
-            </l-marker>
+            <l-marker
+              v-for="marker in markers"
+              v-bind:key="marker._id"
+              name="fade"
+              @click="showMarkerModal(marker)"
+              :lat-lng="[marker.position.lat, marker.position.lng]"
+            />
         </v-marker-cluster>
       </l-map>
     </b-overlay>
@@ -34,28 +79,39 @@ export default {
       ]
     };
   },
+  mounted() {
+    this.$refs.markerModal.$on("hidden.bs.modal", (this.hideMarkerModal))
+  },
   async beforeMount() {
-    let vm = this
-    this.loadingPercent = 70
     await axios.get('http://localhost:8080/api/geolocations')
     .then(async (response) => {
       this.loading = false
       this.markers = response.data
-      //await new Promise(r => setTimeout(r, 2000))
     }).catch((error) => {
       console.log(error);
     });
   },
-
   data: function () {
     return {
       loading: true,
       loadingPercent: 0,
-      zoom: 3,
-      minZoom: 3,
-      maxZoom: 10,
-      center: { lat: 10.0, lng: 10.0 },
+      maxBounds: [
+        //south west
+        [-88, -200],
+        //north east
+        [90, 200]
+      ],
       markers: [],
+      activeMarker: null,
+    }
+  },
+  methods: {
+    showMarkerModal: function (marker) {
+      this.$refs.markerModal.show()
+      this.activeMarker = marker
+    },
+    hideMarkerModal: function () {
+      this.activeMarker = null
     }
   }
 }

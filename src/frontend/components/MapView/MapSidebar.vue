@@ -4,10 +4,10 @@
       bg-variant="dark"
       text-variant="light"
       title="Map Sidebar"
-      shadow
       :right="true"
       z-index="101"
-      padding="700"
+      class="sidebar"
+      shadow
     >
       <div class="px-3 py-2">
         <p>

@@ -18,7 +18,7 @@
 
         <b-navbar-nav>
           <b-navbar-nav>
-            <b-nav-item v-b-toggle.mapSidebar>menu</b-nav-item>
+            <b-nav-item>menu</b-nav-item>
           </b-navbar-nav>
 
           <b-nav-item-dropdown text="lang" right>
