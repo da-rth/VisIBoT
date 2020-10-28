@@ -50,7 +50,10 @@
             v-for="marker in markers"
             :key="marker._id"
             name="fade"
-            :lat-lng="[marker.position.lat, marker.position.lng]"
+            :lat-lng="[
+              marker.data.coordinates.lat,
+              marker.data.coordinates.lng,
+            ]"
             @click="showMarkerModal(marker)"
           />
         </v-marker-cluster>
@@ -107,10 +110,11 @@ export default {
   },
   methods: {
     showMarkerModal: async function (marker) {
+      console.log(marker)
       this.activeMarker = null
       this.activeMarkerLoading = true
       this.activeMarker = marker
-      await new Promise((r) => setTimeout(r, 2000))
+      //await new Promise((r) => setTimeout(r, 2000))
       this.activeMarkerLoading = false
       this.$refs.markerModal.show()
     },

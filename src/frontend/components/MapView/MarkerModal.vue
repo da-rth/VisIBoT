@@ -6,7 +6,7 @@
     size="lg"
     :title="
       activeMarker
-        ? `Information for: ${activeMarker._id}`
+        ? `Information for possible ${activeMarker.server_type}: ${activeMarker._id}`
         : 'Loading information...'
     "
     header-border-variant="dark"
