@@ -6,8 +6,8 @@
     size="lg"
     :title="
       marker
-        ? `Information for possible ${marker.server_type}: ${marker._id}`
-        : 'Loading information...'
+        ? `${getMarkerTypeStr()} (${getCityCountryStr(true)})`
+        : 'Loading...'
     "
     header-border-variant="dark"
     header-bg-variant="dark"
@@ -37,18 +37,34 @@ export default {
     }
   },
   watch: {
-    activeMarker: function (newVal, oldVal) {
-      console.log("initial value", this.marker)
-      this.marker = newVal
-      console.log("Prop changed: ", newVal, " | was: ", oldVal)
+    activeMarker: function (newMarkerData) {
+      this.marker = newMarkerData
     },
   },
   created: function () {
     this.marker = this.activeMarker
+    console.log(this.marker)
   },
   methods: {
     show: function () {
       this.$refs.modal.show()
+    },
+    getMarkerTypeStr: function () {
+      return this.marker.server_type == "Unknown"
+        ? "Unknown"
+        : "Possible " + this.marker.server_type
+    },
+    getCityCountryStr: function (parentheses = false) {
+      // Some markers may only have an english name 'en' e.g. Fish Town
+      let cityName = this.marker.data.city
+        ? this.marker.data.city.names.en + ", "
+        : ""
+      let countryName = this.marker.data.country
+        ? this.marker.data.country.names.en
+        : ""
+      return parentheses
+        ? `(${cityName}${countryName})`
+        : `${cityName}${countryName}`
     },
   },
 }

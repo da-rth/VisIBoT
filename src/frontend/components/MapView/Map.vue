@@ -17,8 +17,6 @@
       :no-fade="false"
       style="cursor: progress; background: #242424"
     >
-      <marker-modal ref="markerModal" :active-marker="activeMarker" />
-
       <template #overlay>
         <div class="text-center" style="width: 100%">
           <b-spinner variant="primary" label="Spinning" />
@@ -26,13 +24,15 @@
         </div>
       </template>
 
+      <marker-modal ref="markerModal" :active-marker="activeMarker" />
+
       <l-map
         ref="map"
         style="width: 100vw; height: 100vh; z-index: 1"
         :center="{ lat: 10.0, lng: 10.0 }"
         :zoom="4"
         :min-zoom="3"
-        :max-zoom="14"
+        :max-zoom="16"
         :options="{ zoomControl: false, attributionControl: false }"
         :bounds="bounds"
         :max-bounds="bounds"
@@ -156,13 +156,12 @@ export default {
         case "C2 Server":
           return `${baseSvgName}-red.svg`
         case "Report Server":
-          return `${baseSvgName}-orange.svg`
+          return `${baseSvgName}-pink.svg`
         case "Loader Server":
           return `${baseSvgName}-orange.svg`
         case "Bot":
           return `${baseSvgName}-blue.svg`
         default:
-          // Unknown
           return `${baseSvgName}-green.svg`
       }
     },
