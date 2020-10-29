@@ -32,7 +32,7 @@
         :center="{ lat: 10.0, lng: 10.0 }"
         :zoom="4"
         :min-zoom="3"
-        :max-zoom="10"
+        :max-zoom="14"
         :options="{ zoomControl: false, attributionControl: false }"
         :bounds="bounds"
         :max-bounds="bounds"
@@ -54,6 +54,7 @@
               marker.data.coordinates.lat,
               marker.data.coordinates.lng,
             ]"
+            :icon="getIcon(marker)"
             @click="showMarkerModal(marker)"
           />
         </v-marker-cluster>
@@ -64,6 +65,7 @@
 
 <script>
 import axios from "axios"
+import L from "leaflet"
 
 export default {
   data: function () {
@@ -109,14 +111,66 @@ export default {
       })
   },
   methods: {
+    showToast: function (title, body, variant) {
+      this.$bvToast.toast(body, {
+        title: title,
+        autoHideDelay: 6000,
+        appendToast: true,
+        variant: variant,
+        solid: true,
+      })
+    },
     showMarkerModal: async function (marker) {
-      console.log(marker)
       this.activeMarker = null
       this.activeMarkerLoading = true
-      this.activeMarker = marker
-      //await new Promise((r) => setTimeout(r, 2000))
-      this.activeMarkerLoading = false
-      this.$refs.markerModal.show()
+
+      let infoType =
+        marker.server_type == "Loader Server" ? "payload" : "result"
+
+      await axios
+        .get(`http://localhost:8080/api/info/${infoType}/blabla`)
+        .then(async (response) => {
+          this.activeMarker = marker
+          this.activeMarker.infoType = infoType
+          this.activeMarker.info = response.data
+          this.activeMarkerLoading = false
+          this.$refs.markerModal.show()
+          console.log(this.activeMarker)
+        })
+        .catch((error) => {
+          console.log(error)
+          this.activeMarkerLoading = false
+          this.showToast(
+            "Sorry, we're having some trouble.",
+            "We couldn't get some information for the marker.",
+            "danger"
+          )
+        })
+    },
+    getMarkerSvg: function (markerType) {
+      let baseSvgName = "markers/marker"
+
+      switch (markerType) {
+        case "C2 Server":
+          return `${baseSvgName}-red.svg`
+        case "Report Server":
+          return `${baseSvgName}-orange.svg`
+        case "Loader Server":
+          return `${baseSvgName}-orange.svg`
+        case "Bot":
+          return `${baseSvgName}-blue.svg`
+        default:
+          // Unknown
+          return `${baseSvgName}-green.svg`
+      }
+    },
+    getIcon: function (marker) {
+      let markerSvg = this.getMarkerSvg(marker["server_type"])
+      return L.icon({
+        iconUrl: markerSvg,
+        iconSize: [47, 47],
+        iconAnchor: [24, 41],
+      })
     },
   },
 }
@@ -152,9 +206,54 @@ export default {
 .vue2leaflet-map {
   background: #222222;
 }
+.marker-cluster-large {
+  margin-left: -30px !important;
+  margin-top: -30px !important;
+  width: 60px !important;
+  height: 60px !important;
+}
+.marker-cluster-large div {
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 100% !important;
+  padding: 10px !important;
+  background-color: #ff684c !important;
+  font-size: 16px !important;
+}
 
-.marker-cluster-large,
 .marker-cluster-medium {
+  margin-left: -25px !important;
+  margin-top: -25px !important;
+  width: 50px !important;
+  height: 50px !important;
+}
+.marker-cluster-medium div {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 100% !important;
+  padding: 5px !important;
+  background-color: #ffa33f !important;
+  font-size: 14px !important;
+}
+
+.marker-cluster-small div {
+  padding: 1px 0 !important;
+  background-color: #b6ee56 !important;
+  font-size: 12px !important;
+}
+.marker-cluster-large,
+.marker-cluster-medium,
+.marker-cluster-small {
+  background-color: transparent !important;
+}
+
+.marker-cluster span {
+  font-weight: 600 !important;
+  color: #00000094 !important;
+}
+
+/**
+.marker-cluster {
   -webkit-animation: fadein 1s !important;
   -moz-animation: fadein 1s !important;
   -ms-animation: fadein 1s !important;
@@ -171,7 +270,6 @@ export default {
   }
 }
 
-/* Firefox < 16 */
 @-moz-keyframes fadein {
   from {
     opacity: 0;
@@ -181,7 +279,6 @@ export default {
   }
 }
 
-/* Safari, Chrome and Opera > 12.1 */
 @-webkit-keyframes fadein {
   from {
     opacity: 0;
@@ -191,7 +288,6 @@ export default {
   }
 }
 
-/* Internet Explorer */
 @-ms-keyframes fadein {
   from {
     opacity: 0;
@@ -201,7 +297,6 @@ export default {
   }
 }
 
-/* Opera < 12.1 */
 @-o-keyframes fadein {
   from {
     opacity: 0;
@@ -210,4 +305,5 @@ export default {
     opacity: 1;
   }
 }
+**/
 </style>
