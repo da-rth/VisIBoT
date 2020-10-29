@@ -37,6 +37,12 @@ export default {
     // https://go.nuxtjs.dev/bootstrap
     "bootstrap-vue/nuxt",
     "nuxt-leaflet",
+    [
+      "nuxt-highlightjs",
+      {
+        style: "gruvbox-dark",
+      },
+    ],
   ],
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)

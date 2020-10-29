@@ -10,7 +10,7 @@
     "
   >
     <b-overlay
-      :show="markersLoading || activeMarkerLoading"
+      :show="markersLoading"
       bg-color="#181818"
       opacity="0.7"
       spinner-variant="primary"
@@ -22,7 +22,7 @@
       <template #overlay>
         <div class="text-center" style="width: 100%">
           <b-spinner variant="primary" label="Spinning" />
-          <h4 v-if="markersLoading" style="color: white">Loading map...</h4>
+          <h4 style="color: white">Loading map...</h4>
         </div>
       </template>
 
@@ -45,7 +45,13 @@
           v-if="!markersLoading"
           position="bottomright"
         ></l-control-zoom>
-        <v-marker-cluster>
+        <v-marker-cluster
+          :options="{
+            removeOutsideVisibleBounds: true,
+            disableClusteringAtZoom: 11,
+            maxClusterRadius: 70,
+          }"
+        >
           <l-marker
             v-for="marker in markers"
             :key="marker._id"
@@ -121,25 +127,21 @@ export default {
       })
     },
     showMarkerModal: async function (marker) {
-      this.activeMarker = null
-      this.activeMarkerLoading = true
-
       let infoType =
         marker.server_type == "Loader Server" ? "payload" : "result"
+      this.activeMarker = null
+      this.activeMarkerLoading = true
+      this.activeMarker = marker
+      this.activeMarker.infoType = infoType
+      this.$refs.markerModal.show()
 
       await axios
-        .get(`http://localhost:8080/api/info/${infoType}/blabla`)
+        .get(`http://localhost:8080/api/info/${infoType}/${marker._id}`)
         .then(async (response) => {
-          this.activeMarker = marker
-          this.activeMarker.infoType = infoType
           this.activeMarker.info = response.data
-          this.activeMarkerLoading = false
-          this.$refs.markerModal.show()
-          console.log(this.activeMarker)
         })
         .catch((error) => {
           console.log(error)
-          this.activeMarkerLoading = false
           this.showToast(
             "Sorry, we're having some trouble.",
             "We couldn't get some information for the marker.",
@@ -165,7 +167,7 @@ export default {
       }
     },
     getIcon: function (marker) {
-      let markerSvg = this.getMarkerSvg(marker["server_type"])
+      let markerSvg = this.getMarkerSvg(marker.server_type)
       return L.icon({
         iconUrl: markerSvg,
         iconSize: [47, 47],
