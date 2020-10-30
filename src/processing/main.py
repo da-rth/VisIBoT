@@ -16,9 +16,6 @@ load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
 BP_URL = os.getenv("BADPACKETS_API_URL")
 BP_KEY = os.getenv("BADPACKETS_API_KEY")
 
-# Optopn Parser setup
-parser = optparse.OptionParser()
-
 
 # Main Methods
 def create_parser_options():
@@ -121,9 +118,12 @@ def init_processing_loop():
 
 
 if __name__ == "__main__":
+    parser = optparse.OptionParser()
     create_parser_options()
+
     options, args = parser.parse_args()
     check_options()
+
     clear()
 
     print("Initialised VisIBoT BadPackets Pre-processor 🤖")
