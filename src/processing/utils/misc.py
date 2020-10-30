@@ -1,4 +1,5 @@
 import re
+import os
 import validators
 import socket
 import user_agents
@@ -158,3 +159,7 @@ def time_until(next_mins):
         next_dt = now_dt.replace(second=0, minute=next_mins)
 
     return next_dt.strftime('%H:%M:%S')
+
+
+def clear():
+    os.system('cls' if os.name == 'nt' else 'clear')

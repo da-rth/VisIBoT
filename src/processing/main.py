@@ -1,25 +1,70 @@
 from badpackets import BadPacketsAPI
 from dotenv import load_dotenv
 from datetime import datetime
-from utils.misc import time_until
+from utils.misc import time_until, clear
 from pathlib import Path
 import utils.badpackets as bp_utils
 import concurrent.futures
 import os
+import sys
 import time
+import optparse
 
 load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
 
 # Constants
-FIRST_RUN = True
-MAX_THREADS = 4
-HOURLY_AT_MIN = 30
 BP_URL = os.getenv("BADPACKETS_API_URL")
 BP_KEY = os.getenv("BADPACKETS_API_KEY")
 
-# Thread Execution Pool
-executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS)
+# Optopn Parser setup
+parser = optparse.OptionParser()
 
+parser.add_option(
+    "-t",
+    "--threads",
+    action="store",
+    dest="threads",
+    help="The number of worker threads to use while processing results.",
+    default=4,
+    type=int
+)
+
+parser.add_option(
+    "-f",
+    "--firstrun",
+    action="store_true",
+    dest="firstrun",
+    help="Executes with 'first run' parameters (gets results from last 24h)",
+    default=False
+)
+
+parser.add_option(
+    "-m",
+    "--minute",
+    action="store",
+    dest="hourly_min",
+    help="The minute when the hourly processor executes",
+    default=1,
+    type=int
+)
+
+# Methods
+def check_options():
+    threads_ok = options.threads >= 1
+    hour_min_ok = 0 <= options.hourly_min <= 59
+
+    if (threads_ok and hour_min_ok): return
+
+    err_msg = "error: invalid parameter(s)"
+
+    if not threads_ok:
+        err_msg = "\n".join([err_msg, " -f, --firstrun: Number of threads must be at least 1."])
+    if not hour_min_ok:
+        err_msg = "\n".join([err_msg, " -m, --minute: Minute value must be between 0-59."])
+    
+    print(err_msg, file=sys.stderr)
+
+    raise SystemExit()
 
 def process_task(first_run=False):
     """
@@ -45,39 +90,56 @@ def process_task(first_run=False):
     print("Completed processing BadPackets results.\n")
 
     if not first_run:
-        print(f"Waiting until next cycle at: {time_until(HOURLY_AT_MIN)} (UTC)\n", end="\r")
+        print(f"Waiting until next cycle at: {time_until(hourly_min)} (UTC)\n", end="\r")
 
 
 def init_processing_loop():
     """
     The main processing loop which runs continually until
     a KeyboardInterrupt is detected. Each loop sleeps for 1 second
-    and the processing task executes once per hour at: HH::HOURLY_AT_MIN:00
+    and the processing task executes once per hour at: HH::hourly_min:00
     """
 
     while True:
         dtnow = datetime.utcnow()
 
-        if (dtnow.minute == HOURLY_AT_MIN and dtnow.second == 0):
+        if (dtnow.minute == hourly_min and dtnow.second == 0):
             print("Hourly processing script triggered\n")
             executor.submit(process_task)
 
         time.sleep(1)
 
 
+
 if __name__ == "__main__":
+    options, args = parser.parse_args()
+    check_options()
+
+    clear()
+
+    print("Initialised VisIBoT BadPackets Pre-processor 🤖")
+
+    first_run = options.firstrun
+    threads = options.threads
+    hourly_min = options.hourly_min
+
+    print("- Thread count:", threads)
+    print("- Execute minute:", hourly_min)
+
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=threads)
+
     bp_api = BadPacketsAPI(api_url=BP_URL, api_token=BP_KEY)
     bp_api.ping().raise_for_status()
 
-    print("BadPackets API: Authenticated token\n")
+    print("- BadPackets API: Authenticated token")
 
     time.sleep(1)
 
     try:
-        if FIRST_RUN:
-            print("Preparing first run...\n")
-            process_task(first_run=True)
-        print(f"Starting processing loop. Next cycle at: {time_until(HOURLY_AT_MIN)} (UTC)\n", end="\r")
+        if first_run:
+            print("- Preparing first run...\n")
+            process_task(first_run)
+        print(f"- Starting processing loop.\n- Next cycle at: {time_until(hourly_min)} (UTC)\n", end="\r")
         init_processing_loop()
     except (KeyboardInterrupt):
         print("\n\nClosing processing script and waiting on threads to finish...\n")

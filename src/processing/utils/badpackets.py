@@ -49,7 +49,7 @@ def query_badpackets(api, first_run=False):
         datetime.utcnow() - timedelta(hours=FIRST_RUN_HOURS if first_run else 1)
     ).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    print(f"Querying results from BadPackets last seen after {after_dt}")
+    print(f"Querying BadPackets (last seen after {after_dt})")
 
     for param_list in PROC_PARAMS:
         params = BASE_PARAMS.copy()
