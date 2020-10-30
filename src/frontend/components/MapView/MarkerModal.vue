@@ -5,9 +5,7 @@
     scrollable
     size="lg"
     :title="
-      marker
-        ? `${getMarkerTypeStr()} (${getCityCountryStr(true)})`
-        : 'Loading...'
+      marker ? `${getMarkerTypeStr()} ${getCityCountryStr(true)}` : 'Loading...'
     "
     header-border-variant="dark"
     header-bg-variant="dark"
@@ -15,6 +13,7 @@
   >
     <b-container fluid>
       <div v-if="marker">
+        <h1 v-if="marker.info">have info</h1>
         <div style="max-height: 400px">
           <pre><code v-highlight class="javascript">{{ JSON.stringify(marker, null, 2) }}</code></pre>
         </div>
@@ -39,11 +38,12 @@ export default {
   watch: {
     activeMarker: function (newMarkerData) {
       this.marker = newMarkerData
+      console.log("newest marker:", this.marker)
+      this.$forceUpdate()
     },
   },
-  created: function () {
+  mounted() {
     this.marker = this.activeMarker
-    console.log(this.marker)
   },
   methods: {
     show: function () {
@@ -51,8 +51,8 @@ export default {
     },
     getMarkerTypeStr: function () {
       return this.marker.server_type == "Unknown"
-        ? "Unknown"
-        : "Possible " + this.marker.server_type
+        ? "Suspicous Activity"
+        : "Possible " + this.marker.server_type + " Activity"
     },
     getCityCountryStr: function (parentheses = false) {
       // Some markers may only have an english name 'en' e.g. Fish Town

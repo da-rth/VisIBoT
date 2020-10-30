@@ -9,13 +9,18 @@
       left: 0;
     "
   >
+    <marker-modal
+      ref="markerModal"
+      :active-marker="activeModalMarker"
+    ></marker-modal>
+
     <b-overlay
       :show="markersLoading"
       bg-color="#181818"
       opacity="0.7"
       spinner-variant="primary"
       :no-fade="false"
-      style="cursor: progress; background: #242424"
+      style="background: #242424"
     >
       <template #overlay>
         <div class="text-center" style="width: 100%">
@@ -24,15 +29,13 @@
         </div>
       </template>
 
-      <marker-modal ref="markerModal" :active-marker="activeMarker" />
-
       <l-map
         ref="map"
         style="width: 100vw; height: 100vh; z-index: 1"
         :center="{ lat: 10.0, lng: 10.0 }"
         :zoom="4"
         :min-zoom="3"
-        :max-zoom="16"
+        :max-zoom="20"
         :options="{ zoomControl: false, attributionControl: false }"
         :bounds="bounds"
         :max-bounds="bounds"
@@ -41,14 +44,15 @@
         <l-tile-layer
           url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
         ></l-tile-layer>
+
         <l-control-zoom
           v-if="!markersLoading"
           position="bottomright"
         ></l-control-zoom>
+
         <v-marker-cluster
           :options="{
             removeOutsideVisibleBounds: true,
-            disableClusteringAtZoom: 11,
             maxClusterRadius: 70,
           }"
         >
@@ -61,8 +65,9 @@
               marker.data.coordinates.lng,
             ]"
             :icon="getIcon(marker)"
-            @click="showMarkerModal(marker)"
-          />
+          >
+            <map-marker-popup :marker="marker"></map-marker-popup>
+          </l-marker>
         </v-marker-cluster>
       </l-map>
     </b-overlay>
@@ -76,10 +81,9 @@ import L from "leaflet"
 export default {
   data: function () {
     return {
-      activeMarker: null,
-      activeMarkerLoading: false,
       markers: [],
       markersLoading: true,
+      activeModalMarker: null,
       bounds: [
         [-88, -200],
         [90, 200],
@@ -105,6 +109,11 @@ export default {
   mounted() {
     this.$refs.markerModal.$on("hidden.bs.modal", this.hideMarkerModal)
   },
+  created() {
+    this.$nuxt.$on("open-map-modal", (marker) => {
+      this.showMarkerModal(marker)
+    })
+  },
   async beforeMount() {
     await axios
       .get("http://localhost:8080/api/geolocations")
@@ -129,16 +138,13 @@ export default {
     showMarkerModal: async function (marker) {
       let infoType =
         marker.server_type == "Loader Server" ? "payload" : "result"
-      this.activeMarker = null
-      this.activeMarkerLoading = true
-      this.activeMarker = marker
-      this.activeMarker.infoType = infoType
+      this.activeModalMarker = marker
+      this.activeModalMarker.infoType = infoType
       this.$refs.markerModal.show()
-
       await axios
         .get(`http://localhost:8080/api/info/${infoType}/${marker._id}`)
         .then(async (response) => {
-          this.activeMarker.info = response.data
+          this.activeModalMarker.info = response.data
         })
         .catch((error) => {
           console.log(error)
@@ -218,10 +224,9 @@ export default {
   height: 50px !important;
   border-radius: 100% !important;
   padding: 10px !important;
-  background-color: #ff684c !important;
+  background-color: #bc6151 !important;
   font-size: 16px !important;
 }
-
 .marker-cluster-medium {
   margin-left: -25px !important;
   margin-top: -25px !important;
@@ -233,13 +238,12 @@ export default {
   height: 40px !important;
   border-radius: 100% !important;
   padding: 5px !important;
-  background-color: #ffa33f !important;
+  background-color: #dd8d4f !important;
   font-size: 14px !important;
 }
-
 .marker-cluster-small div {
   padding: 1px 0 !important;
-  background-color: #b6ee56 !important;
+  background-color: #859961 !important;
   font-size: 12px !important;
 }
 .marker-cluster-large,
@@ -247,10 +251,12 @@ export default {
 .marker-cluster-small {
   background-color: transparent !important;
 }
-
+.marker-cluster div {
+  box-shadow: 0 0 20px 2px #282828;
+}
 .marker-cluster span {
+  color: #ffffff;
   font-weight: 600 !important;
-  color: #00000094 !important;
 }
 
 /**

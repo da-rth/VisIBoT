@@ -12,7 +12,7 @@ load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
 
 # Constants
 FIRST_RUN = True
-MAX_THREADS = 8
+MAX_THREADS = 4
 HOURLY_AT_MIN = 30
 BP_URL = os.getenv("BADPACKETS_API_URL")
 BP_KEY = os.getenv("BADPACKETS_API_KEY")

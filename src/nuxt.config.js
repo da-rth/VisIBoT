@@ -44,9 +44,34 @@ export default {
       },
     ],
   ],
-
+  bootstrapVue: {
+    components: [
+      // Navbar
+      "BNavbar",
+      "BNavbarBrand",
+      "BNavbarToggle",
+      "BNavbarNav",
+      "BNavItem",
+      "BNavText",
+      "BNavItemDropdown",
+      // Other
+      "BButton",
+      "BCollapse",
+      "BOverlay",
+      "BModal",
+      "BRow",
+      "BContainer",
+      "BSpinner",
+      "BDropdownItem",
+      "BTooltip",
+      // Icons
+      "BIconDiagram2",
+      "BIconArrowsAngleExpand",
+      "BIconShieldShaded",
+    ],
+  },
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    transpile: [/^vue2-google-maps($|\/)/],
+    transpile: [],
   },
 }

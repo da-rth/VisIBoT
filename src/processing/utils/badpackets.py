@@ -94,11 +94,13 @@ def store_result(event_id, result_data):
     """
     scanned_payloads = []
     now = datetime.utcnow()
+
     existing_result = db.Result.objects(event_id=event_id).first()
 
     if existing_result:
         existing_result.updated_at = now
-        return existing_result.save()
+        existing_result.save()
+        return
 
     payload_data = result_data['post_data'] + result_data['payload']
     validated_urls = [validate_url(url) for url in url_parser(payload_data)]
@@ -111,6 +113,7 @@ def store_result(event_id, result_data):
         if existing_payload:
             existing_payload.updated_at = now
             existing_payload.save()
+            print("Existing payload id", existing_payload.id, "\n")
             scanned_payloads.append(existing_payload.id)
             continue
         
@@ -125,23 +128,24 @@ def store_result(event_id, result_data):
 
         if not geodata:
             continue
+        
+        with suppress(Exception):
+            payload = db.Payload(
+                url=url,
+                scan_url="http://virustotal.com/TODO",
+                ip_address=ip,
+                updated_at=datetime.utcnow()
+            ).save()
 
-        db.GeoData(
-            ip_address=ip,
-            hostname=hostname,
-            data=geodata,
-            server_type="Loader Server",
-            updated_at=datetime.utcnow()
-        ).save()
+            db.GeoData(
+                ip_address=ip,
+                hostname=hostname,
+                data=geodata,
+                server_type="Loader Server",
+                updated_at=datetime.utcnow()
+            ).save()
 
-        payload = db.Payload(
-            url=url,
-            scan_url="http://virustotal.com/TODO",
-            ip_address=ip,
-            updated_at=datetime.utcnow()
-        ).save()
-
-        scanned_payloads.append(payload.id)
+            scanned_payloads.append(payload.id)
 
     existing_geodata = db.GeoData.objects(ip_address=result_data['source_ip_address']).first()
 

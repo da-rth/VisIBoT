@@ -1,5 +1,5 @@
 from mongoengine import connect, Document, StringField, ListField
-from mongoengine import IntField, URLField, DateTimeField, DictField
+from mongoengine import IntField, DateTimeField, DictField
 from mongoengine import ReferenceField
 from dotenv import load_dotenv
 from datetime import datetime
@@ -32,8 +32,8 @@ class Payload(Document):
     """
     Malware payload information retrieved from BadPackets results
     """
-    url = URLField(required=True, unique=True)
-    scan_url = URLField(required=True)
+    url = StringField(required=True, unique=True)
+    scan_url = StringField(required=True)
     ip_address = ReferenceField(GeoData, required=True)
     updated_at = DateTimeField(default=datetime.utcnow)
 
