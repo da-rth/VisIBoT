@@ -26,14 +26,36 @@
             <b-nav-item>menu</b-nav-item>
           </b-navbar-nav>
 
-          <b-nav-item-dropdown text="lang" right>
-            <b-dropdown-item href="#">EN</b-dropdown-item>
-            <b-dropdown-item href="#">ES</b-dropdown-item>
-            <b-dropdown-item href="#">RU</b-dropdown-item>
-            <b-dropdown-item href="#">FA</b-dropdown-item>
+          <b-nav-item-dropdown :text="getLanguage()" right>
+            <b-dropdown-item
+              v-for="lang in langs"
+              :key="lang"
+              :value="lang"
+              @click="updateLanguage(lang)"
+            >
+              {{ lang }}
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
   </div>
 </template>
+
+<script>
+export default {
+  data: function () {
+    return {
+      langs: ["en", "de", "es", "fr", "ja", "pt-BR", "ru", "zh-CN"],
+    }
+  },
+  methods: {
+    updateLanguage: function (lang) {
+      this.$auth.$storage.setUniversal("lang", lang, false)
+    },
+    getLanguage: function () {
+      return "en"
+    },
+  },
+}
+</script>
