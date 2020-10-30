@@ -101,11 +101,23 @@ def useragent_parser(ua_str):
         }
     }
 
+
 def get_ip_hostname(ip):
+    """
+    Returns the hostname of a given IP address
+
+    Args:
+        ip (str): A string containing an IP address
+
+    Returns:
+        str: The hostname of the IP address
+        None: If no hostname was found
+    """
     try:
         return socket.gethostbyaddr(ip)[0]
     except (IndexError, socket.herror):
         return None
+
 
 def validate_url(url):
     """
@@ -162,4 +174,7 @@ def time_until(next_mins):
 
 
 def clear():
+    """
+    Checks OS type and clears console accordingly
+    """
     os.system('cls' if os.name == 'nt' else 'clear')

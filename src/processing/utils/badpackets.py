@@ -55,8 +55,8 @@ def query_badpackets(api, first_run=False):
         params = BASE_PARAMS.copy()
         params['last_seen_after'] = after_dt
 
-        param_str =  "&".join([f"{p}={v}" for p, v in param_list])
-        
+        param_str = "&".join([f"{p}={v}" for p, v in param_list])
+
         for param, value in param_list:
             params[param] = value
 
@@ -116,8 +116,7 @@ def store_result(event_id, result_data):
             print("Existing payload id", existing_payload.id, "\n")
             scanned_payloads.append(existing_payload.id)
             continue
-        
-        
+
         existing_geodata = db.GeoData.objects(ip_address=ip).first()
 
         if existing_geodata:
@@ -128,7 +127,7 @@ def store_result(event_id, result_data):
 
         if not geodata:
             continue
-        
+
         with suppress(Exception):
             payload = db.Payload(
                 url=url,
@@ -165,7 +164,7 @@ def store_result(event_id, result_data):
                 server_type = "Report Server"
             else:
                 server_type = "Unknown"
-            
+
             existing_geodata = db.GeoData(
                 ip_address=ip,
                 hostname=hostname,
@@ -173,7 +172,7 @@ def store_result(event_id, result_data):
                 data=result_geodata,
                 updated_at=datetime.utcnow()
             ).save()
-    
+
     # Create Result entry
     result_data['source_ip_address'] = existing_geodata.id
     result_data['user_agent'] = useragent_parser(result_data['user_agent'])

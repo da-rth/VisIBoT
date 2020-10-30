@@ -48,12 +48,14 @@ parser.add_option(
     type=int
 )
 
+
 # Methods
 def check_options():
     threads_ok = options.threads >= 1
     hour_min_ok = 0 <= options.hourly_min <= 59
 
-    if (threads_ok and hour_min_ok): return
+    if (threads_ok and hour_min_ok):
+        return
 
     err_msg = "error: invalid parameter(s)"
 
@@ -61,10 +63,11 @@ def check_options():
         err_msg = "\n".join([err_msg, " -f, --firstrun: Number of threads must be at least 1."])
     if not hour_min_ok:
         err_msg = "\n".join([err_msg, " -m, --minute: Minute value must be between 0-59."])
-    
+
     print(err_msg, file=sys.stderr)
 
     raise SystemExit()
+
 
 def process_task(first_run=False):
     """
@@ -108,7 +111,6 @@ def init_processing_loop():
             executor.submit(process_task)
 
         time.sleep(1)
-
 
 
 if __name__ == "__main__":
