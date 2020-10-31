@@ -6,7 +6,7 @@ import user_agents
 from datetime import datetime
 from urllib.parse import urlparse
 from urlextract import URLExtract
-
+from contextlib import suppress
 
 extractor = URLExtract()
 
@@ -140,8 +140,8 @@ def get_ip_hostname(ip):
 def validate_url(url):
     """
     Determines if a given URL is valid:
-    - hostname is legal and points to real IP
-    - ip is legal and points to some hostname
+    - hostname in URL is legal and points to real IP
+    - ip in URL is alive and points to some hostname
 
     Args:
         url (str): The URL to be validated
@@ -151,19 +151,12 @@ def validate_url(url):
         tuple: (ip, hostname) of URL is returned if valid
     """
     host = urlparse(url).hostname
-    ip = ip_parser(url)
 
-    if ip:
-        try:
-            host = socket.gethostbyaddr(ip)[0]
-        except (IndexError, socket.herror):
-            return None
-
-    elif validators.domain(host):
-        ip = socket.gethostbyname(host)
-        print(ip)
-
-    return (url, host, ip) if host and ip else None
+    with suppress(IndexError, socket.herror, socket.gaierror):
+        if validators.domain(host):
+            return (host, socket.gethostbyname(host))
+        else:
+            return (socket.gethostbyaddr(host)[0], host)
 
 
 def time_until(next_mins):
