@@ -1,10 +1,12 @@
 aiohttp==3.6.3
+appdirs==1.4.4
 async-timeout==3.0.1
 attrs==20.2.0
 certifi==2020.6.20
 chardet==3.0.4
 decorator==4.4.2
 dnspython==2.0.0
+filelock==3.0.12
 geoip2==4.1.0
 idna==2.10
 iplookup==1.0.5
@@ -25,6 +27,8 @@ six==1.15.0
 snowballstemmer==2.0.0
 socketIO-client==0.7.2
 ua-parser==0.10.0
+uritools==3.0.0
+urlextract==1.1.0
 urllib3==1.25.11
 user-agents==2.2.0
 validators==0.18.1

@@ -5,37 +5,55 @@ import socket
 import user_agents
 from datetime import datetime
 from urllib.parse import urlparse
+from urlextract import URLExtract
+
+
+extractor = URLExtract()
 
 URL_REGEX = r'((ftp|https?):\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 IPv4_REGEX = r'[0-9]+(?:\.[0-9]+){3}'
 IPv6_REGEX = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
 
 
-def url_parser(input_str):
-    """
-    The provided string is
-    - encoded and decoded to escape any unicode used for obfuscation
-    - stripped of any backslashes
-    And is searched with a URL regular expression which accepts ftp/http/https URLs
+def regex_url_parser(data):
+    """Searches a string of data for a URL  using regular expression
 
     Args:
-        input_str (str): A string to be parsed for any URLs
+        s (str): A string to be parsed for any URLs
 
     Returns:
         list: A list of string URLs
     """
-    input_strs = input_str.replace("\\/", "/") \
-        .encode() \
-        .decode('unicode_escape') \
-        .replace('\\', '') \
-        .split(';')
-
     urls = []
-    for s in input_strs:
-        url = re.search(URL_REGEX, s)
-        if url:
-            if len(url.group()) > 4:
-                urls.append(url.group())
+    for segment in data.split(";"):
+        url = re.search(URL_REGEX, segment)
+        if url and len(url.group()) > 4:
+            urls.append(url.group())
+    return urls
+
+
+def url_parser(data):
+    """
+    The provided string is
+    - encoded and decoded to escape any unicode used for obfuscation
+    - stripped of any backslashes
+    - searched with urlextract
+        - if no urls are found, search using regular expression
+
+    Args:
+        s (str): A string to be parsed for any URLs
+
+    Returns:
+        list: A list of string URLs
+    """
+    urls = []
+    data = data.encode().decode('unicode_escape').replace('\\', '')
+
+    if extractor.has_urls(data):
+        urls += extractor.find_urls(data)
+    else:
+        urls += regex_url_parser(data)
+
     return urls
 
 
