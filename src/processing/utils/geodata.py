@@ -66,11 +66,6 @@ def geoip_info(ip_address):
             }
         return result
     except (FileNotFoundError, maxminddb.InvalidDatabaseError) as e:
-        # TODO: Add log here
         raise e
-    except (geoip2.errors.AddressNotFoundError):
-        # TODO: Add address not found log here
-        pass
-    except (ValueError):
-        # TODO: Add bad IP log here
+    except (ValueError, geoip2.errors.AddressNotFoundError):
         pass
