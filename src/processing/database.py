@@ -1,13 +1,8 @@
-from mongoengine import connect, Document, StringField, ListField
+from mongoengine import Document, StringField, ListField
 from mongoengine import IntField, DateTimeField, DictField
 from mongoengine import ReferenceField
-from dotenv import load_dotenv
 from datetime import datetime
 import os
-
-load_dotenv(verbose=True)
-
-database = connect(host=os.getenv("MONGODB_URL"))
 
 
 class GeoData(Document):

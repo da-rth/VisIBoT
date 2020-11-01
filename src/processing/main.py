@@ -5,6 +5,7 @@ from utils.misc import time_until, clear
 from pathlib import Path
 from utils.threading import ThreadPoolExecutorStackTraced
 from concurrent.futures import as_completed
+from mongoengine import connect
 import utils.badpackets as bp_utils
 import os
 import sys
@@ -135,6 +136,9 @@ if __name__ == "__main__":
 
     print("- Thread count:", threads)
     print("- Execute minute:", hourly_min)
+
+    connect(host=os.getenv("MONGODB_URL"))
+    print("- Connected to Database")
 
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
 
