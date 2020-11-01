@@ -1,7 +1,7 @@
 from virus_total_apis import PublicApi as VirusTotalPublicApi
 from ratelimit import limits, RateLimitException
 from backoff import on_exception, expo
-import time, os
+
 
 class VirusTotalURLProcessor:
 
@@ -11,7 +11,6 @@ class VirusTotalURLProcessor:
             "scan": self.api.scan_url,
             "check": self.api.get_url_report,
         }
-
 
     def store_result(self, response, processing=False):
         result = response['results']
@@ -29,7 +28,6 @@ class VirusTotalURLProcessor:
 
         return res
 
-
     @on_exception(expo, RateLimitException)
     @limits(calls=4, period=20)
     def api_request(self, req_type, url):
@@ -37,9 +35,8 @@ class VirusTotalURLProcessor:
 
         if response['response_code'] == 204:
             raise RateLimitException("VirusTotal Rate Limit Exceeded", 60)
-        
-        return response
 
+        return response
 
     def scan_url(self, url):
         response = self.api_request("scan", url)
@@ -47,7 +44,6 @@ class VirusTotalURLProcessor:
         if 'results' in response and response['results']['response_code'] == 1:
             return self.store_result(response, processing=True)
         return False
-
 
     def process_url(self, url):
         response = self.api_request("check", url)
