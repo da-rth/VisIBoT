@@ -4,6 +4,7 @@ from datetime import datetime
 from utils.misc import time_until, clear
 from pathlib import Path
 from utils.threading import ThreadPoolExecutorStackTraced
+from utils.virustotal import VirusTotalURLProcessor
 from concurrent.futures import as_completed
 from mongoengine import connect
 import utils.badpackets as bp_utils
@@ -13,10 +14,6 @@ import time
 import optparse
 
 load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
-
-# Constants
-BP_URL = os.getenv("BADPACKETS_API_URL")
-BP_KEY = os.getenv("BADPACKETS_API_KEY")
 
 
 # Main Methods
@@ -92,10 +89,10 @@ def process_task(first_run=False):
 
     print(f"\nTotal BadPackets results to process: {res_len}\n")
 
-    futures = [executor.submit(bp_utils.store_result, evt, res) for evt, res in results.items()]
+    futures = [executor.submit(bp_utils.store_result, evt, res, vt_api) for evt, res in results.items()]
 
     for i, future in enumerate(as_completed(futures)):
-        print(f"Processed {i+1}/{res_len} results", end="\r")
+        print(f"Processed {i+1}/{res_len} results + {future.result()}", end="\r")
 
     print("Completed processing BadPackets results.\n")
 
@@ -141,8 +138,15 @@ if __name__ == "__main__":
     print("- Connected to Database")
 
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
-
-    bp_api = BadPacketsAPI(api_url=BP_URL, api_token=BP_KEY)
+    vt_api = VirusTotalURLProcessor(
+        os.getenv("VIRUSTOTAL_API_KEY")
+    )
+    print("- VirusTotal API: Authenticated token")
+    
+    bp_api = BadPacketsAPI(
+        api_url=os.getenv("BADPACKETS_API_URL"),
+        api_token=os.getenv("BADPACKETS_API_KEY")
+    )
     bp_api.ping().raise_for_status()
 
     print("- BadPackets API: Authenticated token")

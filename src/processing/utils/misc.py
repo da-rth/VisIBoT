@@ -131,10 +131,8 @@ def get_ip_hostname(ip):
         str: The hostname of the IP address
         None: If no hostname was found
     """
-    try:
+    with suppress(Exception):
         return socket.gethostbyaddr(ip)[0]
-    except (IndexError, socket.herror):
-        return None
 
 
 def validate_url(url):
@@ -154,9 +152,9 @@ def validate_url(url):
 
     with suppress(IndexError, socket.herror, socket.gaierror):
         if validators.domain(host):
-            return (host, socket.gethostbyname(host))
+            return (url, host, socket.gethostbyname(host))
         else:
-            return (socket.gethostbyaddr(host)[0], host)
+            return (url, socket.gethostbyaddr(host)[0], host)
 
 
 def time_until(next_mins):

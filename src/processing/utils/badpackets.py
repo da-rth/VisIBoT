@@ -5,7 +5,7 @@ from requests.exceptions import HTTPError
 from contextlib import suppress
 from utils.misc import url_parser, validate_url, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
-import database as db
+from database import *
 import time
 
 
@@ -78,7 +78,7 @@ def query_badpackets(api, first_run=False):
     return all_results
 
 
-def store_result(event_id, result_data):
+def store_result(event_id, result_data, vt_api):
     """
     Takes a given event_id and results dict for a BadPackets result
     and processes it:
@@ -93,14 +93,15 @@ def store_result(event_id, result_data):
         result_data (dict): The dictionary (JSON Object) result data
     """
     scanned_payloads = []
+    vt_processing_urls = []
     now = datetime.utcnow()
 
-    existing_result = db.Result.objects(event_id=event_id).first()
+    existing_result = Result.objects(event_id=event_id).first()
 
     if existing_result:
         existing_result.updated_at = now
         existing_result.save()
-        return
+        return vt_processing_urls
 
     payload_data = result_data['post_data'] + result_data['payload']
     validated_urls = [validate_url(url) for url in url_parser(payload_data)]
@@ -108,74 +109,48 @@ def store_result(event_id, result_data):
 
     for url_info in validated_urls:
         url, hostname, ip = url_info
-        existing_payload = db.Payload.objects(url=url).first()
+        existing_payload = Payload.objects(url=url).first()
 
         if existing_payload:
             existing_payload.updated_at = now
             existing_payload.save()
-            print("Existing payload id", existing_payload.id, "\n")
             scanned_payloads.append(existing_payload.id)
             continue
-
-        existing_geodata = db.GeoData.objects(ip_address=ip).first()
-
-        if existing_geodata:
-            existing_geodata.updated_at = now
-            existing_geodata.save()
 
         geodata = geoip_info(ip)
 
         if not geodata:
             continue
 
-        with suppress(Exception):
-            payload = db.Payload(
-                url=url,
-                scan_url="http://virustotal.com/TODO",
-                ip_address=ip,
-                updated_at=datetime.utcnow()
-            ).save()
+        geodata_create_or_update(ip, hostname, "Loader Server", geodata, now)
 
-            db.GeoData(
-                ip_address=ip,
-                hostname=hostname,
-                data=geodata,
-                server_type="Loader Server",
-                updated_at=datetime.utcnow()
-            ).save()
+        vt_result = vt_api.process_url(url)
 
-            scanned_payloads.append(payload.id)
+        if vt_result and vt_result['processing']:
+            vt_processing_urls.append(url)
 
-    existing_geodata = db.GeoData.objects(ip_address=result_data['source_ip_address']).first()
+        payload = payload_create_or_update(url, vt_result, ip, now)
+        scanned_payloads.append(payload.id)
 
-    if existing_geodata:
-        existing_geodata.updated_at = now
-        existing_geodata.save()
-    else:
-        result_geodata = geoip_info(result_data['source_ip_address'])
+    geodata = geoip_info(result_data['source_ip_address'])
 
-        if result_geodata:
-            ip = result_data['source_ip_address']
-            hostname = get_ip_hostname(ip)
+    if geodata:
+        ip = result_data['source_ip_address']
+        hostname = get_ip_hostname(ip)
 
-            if has_botnet_tag(result_data['tags']):
-                server_type = "Bot"
-            elif scanned_payloads and "<?xml" not in result_data['post_data']:
-                server_type = "Report Server"
-            else:
-                server_type = "Unknown"
+        if has_botnet_tag(result_data['tags']):
+            server_type = "Bot"
+        elif scanned_payloads and "<?xml" not in result_data['post_data']:
+            server_type = "Report Server"
+        else:
+            server_type = "Unknown"
+        
+        geodata = geodata_create_or_update(ip, hostname, server_type, geodata, now)
 
-            existing_geodata = db.GeoData(
-                ip_address=ip,
-                hostname=hostname,
-                server_type=server_type,
-                data=result_geodata,
-                updated_at=datetime.utcnow()
-            ).save()
+        result_data['source_ip_address'] = geodata.id
+        result_data['user_agent'] = useragent_parser(result_data['user_agent'])
+        result_data['scanned_payloads'] = scanned_payloads
+        
+        result_create_or_update(event_id, result_data, now)
 
-    # Create Result entry
-    result_data['source_ip_address'] = existing_geodata.id
-    result_data['user_agent'] = useragent_parser(result_data['user_agent'])
-    result_data['scanned_payloads'] = scanned_payloads
-
-    db.Result(**result_data).save()
+    return vt_processing_urls

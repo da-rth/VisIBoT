@@ -1,6 +1,5 @@
-from mongoengine import Document, StringField, ListField
-from mongoengine import IntField, DateTimeField, DictField
-from mongoengine import ReferenceField
+from mongoengine import *
+from mongoengine.errors import NotUniqueError
 from datetime import datetime
 import os
 
@@ -28,7 +27,7 @@ class Payload(Document):
     Malware payload information retrieved from BadPackets results
     """
     url = StringField(required=True, unique=True)
-    scan_url = StringField(required=True)
+    vt_result = DictField()
     ip_address = ReferenceField(GeoData, required=True)
     updated_at = DateTimeField(default=datetime.utcnow)
 
@@ -63,9 +62,9 @@ def payload_create_or_update(url, vt_result, ip, now):
         )
         payload.save()
     except NotUniqueError:
-        payload_geodata = Payload.objects(url=url).first()
-        payload_geodata.updated_at = now
-        payload_data.save()
+        payload = Payload.objects(url=url).first()
+        payload.updated_at = now
+        payload.save()
 
     return payload
 
@@ -82,7 +81,7 @@ def result_create_or_update(event_id, result_data, now):
     return result
 
 
-def geodata_create_or_update(ip, hostname, server_type, geodata):
+def geodata_create_or_update(ip, hostname, server_type, geodata, now):
     try:
         geodata = GeoData(
             ip_address=ip,
