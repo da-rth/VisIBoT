@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 from datetime import datetime
 from utils.misc import time_until, clear
 from pathlib import Path
+from utils.threading import ThreadPoolExecutorStackTraced
+from concurrent.futures import as_completed
 import utils.badpackets as bp_utils
-import concurrent.futures
 import os
 import sys
 import time
@@ -92,7 +93,7 @@ def process_task(first_run=False):
 
     futures = [executor.submit(bp_utils.store_result, evt, res) for evt, res in results.items()]
 
-    for i, future in enumerate(concurrent.futures.as_completed(futures)):
+    for i, future in enumerate(as_completed(futures)):
         print(f"Processed {i+1}/{res_len} results", end="\r")
 
     print("Completed processing BadPackets results.\n")
@@ -135,7 +136,7 @@ if __name__ == "__main__":
     print("- Thread count:", threads)
     print("- Execute minute:", hourly_min)
 
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=threads)
+    executor = ThreadPoolExecutorStackTraced(max_workers=threads)
 
     bp_api = BadPacketsAPI(api_url=BP_URL, api_token=BP_KEY)
     bp_api.ping().raise_for_status()
