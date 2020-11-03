@@ -1,55 +1,57 @@
-from mongoengine import *
+import mongoengine as mongo
 from mongoengine.errors import NotUniqueError
 from datetime import datetime
-import os
 
 
-class GeoData(Document):
+class GeoData(mongo.Document):
     """
     Server/IP Address information pulled from payload data of
     BadPackets results
     """
-    ip_address = StringField(required=True, primary_key=True)
-    updated_at = DateTimeField(default=datetime.utcnow)
-    data = DictField(required=True)
-    hostname = StringField(required=False)
-    server_type = StringField(required=True, choices=[
-        "C2 Server",
-        "Loader Server",
-        "Report Server",
-        "Bot",
-        "Unknown"
-    ])
+    ip_address        = mongo.StringField(required=True, primary_key=True)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
+    data              = mongo.DictField(required=True)
+    hostname          = mongo.StringField(required=False)
+    server_type       = mongo.StringField(
+        required=True,
+        choices=[
+            "C2 Server",
+            "Loader Server",
+            "Report Server",
+            "Bot",
+            "Unknown"
+        ]
+    )
 
 
-class Payload(Document):
+class Payload(mongo.Document):
     """
     Malware payload information retrieved from BadPackets results
     """
-    url = StringField(required=True, unique=True)
-    vt_result = DictField()
-    ip_address = ReferenceField(GeoData, required=True)
-    updated_at = DateTimeField(default=datetime.utcnow)
+    url               = mongo.StringField(required=True, unique=True)
+    vt_result         = mongo.DictField()
+    ip_address        = mongo.ReferenceField(GeoData, required=True)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
-class Result(Document):
+class Result(mongo.Document):
     """
     BadPackets Result JSON information
     """
-    event_id = StringField(required=True, primary_key=True)
-    source_ip_address = ReferenceField(GeoData, required=True)
-    country = StringField(required=True, max_length=4)
-    user_agent = DictField(required=True)
-    payload = StringField(required=True)
-    post_data = StringField(required=True)
-    target_port = IntField(required=True)
-    protocol = StringField(required=True)
-    event_count = IntField(required=True)
-    first_seen = StringField(required=True)
-    last_seen = StringField(required=True)
-    tags = ListField(DictField(required=True), required=True)
-    scanned_payloads = ListField(ReferenceField(Payload, required=False), required=False)
-    updated_at = DateTimeField(default=datetime.utcnow)
+    event_id          = mongo.StringField(required=True, primary_key=True)
+    source_ip_address = mongo.ReferenceField(GeoData, required=True)
+    country           = mongo.StringField(required=True, max_length=4)
+    user_agent        = mongo.DictField(required=True)
+    payload           = mongo.StringField(required=True)
+    post_data         = mongo.StringField(required=True)
+    target_port       = mongo.IntField(required=True)
+    protocol          = mongo.StringField(required=True)
+    event_count       = mongo.IntField(required=True)
+    first_seen        = mongo.StringField(required=True)
+    last_seen         = mongo.StringField(required=True)
+    tags              = mongo.ListField(mongo.DictField(required=True), required=True)
+    scanned_payloads  = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
 def payload_create_or_update(url, vt_result, ip, now):
@@ -73,7 +75,7 @@ def result_create_or_update(event_id, result_data, now):
     try:
         result = Result(**result_data)
         result.save()
-    except (NotUniqueError, DuplicateKeyError):
+    except (NotUniqueError, mongo.DuplicateKeyError):
         result = Result.objects(event_id=event_id).first()
         result.updated_at = now
         result.save()
