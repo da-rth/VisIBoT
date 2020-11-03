@@ -22,7 +22,7 @@ def perform_analysis(url):
                 file_buf = main.get_file_as_mmap(filename)
                 static_ascii_strings = strings.extract_ascii_strings(file_buf, 4)
                 static_unicode_strings = strings.extract_unicode_strings(file_buf, 4)
-                all_strings = utils.parse_floss_output(static_ascii_strings) + utils.parse_floss_output(static_ascii_strings)
+                all_strings = utils.parse_floss_output(static_ascii_strings) + utils.parse_floss_output(static_unicode_strings)
                 os.remove(filename)
                 return {
                     'statusCode': 200,
@@ -44,4 +44,3 @@ def perform_analysis(url):
                 "msg": str(e)
             })
         }
-
