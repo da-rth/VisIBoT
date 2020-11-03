@@ -1,12 +1,12 @@
 # pylama:ignore=E402:ignore=E702
 import sys; sys.path.append("..")
+import database as db
+import time
 from datetime import datetime, timedelta
 from requests.exceptions import HTTPError
 from contextlib import suppress
 from utils.misc import url_parser, validate_url, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
-from database import *
-import time
 
 
 FIRST_RUN_HOURS = 24
@@ -96,7 +96,7 @@ def store_result(event_id, result_data, vt_api):
     vt_processing_urls = []
     now = datetime.utcnow()
 
-    existing_result = Result.objects(event_id=event_id).first()
+    existing_result = db.Result.objects(event_id=event_id).first()
 
     if existing_result:
         existing_result.updated_at = now
@@ -109,7 +109,7 @@ def store_result(event_id, result_data, vt_api):
 
     for url_info in validated_urls:
         url, hostname, ip = url_info
-        existing_payload = Payload.objects(url=url).first()
+        existing_payload = db.Payload.objects(url=url).first()
 
         if existing_payload:
             existing_payload.updated_at = now
@@ -122,14 +122,11 @@ def store_result(event_id, result_data, vt_api):
         if not geodata:
             continue
 
-        geodata_create_or_update(ip, hostname, "Loader Server", geodata, now)
+        db.geodata_create_or_update(ip, hostname, "Loader Server", geodata, now)
 
-        vt_result = vt_api.process_url(url)
+        vt_processing_urls.append(url)
 
-        if vt_result and vt_result['processing']:
-            vt_processing_urls.append(url)
-
-        payload = payload_create_or_update(url, vt_result, ip, now)
+        payload = db.payload_create_or_update(url, ip, now)
         scanned_payloads.append(payload.id)
 
     geodata = geoip_info(result_data['source_ip_address'])
@@ -144,13 +141,13 @@ def store_result(event_id, result_data, vt_api):
             server_type = "Report Server"
         else:
             server_type = "Unknown"
-        
-        geodata = geodata_create_or_update(ip, hostname, server_type, geodata, now)
+
+        geodata = db.geodata_create_or_update(ip, hostname, server_type, geodata, now)
 
         result_data['source_ip_address'] = geodata.id
         result_data['user_agent'] = useragent_parser(result_data['user_agent'])
         result_data['scanned_payloads'] = scanned_payloads
-        
-        result_create_or_update(event_id, result_data, now)
+
+        db.result_create_or_update(event_id, result_data, now)
 
     return vt_processing_urls

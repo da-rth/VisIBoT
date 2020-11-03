@@ -54,11 +54,13 @@ class Result(mongo.Document):
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
-def payload_create_or_update(url, vt_result, ip, now):
+def payload_create_or_update(url, ip, now):
     try:
         payload = Payload(
             url=url,
-            vt_result=vt_result,
+            vt_result={
+                "processing": True,
+            },
             ip_address=ip,
             updated_at=now
         )
