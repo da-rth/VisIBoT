@@ -1,0 +1,25 @@
+binaryornot==0.4.4
+certifi==2020.6.20
+chardet==3.0.4
+cxxfilt==0.2.1
+enum34==1.1.10
+floss @ https://github.com/fireeye/flare-floss/zipball/master
+funcy==1.15
+future==0.18.2
+idna==2.10
+intervaltree==3.1.0
+msgpack==1.0.0
+pefile==2019.4.18
+plugnplay==0.5.4
+pyasn1==0.4.5
+pyasn1-modules==0.2.4
+pycparser==2.20
+PyYAML==5.3.1
+q==2.6
+requests==2.24.0
+simplejson==3.17.2
+sortedcontainers==2.2.2
+tabulate==0.8.7
+urllib3==1.25.11
+viv-utils==0.3.17
+vivisect @ https://github.com/williballenthin/vivisect/zipball/master
