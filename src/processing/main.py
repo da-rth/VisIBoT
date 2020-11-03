@@ -142,7 +142,7 @@ if __name__ == "__main__":
         os.getenv("VIRUSTOTAL_API_KEY")
     )
     print("- VirusTotal API: Authenticated token")
-    
+
     bp_api = BadPacketsAPI(
         api_url=os.getenv("BADPACKETS_API_URL"),
         api_token=os.getenv("BADPACKETS_API_KEY")
