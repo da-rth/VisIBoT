@@ -150,7 +150,7 @@ def validate_url(url):
     """
     host = urlparse(url).hostname
 
-    with suppress(IndexError, socket.herror, socket.gaierror):
+    with suppress(Exception):
         if validators.domain(host):
             return (url, host, socket.gethostbyname(host))
         else:

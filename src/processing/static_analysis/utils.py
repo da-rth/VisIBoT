@@ -16,7 +16,7 @@ def parse_floss_output(input_strings):
 
 
 def ip_url_strings(string):
-    ips = list(set(re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", string)))
+    ips = list(set(re.findall(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", string)))
     urls = list(set(re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', string)))
     urls = [url.translate(None, ''.join(unsafe_url_chars)) for url in urls]
 

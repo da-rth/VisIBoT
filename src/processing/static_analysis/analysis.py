@@ -15,6 +15,8 @@ def perform_analysis(url):
                 filename = re.findall("filename=(.+)", r.headers["Content-Disposition"])[0]
             except (IndexError, KeyError):
                 filename = "unknown_binary"
+            
+            filename = "/tmp/" + filename
 
             open(filename, 'wb').write(r.content)
 
