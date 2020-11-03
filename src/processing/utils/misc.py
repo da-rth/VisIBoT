@@ -15,6 +15,23 @@ IPv4_REGEX = r'[0-9]+(?:\.[0-9]+){3}'
 IPv6_REGEX = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
 
 
+def parse_wget_payload(payload_str):
+    """
+    Extracts URL information by working around busybox wget obfuscation method
+    """
+    if all(arg in payload_str for arg in ["wget", "-g", "-r"]):
+        payload_str = payload_str.replace("${IFS}", " ").replace(";", " ; ")
+        payload_lst = payload_str.split(" ")
+
+        wget_idx = payload_lst.index("wget")
+        end_idx = payload_lst[wget_idx:].index(";")
+        wget_cmd = payload_lst[wget_idx:wget_idx+end_idx]
+
+        host = wget_cmd[wget_cmd.index('-g')+1]
+        path = wget_cmd[wget_cmd.index('-r')+1]
+        return f"http://{host}{path}"
+
+
 def regex_url_parser(data):
     """Searches a string of data for a URL  using regular expression
 
