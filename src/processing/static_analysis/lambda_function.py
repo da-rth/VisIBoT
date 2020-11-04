@@ -2,7 +2,7 @@ import json
 from analysis import perform_analysis
 
 
-def lambda_handler(event, _):
+def lambda_handler(event=None, context=None):
     try:
         url = event['queryStringParameters'].get("url", None)
         if url:
