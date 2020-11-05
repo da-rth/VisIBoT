@@ -13,7 +13,7 @@
       ref="markerModal"
       :active-marker="activeModalMarker"
     ></marker-modal>
-
+    <map-sidebar />
     <b-overlay
       :show="markersLoading"
       bg-color="#181818"

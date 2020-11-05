@@ -34,7 +34,7 @@ export default {
     "@nuxt/typescript-build",
     "@nuxtjs/dotenv",
     "@nuxtjs/auth",
-    "@nuxtjs/axios",
+    "@nuxtjs/device",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -60,6 +60,8 @@ export default {
       "BNavText",
       "BNavItemDropdown",
       // Other
+      "BSidebar",
+      "BImg",
       "BButton",
       "BCollapse",
       "BOverlay",
@@ -73,6 +75,11 @@ export default {
       "BIconDiagram2",
       "BIconArrowsAngleExpand",
       "BIconShieldShaded",
+      "BIconBrightnessHigh",
+      "BIconBrightnessHighFill",
+      "BIconLayoutSidebarReverse",
+      "BIconLayoutSidebarInsetReverse",
+      "BIconThreeDots",
     ],
   },
   // Build Configuration (https://go.nuxtjs.dev/config-build)
