@@ -12,6 +12,7 @@
 * This timelog should be filled out honestly, regularly (daily) and accurately. It is for *your* benefit.
 * Follow the structure provided, grouping time by weeks.  Quantise time to the half hour.
 
+
 ## Week 1
 
 ### 02 Oct 2020
@@ -21,6 +22,7 @@
 * *0.5 hours* Setup private GitHub Repository and gave supervisor access
 * *1.0 hours* Experimenting with BadPackets API via Postman and reading documentation
 * *3.0 hours* Code: Created an initial API wrapper (and tests) for BadPackets API in Python
+
 
 ## Week 2
 
@@ -39,16 +41,22 @@
 * *1.0 hours* Created an hourly async task for processing API data in main.py
 * *0.5 hours* Set up nuxt.js and express.js projects in src/ and renamed old backend to 'processing'"
 
+
 ## Week 3
+
 * *1.0 hours* Updating travis .yml to allow pylama and unittest scripts to execute on push to master
 * *3.0 hours* Added Google Maps API to frontend nuxt.js framework and experimented with map styling and pointer clustering
 
+
 ## Week 4
+
 ### 15 Oct 2020
 * *1.0 hours* Updating styling for frontend Google Maps dashboard map
 * *2.0 hours* Creating initial badpackets async loop for querying multiple requests with different parameters
 
+
 ## Week 5
+
 ### 22 Oct 2020
 * *2.0 hours* Coding asynchronous background task implementation for badpackets hourly processing script
 * *0.5 hours* Applied for VirusTotal Academic API token
@@ -57,4 +65,72 @@
 * *5.0 hours* Coding various utility functions, mongodb integration and maxminds GeoIP2 integration into backend processing script
 * *1.0 hours* Researched using VirusTotal as malware binary static analysis for identifying intersting strings such as IP addresses
 * *0.5 hours* Created markdown file [here](architecture.md) as documentation for project architecture
+### 24 Oct 2020
+* *6.0 hours* Implemented thread-pooling for badpackets processing script
+* *1.0 hours* Added user-agent parsing to badpackets processing script
+
+
+## Week 6
+
+### 25 Oct 2020
+* *2.0 hours* Researched and added virustotal and Ripe NCC Python APIs to preprocessing script
+* *1.0 hours* Improved URL parsing method for backend result processing
+* *1.0 hours* Documented all processing methods
+* *4.0 hours* Created API routing and a new endpoint in express server for processed geolocations
+
+### 26 Oct 2020
+* *2.0 hours* Researched the leaflet map javascript library
+* *1.0 hours* Researched marker clustering using leaflet
+* *2.0 hours* Changed google maps to leaflet in frontend Nuxt.js map component
+* *1.0 hours* Created a GeoData model via mongoose in express.js backend server
+* *2.0 hours* Researching and implementing multi-job CI/CD pipeline with Travis-ci
+* *3.0 hours* Refactored store_results method in badpackets processing utilities
+
+### 28 Oct 2020
+* *1.0 hours* Removed the reduction of GeoData objects when returning results via /api/geolocations (was too slow)
+
+### 29 Oct 2020
+* *3.0 hours* Added custom svg markers to leaflet map representing different types of servers
+* *2.0 hours* Created api/info/results endpoint for returning badpackets results of a given geolocation
+
+
+## Week 7
+
+### 30 Oct 2020
+* *1.0 hours* Added popup for each marker on leaflet map with 3 buttons
+* *2.0 hours* Added argument parsing for processing script
+* *0.5 hours* Fixed various pylama errors in code
+* *0.5 hours* Added additional documentation to misc utility functions in processing script
+* *0.5 hours* Added languages to navbar dropdown in navbar component of frontend web app
+
+### 31 Oct 2020
+* *3.0 hours* Researching C2 server identification techniques through malware string extraction
+* *2.0 hours* Improved url extraction method for processing script
+* *1.0 hours* Additional refactors to url extraction code
+
+### 01 Nov 2020
+* *0.5 hours* Removed Ripe NCC api from processing script
+* *4.0 hours* Created virustotal script with a rate-limiting handler
+* *0.5 hours* Added documentation for virustotal utility class
+* *1.0 hours* Added stacktracing to ThreadPoolExecutor
+* *2.0 hours* Created and implemented some 'create_or_update' helper functions in database.py
+* *2.0 hours* Fixed various bugs present in badpackets results processing function
+* *1.0 hours* Registering for AWS services
+
+
+## Week 8
+
+### 03 Nov 2020
+* *0.5 hours* Fixed various pylama errors in processing script
+* *2.0 hours* Experimenting with AWS Lambda functions service
+* *4.0 hours* Creation of flare-floss lambda function for performing static analysis on files remotely
+* *1.0 hours* Added busybox payload deobfuscation function to misc.py for later use
+
+### 04 Nov 2020
+* *3.0 hours* Created new IP Validation process for flare-floss lambda function
+
+### 05 Nov 2020
+* *1.0 hours* Upgraded AWS lambda function from python2.7 to python3.7
+* *4.0 hours* Re-wrote aws lambda function to remove flare-floss dependency
+* *1.0 hours* Researching traceroutes diagnostic command usage
 
