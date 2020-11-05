@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^2.0.0",
+    "@nuxtjs/auth": "^4.9.1",
+    "@nuxtjs/axios": "^5.12.2",
     "@nuxtjs/dotenv": "^1.4.1",
     "axios": "^0.21.0",
     "bootstrap": "^4.5.2",
@@ -29,6 +31,7 @@
     "nuxt": "^2.14.6",
     "nuxt-highlightjs": "^1.0.1",
     "nuxt-leaflet": "0.0.22",
+    "vue-flag-icon": "^1.0.6",
     "vue2-leaflet-markercluster": "^3.1.0"
   },
   "devDependencies": {

@@ -20,7 +20,10 @@ export default {
   css: [],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [{ src: "@/plugins/vue2-leaflet-markercluster.js", mode: "client" }],
+  plugins: [
+    { src: "@/plugins/vue2-leaflet-markercluster.js", mode: "client" },
+    { src: "@/plugins/vue-flag-icon.js" },
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -30,6 +33,8 @@ export default {
     // https://go.nuxtjs.dev/typescript
     "@nuxt/typescript-build",
     "@nuxtjs/dotenv",
+    "@nuxtjs/auth",
+    "@nuxtjs/axios",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -72,6 +77,6 @@ export default {
   },
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    transpile: [],
+    transpile: ["vue-flag-icon"],
   },
 }
