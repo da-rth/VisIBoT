@@ -71,6 +71,8 @@ export default {
       "BSpinner",
       "BDropdownItem",
       "BTooltip",
+      "BToast",
+      "BToaster",
       // Icons
       "BIconDiagram2",
       "BIconArrowsAngleExpand",

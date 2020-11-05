@@ -5,62 +5,60 @@
     scrollable
     size="lg"
     :title="
-      marker ? `${getMarkerTypeStr()} ${getCityCountryStr(true)}` : 'Loading...'
+      activeMarker != null
+        ? `${getMarkerTypeStr()} ${getCityCountryStr(true)}`
+        : 'Loading...'
     "
     header-border-variant="dark"
     header-bg-variant="dark"
     header-text-variant="light"
   >
-    <b-container fluid>
-      <div v-if="marker">
-        <h1 v-if="marker.info">have info</h1>
-        <div style="max-height: 400px">
-          <pre><code v-highlight class="javascript">{{ JSON.stringify(marker, null, 2) }}</code></pre>
+    <div v-if="!activeMarkerLoading">
+      <b-container fluid>
+        <div v-if="activeMarker">
+          <h1 v-if="activeMarker.info">have info</h1>
+          <div style="max-height: 400px">
+            <pre><code v-highlight class="javascript">{{ JSON.stringify(activeMarker, null, 2) }}</code></pre>
+          </div>
         </div>
-      </div>
-    </b-container>
+      </b-container>
+    </div>
+    <div v-else>
+      <h1>Loading</h1>
+    </div>
   </b-modal>
 </template>
 
 <script>
 export default {
-  props: {
-    activeMarker: {
-      type: Object,
-      default: null,
+  computed: {
+    activeMarker() {
+      return this.$store.state.map.activeMarker
     },
-  },
-  data: function () {
-    return {
-      marker: null,
-    }
-  },
-  watch: {
-    activeMarker: function (newMarkerData) {
-      this.marker = newMarkerData
-      console.log("newest marker:", this.marker)
-      this.$forceUpdate()
+    activeMarkerLoading() {
+      return this.$store.state.map.activeMarkerLoading
     },
-  },
-  mounted() {
-    this.marker = this.activeMarker
+    activeMarkerError() {
+      return this.$store.state.map.activeMarkerError
+    },
   },
   methods: {
     show: function () {
       this.$refs.modal.show()
     },
     getMarkerTypeStr: function () {
-      return this.marker.server_type == "Unknown"
+      console.log(this.activeMarker)
+      return this.activeMarker.server_type == "Unknown"
         ? "Suspicous Activity"
-        : "Possible " + this.marker.server_type + " Activity"
+        : "Possible " + this.activeMarker.server_type + " Activity"
     },
     getCityCountryStr: function (parentheses = false) {
       // Some markers may only have an english name 'en' e.g. Fish Town
-      let cityName = this.marker.data.city
-        ? this.marker.data.city.names.en + ", "
+      let cityName = this.activeMarker.data.city
+        ? this.activeMarker.data.city.names.en + ", "
         : ""
-      let countryName = this.marker.data.country
-        ? this.marker.data.country.names.en
+      let countryName = this.activeMarker.data.country
+        ? this.activeMarker.data.country.names.en
         : ""
       return parentheses
         ? `(${cityName}${countryName})`

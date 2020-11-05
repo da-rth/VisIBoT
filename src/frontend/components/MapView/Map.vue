@@ -9,11 +9,8 @@
       left: 0;
     "
   >
-    <marker-modal
-      ref="markerModal"
-      :active-marker="activeModalMarker"
-    ></marker-modal>
-    <map-sidebar />
+    <marker-modal ref="markerModal"></marker-modal>
+
     <b-overlay
       :show="markersLoading"
       bg-color="#181818"
@@ -81,9 +78,6 @@ import L from "leaflet"
 export default {
   data: function () {
     return {
-      markers: [],
-      markersLoading: true,
-      activeModalMarker: null,
       bounds: [
         [-88, -200],
         [90, 200],
@@ -106,6 +100,17 @@ export default {
       ],
     }
   },
+  computed: {
+    markers() {
+      return this.$store.state.map.markers
+    },
+    markersLoading() {
+      return this.$store.state.map.markersLoading
+    },
+    markersError() {
+      return this.$store.state.map.markersError
+    },
+  },
   mounted() {
     this.$refs.markerModal.$on("hidden.bs.modal", this.hideMarkerModal)
   },
@@ -115,15 +120,7 @@ export default {
     })
   },
   async beforeMount() {
-    await axios
-      .get("http://localhost:8080/api/geolocations")
-      .then(async (response) => {
-        this.markers = response.data
-        this.markersLoading = false
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    this.$store.dispatch("map/fetchMarkers")
   },
   methods: {
     showToast: function (title, body, variant) {
@@ -136,24 +133,8 @@ export default {
       })
     },
     showMarkerModal: async function (marker) {
-      let infoType =
-        marker.server_type == "Loader Server" ? "payload" : "result"
-      this.activeModalMarker = marker
-      this.activeModalMarker.infoType = infoType
       this.$refs.markerModal.show()
-      await axios
-        .get(`http://localhost:8080/api/info/${infoType}/${marker._id}`)
-        .then(async (response) => {
-          this.activeModalMarker.info = response.data
-        })
-        .catch((error) => {
-          console.log(error)
-          this.showToast(
-            "Sorry, we're having some trouble.",
-            "We couldn't get some information for the marker.",
-            "danger"
-          )
-        })
+      this.$store.dispatch("map/fetchActiveMarker", marker)
     },
     getMarkerSvg: function (markerType) {
       let baseSvgName = "markers/marker"
