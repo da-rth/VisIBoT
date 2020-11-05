@@ -97,7 +97,7 @@ def response(code, body):
     Creates a dictionary JSON response of given message and http code
     """
     return {
-        'statusCode': 400,
+        'statusCode': code,
         'body': json.dumps(body)
     }
 
