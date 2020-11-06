@@ -1,0 +1,34 @@
+$white: #fff;
+$gray-100: #e9e9e9;
+$gray-200: #bdbdbd;
+$gray-300: #919191;
+$gray-400: #7b7b7b;
+$gray-500: #656565;
+$gray-600: #4f4f4f;
+$gray-700: #393939;
+$gray-800: #242424;
+$gray-900: #181818;
+$black: #060606;
+
+$blue: #51a1ba;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #28a745;
+$teal: #20c997;
+$cyan: #17a2b8;
+
+$primary: $blue;
+$secondary: $gray-600;
+$success: $green;
+$info: $cyan;
+$warning: $yellow;
+$danger: $red;
+$light: $gray-100;
+$dark: $gray-800;
+
+@import 'bootstrap/scss/bootstrap.scss';
+@import 'bootstrap-vue/src/index.scss';

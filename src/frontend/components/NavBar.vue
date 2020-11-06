@@ -3,13 +3,11 @@
     <b-navbar
       id="navbar"
       toggleable="md"
-      type="light"
-      variant="light"
+      :type="lightThemeEnabled ? 'light' : 'dark'"
+      :variant="lightThemeEnabled ? 'light' : 'dark'"
       style="z-index: 102"
     >
-      <b-navbar-brand>
-        VisI<span style="color: #00587a">BoT</span>
-      </b-navbar-brand>
+      <b-navbar-brand>VisI<span class="blue-bot">BoT</span></b-navbar-brand>
 
       <b-navbar-nav
         v-if="$device.isMobile"
@@ -86,6 +84,8 @@
 </template>
 
 <script>
+import { mapState } from "vuex"
+
 export default {
   data: function () {
     return {
@@ -134,15 +134,11 @@ export default {
     }
   },
   computed: {
-    sidebarEnabled() {
-      return this.$store.state.settings.sidebarEnabled
-    },
-    selectedLang() {
-      return this.$store.state.settings.selectedLang
-    },
-    lightThemeEnabled() {
-      return this.$store.state.settings.lightThemeEnabled
-    },
+    ...mapState({
+      selectedLang: (state) => state.settings.selectedLang,
+      sideBarEnabled: (state) => state.settings.sideBarEnabled,
+      lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
+    }),
   },
   methods: {
     updateLanguage: function (lang) {
@@ -170,10 +166,16 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .navbar-toggler:focus,
 .navbar-toggler {
   border: none !important;
   outline: none !important;
+}
+.navbar {
+  border-bottom: 1px solid var(--primary);
+}
+.blue-bot {
+  color: var(--primary);
 }
 </style>
