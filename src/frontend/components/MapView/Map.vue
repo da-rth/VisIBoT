@@ -22,7 +22,6 @@
       <l-map
         ref="map"
         style="width: 100vw; height: 100vh; z-index: 1"
-        :center="{ lat: 10.0, lng: 10.0 }"
         :zoom="4"
         :min-zoom="3"
         :max-zoom="20"
@@ -44,7 +43,7 @@
           position="bottomright"
         ></l-control-zoom>
 
-        <l-feature-group ref="features">
+        <l-feature-group ref="clickPopup">
           <l-popup style="width: 200px">
             <b-row class="text-center" align-h="center">
               <b-button
@@ -82,6 +81,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex"
 import L from "leaflet"
 
 export default {
@@ -101,6 +101,8 @@ export default {
       markerCluster: L.markerClusterGroup({
         chunkedLoading: true,
         chunkProgress: this.updateProgressBar,
+        animateAddingMarkers: true,
+        maxClusterRadius: 120,
       }),
     }
   },
@@ -121,21 +123,13 @@ export default {
     }
   },
   computed: {
-    markers() {
-      return this.$store.state.map.markers
-    },
-    markersLoading() {
-      return this.$store.state.map.markersLoading
-    },
-    markersError() {
-      return this.$store.state.map.markersError
-    },
-    activeMarker() {
-      return this.$store.state.map.activeMarker
-    },
-    lightThemeEnabled() {
-      return this.$store.state.settings.lightThemeEnabled
-    },
+    ...mapState({
+      markers: (state) => state.map.markers,
+      markersLoading: (state) => state.map.markersLoading,
+      markersError: (state) => state.map.markersError,
+      activeMarker: (state) => state.map.activeMarker,
+      lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
+    }),
   },
   watch: {
     markers(markers) {
@@ -161,16 +155,17 @@ export default {
       let markerList = []
       this.$refs.map.mapObject.removeLayer(this.markerCluster)
       this.markerCluster.clearLayers()
-      this.$refs.features.mapObject.openPopup(L.latLng(0, 0))
-      this.$refs.features.mapObject.closePopup(L.latLng(0, 0))
+
       for (let marker of markers) {
         let markerLatLng = L.latLng(
           marker.data.coordinates.lat,
           marker.data.coordinates.lng
         )
-        let lMarker = L.marker(markerLatLng, { title: marker.server_type })
+        let lMarker = L.marker(markerLatLng, {
+          title: `${marker.server_type} Activity`,
+        })
         lMarker.on("click", () => {
-          this.$refs.features.mapObject.openPopup(markerLatLng)
+          this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
           this.selectedMarker = marker
         })
         markerList.push(lMarker)
@@ -348,8 +343,8 @@ export default {
 .leaflet-popup-content {
   margin: 1px 15px !important;
 }
-.leaflet-popup {
-  margin-bottom: 50px !important;
+.leaflet-popup-content-wrapper {
+  margin-bottom: 40px !important;
 }
 .leaflet-popup-tip-container,
 .leaflet-popup-close-button {
