@@ -1,28 +1,21 @@
 <template>
-  <div
-    style="
-      height: 100%;
-      width: 100%;
-      background: #242424;
-      position: absolute;
-      top: 0;
-      left: 0;
-    "
-  >
+  <div class="darkMap" :class="{ lightMap: lightThemeEnabled }">
     <marker-modal ref="markerModal"></marker-modal>
-
     <b-overlay
       :show="markersLoading"
-      bg-color="#181818"
+      :bg-color="lightThemeEnabled ? '#FFFFFF' : '#181818'"
       opacity="0.7"
       spinner-variant="primary"
       :no-fade="false"
-      style="background: #242424"
+      class="darkMapBg"
+      :class="{ lightMapBg: lightThemeEnabled }"
     >
       <template #overlay>
         <div class="text-center" style="width: 100%">
           <b-spinner variant="primary" label="Spinning" />
-          <h4 style="color: white">Loading map...</h4>
+          <h4 class="darkFg" :class="{ lightFg: lightThemeEnabled }">
+            Loading map...
+          </h4>
         </div>
       </template>
 
@@ -37,9 +30,13 @@
         :bounds="bounds"
         :max-bounds="bounds"
         :max-bounds-viscosity="1.0"
+        class="darkMapBg"
+        :class="{ lightMapBg: lightThemeEnabled }"
       >
         <l-tile-layer
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+          :url="`https://tiles.stadiamaps.com/tiles/alidade_smooth${
+            lightThemeEnabled ? '' : '_dark'
+          }/{z}/{x}/{y}{r}.png`"
         ></l-tile-layer>
 
         <l-control-zoom
@@ -47,41 +44,64 @@
           position="bottomright"
         ></l-control-zoom>
 
-        <v-marker-cluster
-          :options="{
-            removeOutsideVisibleBounds: true,
-            maxClusterRadius: 70,
-          }"
-        >
-          <l-marker
-            v-for="marker in markers"
-            :key="marker._id"
-            name="fade"
-            :lat-lng="[
-              marker.data.coordinates.lat,
-              marker.data.coordinates.lng,
-            ]"
-            :icon="getIcon(marker)"
-          >
-            <map-marker-popup :marker="marker"></map-marker-popup>
-          </l-marker>
-        </v-marker-cluster>
+        <l-feature-group ref="features">
+          <l-popup style="width: 200px">
+            <b-row class="text-center" align-h="center">
+              <b-button
+                class="popupBtn popupBtn--left"
+                variant="outline-primary"
+                @click="showConnectedMarkers()"
+              >
+                <b-icon-diagram-2 />
+              </b-button>
+              <b-button
+                class="popupBtn popupBtn--middle"
+                variant="outline-primary"
+                :href="
+                  selectedMarker
+                    ? `https://www.virustotal.com/gui/ip-address/${selectedMarker._id}`
+                    : '#'
+                "
+                target="_blank"
+              >
+                <b-icon-shield-shaded />
+              </b-button>
+              <b-button
+                class="popupBtn popupBtn--right"
+                variant="outline-primary"
+                @click="showMarkerModal()"
+              >
+                <b-icon-arrows-angle-expand />
+              </b-button>
+            </b-row>
+          </l-popup>
+        </l-feature-group>
       </l-map>
     </b-overlay>
   </div>
 </template>
 
 <script>
-import axios from "axios"
 import L from "leaflet"
 
 export default {
   data: function () {
     return {
+      mapMarkers: [],
+      selectedMarker: null,
       bounds: [
         [-88, -200],
         [90, 200],
       ],
+      relatedCoords: [
+        [30, 0],
+        [20, 20],
+        [-3, 50],
+      ],
+      markerCluster: L.markerClusterGroup({
+        chunkedLoading: true,
+        chunkProgress: this.updateProgressBar,
+      }),
     }
   },
   head() {
@@ -110,19 +130,63 @@ export default {
     markersError() {
       return this.$store.state.map.markersError
     },
+    activeMarker() {
+      return this.$store.state.map.activeMarker
+    },
+    lightThemeEnabled() {
+      return this.$store.state.settings.lightThemeEnabled
+    },
   },
-  mounted() {
-    this.$refs.markerModal.$on("hidden.bs.modal", this.hideMarkerModal)
-  },
-  created() {
-    this.$nuxt.$on("open-map-modal", (marker) => {
-      this.showMarkerModal(marker)
-    })
+  watch: {
+    markers(markers) {
+      this.mapMarkers = markers
+    },
+    mapMarkers(newMarkers) {
+      this.updateMapWithNewMarkers(newMarkers)
+    },
+    markersError(newError) {
+      if (newError) {
+        this.showToast("Error", "Something went wrong!", "danger")
+      }
+    },
   },
   async beforeMount() {
     this.$store.dispatch("map/fetchMarkers")
   },
   methods: {
+    showConnectedMarkers: function () {
+      console.log("todo")
+    },
+    updateMapWithNewMarkers: function (markers) {
+      let markerList = []
+      this.$refs.map.mapObject.removeLayer(this.markerCluster)
+      this.markerCluster.clearLayers()
+      this.$refs.features.mapObject.openPopup(L.latLng(0, 0))
+      this.$refs.features.mapObject.closePopup(L.latLng(0, 0))
+      for (let marker of markers) {
+        let markerLatLng = L.latLng(
+          marker.data.coordinates.lat,
+          marker.data.coordinates.lng
+        )
+        let lMarker = L.marker(markerLatLng, { title: marker.server_type })
+        lMarker.on("click", () => {
+          this.$refs.features.mapObject.openPopup(markerLatLng)
+          this.selectedMarker = marker
+        })
+        markerList.push(lMarker)
+      }
+      this.markerCluster.addLayers(markerList)
+      this.$refs.map.mapObject.addLayer(this.markerCluster)
+    },
+    updateProgressBar: function (processed, total, elapsed) {
+      if (elapsed > 1000) {
+        console.log(Math.round((processed / total) * 100) + "%")
+      }
+
+      if (processed === total) {
+        console.log("complete")
+      }
+    },
     showToast: function (title, body, variant) {
       this.$bvToast.toast(body, {
         title: title,
@@ -130,11 +194,18 @@ export default {
         appendToast: true,
         variant: variant,
         solid: true,
+        toaster: "b-toaster-bottom-right",
       })
     },
-    showMarkerModal: async function (marker) {
+    showMarkerModal: async function () {
       this.$refs.markerModal.show()
-      this.$store.dispatch("map/fetchActiveMarker", marker)
+      if (
+        this.activeMarker &&
+        this.selectedMarker._id !== this.activeMarker._id
+      ) {
+        this.$store.commit("map/ACTIVE_MARKER_RESET")
+      }
+      this.$store.dispatch("map/fetchActiveMarker", this.selectedMarker)
     },
     getMarkerSvg: function (markerType) {
       let baseSvgName = "markers/marker"
@@ -165,6 +236,29 @@ export default {
 </script>
 
 <style>
+.darkMap,
+.lightMap {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+.darkMap,
+.darkMapBg {
+  background-color: #222222 !important;
+}
+.lightMap,
+.lightMapBg {
+  background-color: #ffffff !important;
+}
+.darkFg {
+  color: #ffffff;
+}
+.lightFg {
+  color: #242424;
+}
 .visiMapBottomBar {
   height: 42px;
   width: 100vw;
@@ -187,12 +281,9 @@ export default {
 .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
-}
-
-.vue2leaflet-map {
-  background: #222222;
 }
 .marker-cluster-large {
   margin-left: -30px !important;
@@ -232,66 +323,36 @@ export default {
 .marker-cluster-small {
   background-color: transparent !important;
 }
-.marker-cluster div {
-  box-shadow: 0 0 20px 2px #282828;
-}
 .marker-cluster span {
   color: #ffffff;
   font-weight: 600 !important;
 }
-
-/**
-.marker-cluster {
-  -webkit-animation: fadein 1s !important;
-  -moz-animation: fadein 1s !important;
-  -ms-animation: fadein 1s !important;
-  -o-animation: fadein 1s !important;
-  animation: fadein 1s !important;
+/** Popup Button CSS */
+.popupBtn {
+  border: none;
+  width: 33%;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
-
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.popupBtn:focus {
+  outline: none !important;
 }
-
-@-moz-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.popupBtn--left {
+  border-top-left-radius: 10px !important;
+  border-bottom-left-radius: 10px !important;
 }
-
-@-webkit-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.popupBtn--right {
+  border-top-right-radius: 10px !important;
+  border-bottom-right-radius: 10px !important;
 }
-
-@-ms-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.leaflet-popup-content {
+  margin: 1px 15px !important;
 }
-
-@-o-keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.leaflet-popup {
+  margin-bottom: 50px !important;
 }
-**/
+.leaflet-popup-tip-container,
+.leaflet-popup-close-button {
+  display: none !important;
+}
 </style>

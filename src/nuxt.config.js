@@ -40,7 +40,12 @@ export default {
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     // https://go.nuxtjs.dev/bootstrap
-    "bootstrap-vue/nuxt",
+    [
+      "bootstrap-vue/nuxt",
+      {
+        icons: true,
+      },
+    ],
     "nuxt-leaflet",
     [
       "nuxt-highlightjs",
@@ -49,41 +54,6 @@ export default {
       },
     ],
   ],
-  bootstrapVue: {
-    components: [
-      // Navbar
-      "BNavbar",
-      "BNavbarBrand",
-      "BNavbarToggle",
-      "BNavbarNav",
-      "BNavItem",
-      "BNavText",
-      "BNavItemDropdown",
-      // Other
-      "BSidebar",
-      "BImg",
-      "BButton",
-      "BCollapse",
-      "BOverlay",
-      "BModal",
-      "BRow",
-      "BContainer",
-      "BSpinner",
-      "BDropdownItem",
-      "BTooltip",
-      "BToast",
-      "BToaster",
-      // Icons
-      "BIconDiagram2",
-      "BIconArrowsAngleExpand",
-      "BIconShieldShaded",
-      "BIconBrightnessHigh",
-      "BIconBrightnessHighFill",
-      "BIconLayoutSidebarReverse",
-      "BIconLayoutSidebarInsetReverse",
-      "BIconThreeDots",
-    ],
-  },
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
     transpile: ["vue-flag-icon"],

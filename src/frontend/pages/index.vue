@@ -1,5 +1,6 @@
 <template>
   <div>
+    <map-sidebar />
     <client-only>
       <client-map />
     </client-only>

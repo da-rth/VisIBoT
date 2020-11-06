@@ -29,6 +29,9 @@ export const mutations = {
   ["ACTIVE_MARKER_STORE"](state, marker) {
     state.activeMarker = marker
   },
+  ["ACTIVE_MARKER_RESET"](state) {
+    state.activeMarker = null
+  },
   ["ACTIVE_MARKER_LOADING"](state) {
     state.activeMarkerError = false
     state.activeMarkerLoading = true

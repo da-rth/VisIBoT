@@ -12,7 +12,11 @@
       <b-button
         class="popupBtn popupBtn--middle"
         variant="outline-primary"
-        :href="`https://www.virustotal.com/gui/ip-address/${marker._id}`"
+        :href="
+          marker
+            ? `https://www.virustotal.com/gui/ip-address/${marker._id}`
+            : '#'
+        "
         target="_blank"
       >
         <b-icon-shield-shaded />
@@ -35,7 +39,6 @@ export default {
     marker: {
       type: Object,
       default: null,
-      required: true,
     },
   },
   methods: {

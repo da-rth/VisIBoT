@@ -1,6 +1,9 @@
 "use strict"
 const express = require("express")
+
 const GeoData = require("../../models/GeoData")
+const Result = require("../../models/Result")
+const Payload = require("../../models/Payload")
 
 let router = express.Router()
 
@@ -24,16 +27,21 @@ router.route("/").get(async (req, res) => {
 })
 
 router.route("/full-details/:ip").get(async (req, res) => {
-  GeoData.findOne({ _id: req.params.ip })
-    .lean()
-    .exec(function (err, marker) {
-      if (err || !marker)
-        return res.status(400).send("Could not find any geodata.")
-
-      marker.infoType =
-        marker.server_type == "Loader Server" ? "payload" : "result"
-
-      return res.json(marker)
+  let ip = req.params.ip
+  Promise.all([
+    GeoData.findOne({ _id: ip }),
+    Result.find({ source_ip_address: ip }),
+    Payload.find({ ip_address: ip }),
+  ])
+    .then((all_results) => {
+      const [marker, payloads, results] = all_results
+      let m = marker.toJSON()
+      m.payloads = payloads
+      m.results = results
+      return res.json(m)
+    })
+    .catch(() => {
+      return res.status(400).send("Could not find any details for given IP.")
     })
 })
 

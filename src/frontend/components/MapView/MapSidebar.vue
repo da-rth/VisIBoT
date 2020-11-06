@@ -6,8 +6,8 @@
       shadow
       right
       z-index="5"
-      bg-variant="dark"
-      text-variant="light"
+      :bg-variant="lightThemeEnabled ? 'light' : 'dark'"
+      :text-variant="lightThemeEnabled ? 'dark' : 'light'"
     >
       <div class="px-3 py-2">
         <p>something</p>
@@ -23,6 +23,11 @@
 
 <script>
 export default {
+  computed: {
+    lightThemeEnabled() {
+      return this.$store.state.settings.lightThemeEnabled
+    },
+  },
   created() {
     this.$nuxt.$on("toggle-map-sidebar", () => {
       console.log("toggling sidebar")

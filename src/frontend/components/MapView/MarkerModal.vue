@@ -13,7 +13,7 @@
     header-bg-variant="dark"
     header-text-variant="light"
   >
-    <div v-if="!activeMarkerLoading">
+    <div v-if="activeMarker">
       <b-container fluid>
         <div v-if="activeMarker">
           <h1 v-if="activeMarker.info">have info</h1>
@@ -23,8 +23,17 @@
         </div>
       </b-container>
     </div>
+    <div v-else-if="activeMarkerError">
+      <h1>Error</h1>
+    </div>
     <div v-else>
-      <h1>Loading</h1>
+      <b-skeleton-wrapper :loading="activeMarkerLoading">
+        <b-skeleton
+          v-for="width in [85, 50, 75, 90, 40, 60, 92, 70, 80]"
+          :key="width"
+          :width="`${width}%`"
+        ></b-skeleton>
+      </b-skeleton-wrapper>
     </div>
   </b-modal>
 </template>
@@ -41,6 +50,9 @@ export default {
     activeMarkerError() {
       return this.$store.state.map.activeMarkerError
     },
+    selectedLang() {
+      return this.$store.state.settings.selectedLang
+    },
   },
   methods: {
     show: function () {
@@ -55,10 +67,10 @@ export default {
     getCityCountryStr: function (parentheses = false) {
       // Some markers may only have an english name 'en' e.g. Fish Town
       let cityName = this.activeMarker.data.city
-        ? this.activeMarker.data.city.names.en + ", "
+        ? this.activeMarker.data.city.names[this.selectedLang.lang] + ", "
         : ""
       let countryName = this.activeMarker.data.country
-        ? this.activeMarker.data.country.names.en
+        ? this.activeMarker.data.country.names[this.selectedLang.lang]
         : ""
       return parentheses
         ? `(${cityName}${countryName})`
