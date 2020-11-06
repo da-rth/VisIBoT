@@ -84,8 +84,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
-
 export default {
   data: function () {
     return {
@@ -134,11 +132,15 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      selectedLang: (state) => state.settings.selectedLang,
-      sideBarEnabled: (state) => state.settings.sideBarEnabled,
-      lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
-    }),
+    sidebarEnabled() {
+      return this.$store.state.settings.sidebarEnabled
+    },
+    selectedLang() {
+      return this.$store.state.settings.selectedLang
+    },
+    lightThemeEnabled() {
+      return this.$store.state.settings.lightThemeEnabled
+    },
   },
   methods: {
     updateLanguage: function (lang) {

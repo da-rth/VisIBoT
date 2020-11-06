@@ -1,83 +1,78 @@
 <template>
-  <div class="darkMap" :class="{ lightMap: lightThemeEnabled }">
+  <b-overlay
+    :show="markersLoading"
+    bg-color="#181818"
+    opacity="0.7"
+    spinner-variant="primary"
+    :no-fade="false"
+    class="visibot-overlay"
+    :class="lightThemeEnabled ? 'overlay-light-bg' : 'overlay-dark-bg'"
+  >
     <marker-modal ref="markerModal"></marker-modal>
-    <b-overlay
-      :show="markersLoading"
-      :bg-color="lightThemeEnabled ? '#FFFFFF' : '#181818'"
-      opacity="0.7"
-      spinner-variant="primary"
-      :no-fade="false"
-      class="darkMapBg"
-      :class="{ lightMapBg: lightThemeEnabled }"
+
+    <template #overlay>
+      <div class="text-center" style="width: 100%">
+        <b-spinner variant="primary" label="Spinning" />
+        <h4 class="overlay-text">Loading map...</h4>
+      </div>
+    </template>
+
+    <l-map
+      ref="map"
+      :zoom="4"
+      :min-zoom="3"
+      :max-zoom="20"
+      :options="{ zoomControl: false, attributionControl: false }"
+      :bounds="bounds"
+      :max-bounds="bounds"
+      :max-bounds-viscosity="1.0"
+      class="visibot-map"
     >
-      <template #overlay>
-        <div class="text-center" style="width: 100%">
-          <b-spinner variant="primary" label="Spinning" />
-          <h4 class="darkFg" :class="{ lightFg: lightThemeEnabled }">
-            Loading map...
-          </h4>
-        </div>
-      </template>
+      <l-tile-layer
+        :url="`https://tiles.stadiamaps.com/tiles/alidade_smooth${
+          lightThemeEnabled ? '' : '_dark'
+        }/{z}/{x}/{y}{r}.png`"
+      ></l-tile-layer>
 
-      <l-map
-        ref="map"
-        style="width: 100vw; height: 100vh; z-index: 1"
-        :zoom="4"
-        :min-zoom="3"
-        :max-zoom="20"
-        :options="{ zoomControl: false, attributionControl: false }"
-        :bounds="bounds"
-        :max-bounds="bounds"
-        :max-bounds-viscosity="1.0"
-        class="darkMapBg"
-        :class="{ lightMapBg: lightThemeEnabled }"
-      >
-        <l-tile-layer
-          :url="`https://tiles.stadiamaps.com/tiles/alidade_smooth${
-            lightThemeEnabled ? '' : '_dark'
-          }/{z}/{x}/{y}{r}.png`"
-        ></l-tile-layer>
+      <l-control-zoom
+        v-if="!markersLoading"
+        position="bottomright"
+      ></l-control-zoom>
 
-        <l-control-zoom
-          v-if="!markersLoading"
-          position="bottomright"
-        ></l-control-zoom>
-
-        <l-feature-group ref="clickPopup">
-          <l-popup style="width: 200px">
-            <b-row class="text-center" align-h="center">
-              <b-button
-                class="popupBtn popupBtn--left"
-                variant="outline-primary"
-                @click="showConnectedMarkers()"
-              >
-                <b-icon-diagram-2 />
-              </b-button>
-              <b-button
-                class="popupBtn popupBtn--middle"
-                variant="outline-primary"
-                :href="
-                  selectedMarker
-                    ? `https://www.virustotal.com/gui/ip-address/${selectedMarker._id}`
-                    : '#'
-                "
-                target="_blank"
-              >
-                <b-icon-shield-shaded />
-              </b-button>
-              <b-button
-                class="popupBtn popupBtn--right"
-                variant="outline-primary"
-                @click="showMarkerModal()"
-              >
-                <b-icon-arrows-angle-expand />
-              </b-button>
-            </b-row>
-          </l-popup>
-        </l-feature-group>
-      </l-map>
-    </b-overlay>
-  </div>
+      <l-feature-group ref="clickPopup">
+        <l-popup style="width: 200px">
+          <b-row class="text-center" align-h="center">
+            <b-button
+              class="popupBtn popupBtn--left"
+              variant="outline-primary"
+              @click="showConnectedMarkers()"
+            >
+              <b-icon-diagram-2 />
+            </b-button>
+            <b-button
+              class="popupBtn popupBtn--middle"
+              variant="outline-primary"
+              :href="
+                selectedMarker
+                  ? `https://www.virustotal.com/gui/ip-address/${selectedMarker._id}`
+                  : '#'
+              "
+              target="_blank"
+            >
+              <b-icon-shield-shaded />
+            </b-button>
+            <b-button
+              class="popupBtn popupBtn--right"
+              variant="outline-primary"
+              @click="showMarkerModal()"
+            >
+              <b-icon-arrows-angle-expand />
+            </b-button>
+          </b-row>
+        </l-popup>
+      </l-feature-group>
+    </l-map>
+  </b-overlay>
 </template>
 
 <script>
@@ -230,29 +225,25 @@ export default {
 }
 </script>
 
-<style>
-.darkMap,
-.lightMap {
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  overflow: hidden;
+<style lang="scss">
+.visibot-map {
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  background-color: transparent;
 }
-.darkMap,
-.darkMapBg {
-  background-color: #222222 !important;
+.visibot-overlay {
+  width: 100vw;
+  height: 100vh;
 }
-.lightMap,
-.lightMapBg {
-  background-color: #ffffff !important;
+.overlay-light-bg {
+  background-color: #c1c9cc;
 }
-.darkFg {
+.overlay-dark-bg {
+  background-color: #222222;
+}
+.overlay-text {
   color: #ffffff;
-}
-.lightFg {
-  color: #242424;
 }
 .visiMapBottomBar {
   height: 42px;
