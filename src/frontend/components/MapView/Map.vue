@@ -235,6 +235,9 @@ export default {
 .visibot-overlay {
   width: 100vw;
   height: 100vh;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
 }
 .overlay-light-bg {
   background-color: #c1c9cc;

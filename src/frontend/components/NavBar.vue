@@ -1,86 +1,97 @@
 <template>
-  <div>
-    <b-navbar
-      id="navbar"
-      toggleable="md"
-      :type="lightThemeEnabled ? 'light' : 'dark'"
-      :variant="lightThemeEnabled ? 'light' : 'dark'"
-      style="z-index: 102"
-    >
-      <b-navbar-brand>VisI<span class="blue-bot">BoT</span></b-navbar-brand>
+  <b-navbar
+    v-show="settingsLoaded"
+    ref="navbar"
+    toggleable="md"
+    :type="lightThemeEnabled ? 'light' : 'dark'"
+    :variant="lightThemeEnabled ? 'light' : 'dark'"
+    style="z-index: 102"
+  >
+    <b-tooltip target="tooltip-lang-target" triggers="hover">
+      Change language
+    </b-tooltip>
 
-      <b-navbar-nav
-        v-if="$device.isMobile"
-        class="ml-auto"
-        style="
-          flex-direction: row;
-          margin-right: -16px;
-          font-size: 16px !important;
-        "
-      >
-        <b-nav-item style="margin-right: 14px" @click="toggleTheme()">
-          <b-icon-brightness-high v-if="lightThemeEnabled" />
-          <b-icon-brightness-high-fill v-else />
-        </b-nav-item>
-        <b-nav-item @click="toggleSidebar()">
-          <b-icon-layout-sidebar-reverse v-if="sidebarEnabled" />
-          <b-icon-layout-sidebar-inset-reverse v-else />
-        </b-nav-item>
-
-        <b-navbar-toggle target="collapse-area">
-          <b-icon-three-dots />
-        </b-navbar-toggle>
-      </b-navbar-nav>
-
-      <b-collapse id="collapse-area" is-nav>
-        <b-navbar-nav>
-          <b-nav-item href="/info">info</b-nav-item>
-        </b-navbar-nav>
-
-        <b-navbar-nav class="ml-auto">
-          <b-navbar-nav v-if="$device.isMobile" right>
-            <b-nav-item-dropdown :text="selectedLang.trans">
-              <b-dropdown-item
-                v-for="lang in langs"
-                :key="lang.iso"
-                :value="lang"
-                @click="updateLanguage(lang)"
-              >
-                <flag :iso="lang.iso" /> {{ lang.trans }}
-              </b-dropdown-item>
-            </b-nav-item-dropdown>
-          </b-navbar-nav>
-
-          <b-navbar-nav v-else right>
-            <b-nav-item-dropdown :text="selectedLang.trans">
-              <b-dropdown-item
-                v-for="lang in langs"
-                :key="lang.iso"
-                :value="lang"
-                @click="updateLanguage(lang)"
-              >
-                <flag :iso="lang.iso" /> {{ lang.trans }}
-              </b-dropdown-item>
-            </b-nav-item-dropdown>
-
-            <b-nav-item id="tooltip-theme-target" @click="toggleTheme()">
-              <b-icon-brightness-high v-if="lightThemeEnabled" />
-              <b-icon-brightness-high-fill v-else />
-            </b-nav-item>
-
-            <b-nav-item id="tooltip-sidebar-target" @click="toggleSidebar()">
-              <b-icon-layout-sidebar-reverse v-if="sidebarEnabled" />
-              <b-icon-layout-sidebar-inset-reverse v-else />
-            </b-nav-item>
-          </b-navbar-nav>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
+    <b-tooltip target="tooltip-sidebar-target" triggers="hover">
+      {{ sidebarEnabled ? "Hide" : "Show" }} sidebar
+    </b-tooltip>
 
     <b-tooltip target="tooltip-theme-target" triggers="hover">
-      Toggle Theme (Light/Dark)
+      Switch to {{ lightThemeEnabled ? "dark" : "light" }} theme
     </b-tooltip>
-  </div>
+    <b-navbar-brand>Visi<span class="blue-bot">Bot</span></b-navbar-brand>
+
+    <b-navbar-nav
+      v-if="$device.isMobile"
+      class="ml-auto"
+      style="
+        flex-direction: row;
+        margin-right: -16px;
+        font-size: 16px !important;
+      "
+    >
+      <b-nav-item style="margin-right: 14px" @click="toggleTheme()">
+        <b-icon-brightness-high v-if="lightThemeEnabled" />
+        <b-icon-brightness-high-fill v-else />
+      </b-nav-item>
+      <b-nav-item @click="toggleSidebar()">
+        <b-icon-layout-sidebar-reverse v-if="sidebarEnabled" />
+        <b-icon-layout-sidebar-inset-reverse v-else />
+      </b-nav-item>
+      <b-navbar-toggle target="collapse-area">
+        <b-icon-three-dots />
+      </b-navbar-toggle>
+    </b-navbar-nav>
+
+    <b-collapse id="collapse-area" is-nav>
+      <b-navbar-nav>
+        <b-nav-item href="/info">info</b-nav-item>
+      </b-navbar-nav>
+
+      <b-navbar-nav class="ml-auto">
+        <b-navbar-nav v-if="$device.isMobile" right>
+          <b-nav-item-dropdown
+            id="tooltip-lang-target"
+            :text="selectedLang.trans"
+          >
+            <b-dropdown-item
+              v-for="lang in langs"
+              :key="lang.iso"
+              :value="lang"
+              @click="updateLanguage(lang)"
+            >
+              <flag :iso="lang.iso" /> {{ lang.trans }}
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+
+        <b-navbar-nav v-else right>
+          <b-nav-item-dropdown
+            id="tooltip-lang-target"
+            :text="selectedLang.trans"
+          >
+            <b-dropdown-item
+              v-for="lang in langs"
+              :key="lang.iso"
+              :value="lang"
+              @click="updateLanguage(lang)"
+            >
+              <flag :iso="lang.iso" /> {{ lang.trans }}
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+
+          <b-nav-item id="tooltip-theme-target" @click="toggleTheme()">
+            <b-icon-brightness-high v-if="lightThemeEnabled" />
+            <b-icon-brightness-high-fill v-else />
+          </b-nav-item>
+
+          <b-nav-item id="tooltip-sidebar-target" @click="toggleSidebar()">
+            <b-icon-layout-sidebar-reverse v-if="sidebarEnabled" />
+            <b-icon-layout-sidebar-inset-reverse v-else />
+          </b-nav-item>
+        </b-navbar-nav>
+      </b-navbar-nav>
+    </b-collapse>
+  </b-navbar>
 </template>
 
 <script>
@@ -141,23 +152,25 @@ export default {
     lightThemeEnabled() {
       return this.$store.state.settings.lightThemeEnabled
     },
+    settingsLoaded() {
+      return this.$store.state.settings.settingsLoaded
+    },
+  },
+  watch: {
+    markers(markers) {
+      this.mapMarkers = markers
+    },
+  },
+  mounted() {
+    console.log(this.$refs.navbar)
+    this.$forceUpdate()
   },
   methods: {
     updateLanguage: function (lang) {
       this.$store.commit("settings/setSelectedLang", lang)
-      this.$auth.$storage.setLocalStorage(
-        "selectedLang",
-        this.selectedLang,
-        true
-      )
     },
     toggleTheme: function () {
       this.$store.commit("settings/toggleLightThemeEnabled")
-      this.$auth.$storage.setLocalStorage(
-        "lightThemeEnabled",
-        this.lightThemeEnabled,
-        false
-      )
     },
     toggleSidebar: function () {
       this.$store.commit("settings/toggleSidebarEnabled")

@@ -11,25 +11,67 @@
       :text-variant="lightThemeEnabled ? 'dark' : 'light'"
       :width="!$device.isMobile ? '480px' : '280px'"
     >
-      <template #footer="{ hide }">
-        <div class="d-flex bg-dark text-light align-items-center px-3 py-2">
-          <b-button size="sm" @click="hide">Close</b-button>
-        </div>
-      </template>
-
-      <div class="px-3 py-2">
-        <form class="form-inline">
-          <input
-            class="form-control mr-sm-2"
+      <b-form style="padding: 20px" @submit.stop.prevent>
+        <b-form-group label="Filter results:" label-size="lg">
+          <b-input
             type="search"
-            placeholder="Search"
-            aria-label="Search"
+            placeholder="Search by tag description"
+            aria-describedby="bot marker search"
+            class="mb-2"
           />
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-            Search
-          </button>
-        </form>
-      </div>
+          <b-form-tags class="mb-2"></b-form-tags>
+          <b-form-select class="mb-2"></b-form-select>
+        </b-form-group>
+
+        <b-form-group label="Results by date and time" label-size="lg">
+          <b-form-datepicker
+            id="results-datepicker"
+            placeholder="Seen at date"
+            class="mb-2"
+          ></b-form-datepicker>
+          <b-form-timepicker
+            locale="en"
+            class="mb-2"
+            placeholder="Seen after time"
+          ></b-form-timepicker>
+          <b-form-timepicker
+            locale="en"
+            class="mb-2"
+            placeholder="Seen before time"
+          ></b-form-timepicker>
+        </b-form-group>
+
+        <b-form-group label="Toggle marker types" label-size="lg">
+          <b-form-checkbox-group
+            :options="[
+              'Bot Actvity',
+              'Unknown Acitivty',
+              'Report Servers',
+              'Loader Servers',
+              'C2 Servers',
+            ]"
+            size="lg"
+            switches
+            stacked
+          ></b-form-checkbox-group>
+        </b-form-group>
+
+        <b-form-group label="Marker Clustering" label-size="lg">
+          <label for="cluster-slider">Max cluster radius:</label>
+          <b-input
+            id="cluster-slider"
+            type="range"
+            aria-describedby="bot marker search"
+            class="mb-2"
+          />
+          <b-form-checkbox-group
+            :options="['Zoom on click', 'Show coverage on hover']"
+            size="lg"
+            switches
+            stacked
+          ></b-form-checkbox-group>
+        </b-form-group>
+      </b-form>
     </b-sidebar>
   </div>
 </template>
