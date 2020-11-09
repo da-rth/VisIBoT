@@ -1,78 +1,79 @@
 <template>
-  <b-overlay
-    :show="markersLoading"
-    bg-color="#181818"
-    opacity="0.7"
-    spinner-variant="primary"
-    :no-fade="false"
-    class="visibot-overlay"
-    :class="lightThemeEnabled ? 'overlay-light-bg' : 'overlay-dark-bg'"
-  >
-    <marker-modal ref="markerModal"></marker-modal>
-
-    <template #overlay>
-      <div class="text-center" style="width: 100%">
-        <b-spinner variant="primary" label="Spinning" />
-        <h4 class="overlay-text">Loading map...</h4>
-      </div>
-    </template>
-
-    <l-map
-      ref="map"
-      :zoom="4"
-      :min-zoom="3"
-      :max-zoom="20"
-      :options="{ zoomControl: false, attributionControl: false }"
-      :bounds="bounds"
-      :max-bounds="bounds"
-      :max-bounds-viscosity="1.0"
-      class="visibot-map"
+  <div>
+    <b-overlay
+      :show="markersLoading"
+      bg-color="#181818"
+      opacity="0.7"
+      spinner-variant="primary"
+      :no-fade="false"
+      class="visibot-overlay"
+      :class="lightThemeEnabled ? 'overlay-light-bg' : 'overlay-dark-bg'"
     >
-      <l-tile-layer
-        :url="`https://tiles.stadiamaps.com/tiles/alidade_smooth${
-          lightThemeEnabled ? '' : '_dark'
-        }/{z}/{x}/{y}{r}.png`"
-      ></l-tile-layer>
+      <template #overlay>
+        <div class="text-center" style="width: 100%">
+          <b-spinner variant="primary" label="Spinning" />
+          <h4 class="overlay-text">Loading map...</h4>
+        </div>
+      </template>
 
-      <l-control-zoom
-        v-if="!markersLoading"
-        position="bottomright"
-      ></l-control-zoom>
+      <l-map
+        ref="map"
+        :zoom="4"
+        :min-zoom="3"
+        :max-zoom="20"
+        :options="{ zoomControl: false, attributionControl: false }"
+        :bounds="bounds"
+        :max-bounds="bounds"
+        :max-bounds-viscosity="1.0"
+        class="visibot-map"
+      >
+        <l-tile-layer
+          :url="`https://tiles.stadiamaps.com/tiles/alidade_smooth${
+            lightThemeEnabled ? '' : '_dark'
+          }/{z}/{x}/{y}{r}.png`"
+        ></l-tile-layer>
 
-      <l-feature-group ref="clickPopup">
-        <l-popup style="width: 200px">
-          <b-row class="text-center" align-h="center">
-            <b-button
-              class="popupBtn popupBtn--left"
-              variant="outline-primary"
-              @click="showConnectedMarkers()"
-            >
-              <b-icon-diagram-2 />
-            </b-button>
-            <b-button
-              class="popupBtn popupBtn--middle"
-              variant="outline-primary"
-              :href="
-                selectedMarker
-                  ? `https://www.virustotal.com/gui/ip-address/${selectedMarker._id}`
-                  : '#'
-              "
-              target="_blank"
-            >
-              <b-icon-shield-shaded />
-            </b-button>
-            <b-button
-              class="popupBtn popupBtn--right"
-              variant="outline-primary"
-              @click="showMarkerModal()"
-            >
-              <b-icon-arrows-angle-expand />
-            </b-button>
-          </b-row>
-        </l-popup>
-      </l-feature-group>
-    </l-map>
-  </b-overlay>
+        <l-control-zoom
+          v-if="!markersLoading"
+          position="bottomright"
+        ></l-control-zoom>
+
+        <l-feature-group ref="clickPopup">
+          <l-popup style="width: 200px">
+            <b-row class="text-center" align-h="center">
+              <b-button
+                class="popupBtn popupBtn--left"
+                variant="outline-primary"
+                @click="showConnectedMarkers()"
+              >
+                <b-icon-diagram-2 />
+              </b-button>
+              <b-button
+                class="popupBtn popupBtn--middle"
+                variant="outline-primary"
+                :href="
+                  selectedMarker
+                    ? `https://www.virustotal.com/gui/ip-address/${selectedMarker._id}`
+                    : '#'
+                "
+                target="_blank"
+              >
+                <b-icon-shield-shaded />
+              </b-button>
+              <b-button
+                class="popupBtn popupBtn--right"
+                variant="outline-primary"
+                @click="showMarkerModal()"
+              >
+                <b-icon-arrows-angle-expand />
+              </b-button>
+            </b-row>
+          </l-popup>
+        </l-feature-group>
+      </l-map>
+    </b-overlay>
+    <marker-modal ref="markerModal" class="modal"></marker-modal>
+  </div>
 </template>
 
 <script>
@@ -157,7 +158,7 @@ export default {
           marker.data.coordinates.lng
         )
         let lMarker = L.marker(markerLatLng, {
-          title: `${marker.server_type} Activity`,
+          title: this.getTitleTranslation(marker),
         })
         lMarker.on("click", () => {
           this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
@@ -175,6 +176,20 @@ export default {
 
       if (processed === total) {
         console.log("complete")
+      }
+    },
+    getTitleTranslation: function (marker) {
+      switch (marker.server_type) {
+        case "Bot":
+          return this.$t("Botnet Activity")
+        case "Loader Server":
+          return this.$t("Loader Server")
+        case "Report Server":
+          return this.$t("Report Server")
+        case "C2 Server":
+          return this.$t("C2 Server")
+        case "Unknown":
+          return this.$t("Unknown")
       }
     },
     showToast: function (title, body, variant) {

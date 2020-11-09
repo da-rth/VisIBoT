@@ -36,7 +36,13 @@ export default {
         icons: true,
       },
     ],
-    "nuxt-leaflet",
+    ["nuxt-leaflet"],
+    [
+      "nuxt-i18n",
+      {
+        strategy: "prefix_except_default",
+      },
+    ],
     [
       "nuxt-highlightjs",
       {
@@ -44,6 +50,70 @@ export default {
       },
     ],
   ],
+  i18n: {
+    lazy: true,
+    langDir: "lang/",
+    loadLanguagesAsync: true,
+    defaultLocale: "en",
+    locales: [
+      {
+        code: "en",
+        flag: "gb",
+        iso: "en-GB",
+        name: "English",
+        file: "en.json",
+      },
+      {
+        code: "es",
+        flag: "es",
+        iso: "es-ES",
+        name: "Español",
+        file: "es.json",
+      },
+      {
+        code: "de",
+        flag: "de",
+        iso: "de-DE",
+        name: "Deutsch",
+        file: "de.json",
+      },
+      {
+        code: "fr",
+        flag: "fr",
+        iso: "fr-FR",
+        name: "Français",
+        file: "fr.json",
+      },
+      {
+        code: "zh-CN",
+        flag: "cn",
+        iso: "zh-CN",
+        name: "中文",
+        file: "cn.json",
+      },
+      {
+        code: "ja",
+        flag: "jp",
+        iso: "jp",
+        name: "日本人",
+        file: "jp.json",
+      },
+      {
+        code: "pt-BR",
+        flag: "pt",
+        iso: "pt-BR",
+        name: "Português",
+        file: "pt.json",
+      },
+      {
+        code: "ru",
+        flag: "ru",
+        iso: "ru",
+        name: "русский",
+        file: "ru.json",
+      },
+    ],
+  },
   bootstrapVue: {
     bootstrapCSS: false,
     bootstrapVueCSS: false,

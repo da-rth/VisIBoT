@@ -44,22 +44,23 @@
 
     <b-collapse id="collapse-area" is-nav>
       <b-navbar-nav>
-        <b-nav-item href="/info">info</b-nav-item>
+        <b-nav-item href="/info">{{ $t("information") }}</b-nav-item>
       </b-navbar-nav>
 
       <b-navbar-nav class="ml-auto">
         <b-navbar-nav v-if="$device.isMobile" right>
           <b-nav-item-dropdown
             id="tooltip-lang-target"
-            :text="selectedLang.trans"
+            right
+            :text="currentLocale.name"
           >
             <b-dropdown-item
-              v-for="lang in langs"
-              :key="lang.iso"
-              :value="lang"
+              v-for="lang in availableLocales"
+              :key="lang.code"
+              :value="lang.code"
               @click="updateLanguage(lang)"
             >
-              <flag :iso="lang.iso" /> {{ lang.trans }}
+              <flag :iso="lang.flag" /> {{ lang.name }}
             </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -67,15 +68,16 @@
         <b-navbar-nav v-else right>
           <b-nav-item-dropdown
             id="tooltip-lang-target"
-            :text="selectedLang.trans"
+            right
+            :text="currentLocale.name"
           >
             <b-dropdown-item
-              v-for="lang in langs"
-              :key="lang.iso"
-              :value="lang"
+              v-for="lang in availableLocales"
+              :key="lang.code"
+              :value="lang.code"
               @click="updateLanguage(lang)"
             >
-              <flag :iso="lang.iso" /> {{ lang.trans }}
+              <flag :iso="lang.flag" /> {{ lang.name }}
             </b-dropdown-item>
           </b-nav-item-dropdown>
 
@@ -96,52 +98,6 @@
 
 <script>
 export default {
-  data: function () {
-    return {
-      langs: [
-        {
-          lang: "en",
-          iso: "gb",
-          trans: "English",
-        },
-        {
-          lang: "de",
-          iso: "de",
-          trans: "Deutsch",
-        },
-        {
-          lang: "es",
-          iso: "es",
-          trans: "Español",
-        },
-        {
-          lang: "fr",
-          iso: "fr",
-          trans: "Français",
-        },
-        {
-          lang: "ja",
-          iso: "jp",
-          trans: "日本人",
-        },
-        {
-          lang: "pt-BR",
-          iso: "pt",
-          trans: "Português",
-        },
-        {
-          lang: "ru",
-          iso: "ru",
-          trans: "русский",
-        },
-        {
-          lang: "zh-CN",
-          iso: "cn",
-          trans: "中文",
-        },
-      ],
-    }
-  },
   computed: {
     sidebarEnabled() {
       return this.$store.state.settings.sidebarEnabled
@@ -155,6 +111,12 @@ export default {
     settingsLoaded() {
       return this.$store.state.settings.settingsLoaded
     },
+    availableLocales() {
+      return this.$i18n.locales.filter((i) => i.code !== this.$i18n.locale)
+    },
+    currentLocale() {
+      return this.$i18n.locales.filter((i) => i.code === this.$i18n.locale)[0]
+    },
   },
   watch: {
     markers(markers) {
@@ -162,12 +124,11 @@ export default {
     },
   },
   mounted() {
-    console.log(this.$refs.navbar)
     this.$forceUpdate()
   },
   methods: {
     updateLanguage: function (lang) {
-      this.$store.commit("settings/setSelectedLang", lang)
+      this.$i18n.setLocale(lang.code)
     },
     toggleTheme: function () {
       this.$store.commit("settings/toggleLightThemeEnabled")

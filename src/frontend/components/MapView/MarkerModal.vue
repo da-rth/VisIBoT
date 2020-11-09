@@ -4,11 +4,7 @@
     centered
     scrollable
     size="lg"
-    :title="
-      activeMarker != null
-        ? `${getMarkerTypeStr()} ${getCityCountryStr(true)}`
-        : 'Loading...'
-    "
+    :title="activeMarker != null ? `${getCityAndCountry()}` : 'Loading...'"
     header-border-variant="dark"
     header-bg-variant="dark"
     header-text-variant="light"
@@ -53,6 +49,9 @@ export default {
     selectedLang() {
       return this.$store.state.settings.selectedLang
     },
+    currentLocale() {
+      return this.$i18n.locales.filter((i) => i.code === this.$i18n.locale)[0]
+    },
   },
   methods: {
     show: function () {
@@ -64,17 +63,26 @@ export default {
         ? "Suspicous Activity"
         : "Possible " + this.activeMarker.server_type + " Activity"
     },
-    getCityCountryStr: function (parentheses = false) {
-      // Some markers may only have an english name 'en' e.g. Fish Town
+    getCountry: function () {
+      let countryName = this.activeMarker.data.country.names[
+        this.currentLocale.code
+      ]
+      return countryName
+        ? countryName
+        : this.activeMarker.data.country.names["en"]
+    },
+    getCity: function () {
       let cityName = this.activeMarker.data.city
-        ? this.activeMarker.data.city.names[this.selectedLang.lang] + ", "
+        ? this.activeMarker.data.city.names[this.currentLocale.code]
         : ""
-      let countryName = this.activeMarker.data.country
-        ? this.activeMarker.data.country.names[this.selectedLang.lang]
-        : ""
-      return parentheses
-        ? `(${cityName}${countryName})`
-        : `${cityName}${countryName}`
+      return cityName ? cityName : this.activeMarker.data.city.names["en"]
+    },
+    getCityAndCountry() {
+      console.log(this.currentLocale)
+      let city = this.getCity()
+      let country = this.getCountry()
+      let cityStr = city ? city + ", " : ""
+      return `${cityStr}${country}`
     },
   },
 }

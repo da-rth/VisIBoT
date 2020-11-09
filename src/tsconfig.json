@@ -26,7 +26,8 @@
     "types": [
       "@types/node",
       "@nuxt/types",
-      "nuxt-leaflet"
+      "nuxt-leaflet",
+      "nuxt-i18n",
     ]
   },
   "exclude": [

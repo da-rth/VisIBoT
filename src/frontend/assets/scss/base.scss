@@ -10,6 +10,10 @@ html {
     box-sizing: border-box;
 }
 
+body {
+    padding-right: 0 !important;
+}
+
 *,
 *::before,
 *::after {
