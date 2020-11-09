@@ -93,7 +93,6 @@ def store_result(event_id, result_data, vt_api):
         result_data (dict): The dictionary (JSON Object) result data
     """
     scanned_payloads = []
-    vt_processing_urls = []
     now = datetime.utcnow()
 
     existing_result = db.Result.objects(event_id=event_id).first()
@@ -101,7 +100,7 @@ def store_result(event_id, result_data, vt_api):
     if existing_result:
         existing_result.updated_at = now
         existing_result.save()
-        return vt_processing_urls
+        return []
 
     payload_data = result_data['post_data'] + result_data['payload']
     validated_urls = [validate_url(url) for url in url_parser(payload_data)]
@@ -123,9 +122,6 @@ def store_result(event_id, result_data, vt_api):
             continue
 
         db.geodata_create_or_update(ip, hostname, "Loader Server", geodata, now)
-
-        vt_processing_urls.append(url)
-
         payload = db.payload_create_or_update(url, ip, now)
         scanned_payloads.append(payload.id)
 
@@ -150,4 +146,4 @@ def store_result(event_id, result_data, vt_api):
 
         db.result_create_or_update(event_id, result_data, now)
 
-    return vt_processing_urls
+    return scanned_payloads

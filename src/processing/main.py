@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from utils.misc import time_until, clear
 from pathlib import Path
-from utils.threading import ThreadPoolExecutorStackTraced
+from utils.stack_thread import ThreadPoolExecutorStackTraced
 from utils.virustotal import VirusTotalURLProcessor
 from concurrent.futures import as_completed
 from mongoengine import connect
@@ -91,8 +91,12 @@ def process_task(first_run=False):
 
     futures = [executor.submit(bp_utils.store_result, evt, res, vt_api) for evt, res in results.items()]
 
+    payloads_to_process = []
     for i, future in enumerate(as_completed(futures)):
-        print(f"Processed {i+1}/{res_len} results + {future.result()}", end="\r")
+        print(f"Processed {i+1}/{res_len} results", end="\r")
+        payloads_to_process += future.result()
+
+    print(payloads_to_process)
 
     print("Completed processing BadPackets results.\n")
 

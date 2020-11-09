@@ -2,6 +2,7 @@ aiohttp==3.6.3
 appdirs==1.4.4
 async-timeout==3.0.1
 attrs==20.2.0
+backoff==1.10.0
 certifi==2020.6.20
 chardet==3.0.4
 decorator==4.4.2
@@ -21,11 +22,14 @@ pylama==7.7.1
 pymongo==3.11.0
 python-dateutil==2.8.1
 python-dotenv==0.14.0
+ratelimit==2.2.1
 requests==2.24.0
-ripe.atlas.cousteau==1.4.2
+requests-file==1.5.1
 six==1.15.0
 snowballstemmer==2.0.0
 socketIO-client==0.7.2
+tld==0.12.2
+tldextract==3.0.2
 ua-parser==0.10.0
 uritools==3.0.0
 urlextract==1.1.0
