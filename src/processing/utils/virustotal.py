@@ -2,6 +2,9 @@ from virus_total_apis import PublicApi as VirusTotalPublicApi
 from ratelimit import limits, RateLimitException
 from backoff import on_exception, expo
 
+API_CALLS = 1000
+API_PERIOD = 60
+
 
 class VirusTotalURLProcessor:
 
@@ -42,7 +45,7 @@ class VirusTotalURLProcessor:
         return res
 
     @on_exception(expo, RateLimitException)
-    @limits(calls=4, period=30)
+    @limits(calls=API_CALLS, period=API_PERIOD)
     def api_request(self, req_type, url):
         """
         Allows for various VT API calls to be made while ensuring
@@ -104,3 +107,8 @@ class VirusTotalURLProcessor:
                 return self.store_result(response, processing=False)
 
         return False
+
+if __name__ == "__main__":
+    import os
+    vtapi = VirusTotalURLProcessor(os.getenv("VIRUSTOTAL_API_KEY"))
+    print(vtapi.process_url("http://117.20.205.13:2779/Mozi.a;chmod"))
