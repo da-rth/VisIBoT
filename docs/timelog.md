@@ -134,3 +134,42 @@
 * *4.0 hours* Re-wrote aws lambda function to remove flare-floss dependency
 * *1.0 hours* Researching traceroutes diagnostic command usage
 
+### 06 Nov 2020
+* *7.0 hours* Working on frontend (nuxt) interface
+
+### 06 Nov 2020
+* *4.0 hours* Added i18n internationalization (language support) to Nuxt frontend
+* *2.0 hours* Improved URL Parsing process to ignore specific top-level domains
+
+## Week 9
+
+### 11 Nov 2020
+* *3.0 hours* Reserching potential Linux malware sandboxes
+* *3.0 hours* Trying out Cuckoo and Detux malware sandboxes
+### 13 Nov 2020
+* *4.0 hours* Reading and taking notes on https://ieeexplore.ieee.org/document/4116687
+* *3.0 hours* Reading and taking notes on https://www.researchgate.net/publication/327622713_Spatial_Statistics_as_a_Metric_for_Detecting_Botnet_C2_Servers
+
+## Week 10
+
+### 19 Nov 2020
+* *3.0 hours* Reading and taking notes on research paper https://onlinelibrary.wiley.com/doi/full/10.1002/sec.431
+* *4.0 hours* Reading and taking notes on research paper https://ieeexplore.ieee.org/document/8969728
+* *4.0 hours* Reading and taking notes on research paper https://www.mdpi.com/1424-8220/19/3/727
+
+## Week 11
+### 07 Dec 2020
+* *3.0 hours* Creating flow-chart for processing script via draw.io
+* *2.0 hours* Researching LiSa Linux Sandbox
+### 12 Dec 2020
+* *4.0 hours* Setting up and testing LiSa Linux Sandbox
+
+## Week 12
+### 14 Dec 2020
+* *6.0 hours* Modifying LiSa source-code to allow for URL submissions and bash script execution
+* *1.0 hours* Meeting with supervisor discussing project status
+
+### 15 Dec 2020
+* *1.0 hours* Updating README.md with more detailed setup instructions
+* *0.5 hours* Removing un-needed utility modules from processing project
+
