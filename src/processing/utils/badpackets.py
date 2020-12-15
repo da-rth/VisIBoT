@@ -78,7 +78,7 @@ def query_badpackets(api, first_run=False):
     return all_results
 
 
-def store_result(event_id, result_data, vt_api):
+def store_result(event_id, result_data):
     """
     Takes a given event_id and results dict for a BadPackets result
     and processes it:

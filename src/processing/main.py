@@ -4,7 +4,6 @@ from datetime import datetime
 from utils.misc import time_until, clear
 from pathlib import Path
 from utils.stack_thread import ThreadPoolExecutorStackTraced
-from utils.virustotal import VirusTotalURLProcessor
 from concurrent.futures import as_completed
 from mongoengine import connect
 import utils.badpackets as bp_utils
@@ -49,7 +48,7 @@ def create_parser_options():
     )
 
 
-def check_options():
+def check_options(options):
     """
     Validates the command-line arguments provided by the user.
 
@@ -89,14 +88,14 @@ def process_task(first_run=False):
 
     print(f"\nTotal BadPackets results to process: {res_len}\n")
 
-    futures = [executor.submit(bp_utils.store_result, evt, res, vt_api) for evt, res in results.items()]
+    futures = [executor.submit(bp_utils.store_result, evt, res) for evt, res in results.items()]
 
     payloads_to_process = []
     for i, future in enumerate(as_completed(futures)):
         print(f"Processed {i+1}/{res_len} results", end="\r")
         payloads_to_process += future.result()
 
-    print(payloads_to_process)
+    # print(payloads_to_process)
 
     print("Completed processing BadPackets results.\n")
 
@@ -125,7 +124,8 @@ if __name__ == "__main__":
     create_parser_options()
 
     options, args = parser.parse_args()
-    check_options()
+    
+    check_options(options)
 
     clear()
 
@@ -135,17 +135,13 @@ if __name__ == "__main__":
     threads = options.threads
     hourly_min = options.hourly_min
 
-    print("- Thread count:", threads)
-    print("- Execute minute:", hourly_min)
+    print("- Thread count:", threads, "\n- Execute minute:", hourly_min)
 
     connect(host=os.getenv("MONGODB_URL"))
+
     print("- Connected to Database")
 
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
-    vt_api = VirusTotalURLProcessor(
-        os.getenv("VIRUSTOTAL_API_KEY")
-    )
-    print("- VirusTotal API: Authenticated token")
 
     bp_api = BadPacketsAPI(
         api_url=os.getenv("BADPACKETS_API_URL"),
