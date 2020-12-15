@@ -124,7 +124,7 @@ if __name__ == "__main__":
     create_parser_options()
 
     options, args = parser.parse_args()
-    
+
     check_options(options)
 
     clear()

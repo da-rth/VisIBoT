@@ -33,6 +33,7 @@ def parse_wget_payload(payload_str):
             path = wget_cmd[wget_cmd.index('-r')+1]
             return f"http://{host}{path}"
 
+
 def parse_curl_payload(payload_str):
     """
     Extracts URL information by working around busybox wget obfuscation method
@@ -109,7 +110,7 @@ def url_parser(data):
     data = remove_noise(unquote(data))
 
     extracted_urls = [url for url in extractor.find_urls(data) if valid_tld(url)]
-    
+
     if extracted_urls:
         urls.update([f'http://{url}' if not url.startswith("http") else url for url in extracted_urls])
     else:
