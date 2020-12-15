@@ -25,30 +25,44 @@ Visualised data-sets will be collected, correlated and pre-processed through var
     - Please make sure you are using Python 3.9 when running the processing script.
 
 # Setting up LiSa
-```bash
-# install docker and docker-compose onto your host
+[LiSa](https://github.com/danieluhricek/LiSa) is a Linux Sandbox project created by [Daniel Uhříček](https://github.com/danieluhricek) which provides automated Linux malware analysis on various CPU architectures.
 
-# Clone repository and enter URL Support Branch
-➜  ~ git clone https://github.com/denBot/LiSa -b File-URL-Support
-➜  ~ cd LiSa
+I have modified this project to allow for bash script execution and malware analysis task creation via URL submission.
 
-# Update host IP address
-➜  ~ vim docker-compose.yml
-    # Edit "webhost: localhost:4242" to your desired IP/port (or keep default)
+- install docker and docker-compose onto your host
+- Clone into `LiSa` repository and enter File-URL-Support branch
+    ```bash
+    ➜  ~ git clone https://github.com/denBot/LiSa -b File-URL-Support
+    ➜  ~ cd LiSa
+    ```
 
-# Configure VirusTotal Analyzer
-➜  ~ vim lisa/config.py
-    # Uncomment 'lisa.analysis.virustotal.VirusTotalAnalyzer'
-    # Add VirusTotal API Key to virus_total_key
+- Update host IP address
+    - `vim docker-compose.yml`
+    - Edit `webhost: localhost:4242` to your desired IP/port (or keep default). Change the IP to your Public IP address to allow for remote access to the LiSa API/dashboard.
+    - **Optional**: If you have one, you can add your MaxMind API Key to the `worker` section of `docker-compose.yml`
+    ```yml
+    worker:
+    image: lisa-worker
+    build:
+      context: .
+      dockerfile: ./docker/worker/Dockerfile
+      args:
+        maxmind_key: YOUR_KEY <--
+        ...
+    ...
+    ```
+- Configure VirusTotal Analyzer
+    - `vim lisa/config.py`
+    - Uncomment `'lisa.analysis.virustotal.VirusTotalAnalyzer'`
+    - Add VirusTotal API Key to `virus_total_key`
 
-# Build and run docker
-➜  ~ docker-compose build
-➜  ~ docker-compose up
-    # run docker-compose build to build containers (do this whenever you modify LiSa source-code)
-    # run docker-compose up to startup docker containers
-
-```
-
+- Build and run docker (rebuild whenever you modify LiSa code, config, yml, etc...)
+    ```bash
+    ➜  ~ docker-compose build
+    ➜  ~ docker-compose up # --scale worker={NUM_WORKERS_HERE}
+    ```
+    - You can specify the number of workers using the `--scale worker=` argument. Default: 1
+- Once Running, visit `localhost:4242` (or the host you configured in `docker-compose.yml`) to check it is running. You should see a Web Dashboard.
 
 # Setting up the backend
 Execute the below commands to run the BadPackets processing script. This script processes all honeypot entities caught by BadPackets and exports API data into a MongoDB schema format. Payloads are automatically extracted from BP Results and are analysed using the `LiSa` malware sandbox mentioned above.
