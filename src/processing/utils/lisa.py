@@ -42,7 +42,6 @@ class LiSaAPI:
             payload.save()
 
             candidate_servers = []
-            
 
             for endpoint in endpoints_out:
                 ip_address = IP(endpoint['ip'])
@@ -50,11 +49,11 @@ class LiSaAPI:
                 if ip_address.iptype() == 'PRIVATE':
                     continue
                 elif endpoint['blacklisted']:
-                    candidate_servers,append(endpoint)
-                elif ip_checker.check(str(ip_address)).blacklisted
-                    candidate_servers,append(endpoint)
+                    candidate_servers.append(endpoint)
+                elif ip_checker.check(str(ip_address)).blacklisted:
+                    candidate_servers.append(endpoint)
                 elif endpoint['data_in'] > 0:
-                    candidate_servers,append(endpoint)
+                    candidate_servers.append(endpoint)
             # get payload from db
             # Store virustotal results in payload record
             # parse endpoints
