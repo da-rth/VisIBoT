@@ -29,7 +29,7 @@ class Payload(mongo.Document):
     Malware payload information retrieved from BadPackets results
     """
     url               = mongo.StringField(required=True, unique=True)
-    vt_result         = mongo.DictField()
+    lisa              = mongo.DictField(required=False)
     ip_address        = mongo.ReferenceField(GeoData, required=True)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
@@ -58,9 +58,6 @@ def payload_create_or_update(url, ip, now):
     try:
         payload = Payload(
             url=url,
-            vt_result={
-                "processing": True,
-            },
             ip_address=ip,
             updated_at=now
         )

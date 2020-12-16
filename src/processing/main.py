@@ -44,7 +44,7 @@ def create_parser_options():
         action="store",
         dest="hourly_min",
         help="The minute when the hourly processor executes",
-        default=1,
+        default=30,
         type=int
     )
 
@@ -101,9 +101,9 @@ def process_task(first_run=False):
     for payload in payloads_to_process:
         create_task_success = lisa_api.create_file_task(payload)
         if create_task_success:
-            print(f"id: {payload.id} - url: {payload.url}")
+            print(f"- [LiSa] Trying to analyze url: {payload.url}")
 
-    print("Completed processing BadPackets results.\n")
+    print("\nCompleted processing BadPackets results. LiSa Analysis is running in background...\n")
 
     if not first_run:
         print(f"Waiting until next cycle at: {time_until(hourly_min)} (UTC)\n", end="\r")
@@ -161,12 +161,12 @@ if __name__ == "__main__":
 
     try:
         if first_run:
-            print("- Preparing first run...\n")
+            print("\nPreparing first run...\n")
             process_task(first_run)
-        print(f"- Starting processing loop.\n- Next cycle at: {time_until(hourly_min)} (UTC)\n", end="\r")
+        print(f"- Starting processing loop.\n- Next cycle at: {time_until(hourly_min)} (UTC)\n\n", end="\r")
         init_processing_loop()
     except (KeyboardInterrupt):
         print("\n\nClosing processing script and waiting on threads to finish...\n")
     finally:
         executor.shutdown(wait=True, cancel_futures=True)
-        print("\n\nGoodbye")
+        lisa_api.stop()
