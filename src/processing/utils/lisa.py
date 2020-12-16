@@ -1,6 +1,3 @@
-import sys; sys.path.append("..")
-import database as db
-import os
 import requests
 import threading
 import time
@@ -13,7 +10,7 @@ class LiSaAPI:
         self.pending_task_ids = []
         t = threading.Thread(name='init_task_checker', target=self.init_task_checker)
         t.start()
-    
+
     def create_file_task(self, payload):
         r = requests.post(f"{self.api_url}/tasks/create/file", {'url': payload.url})
         data = r.json()
@@ -26,7 +23,6 @@ class LiSaAPI:
             self.pending_task_ids.append([payload, task_id])
             return True
 
-    
     def process_task_results(self, payload, task_id):
         print("Processing Results")
         r = requests.get(f"{self.api_url}/report/{task_id}")
@@ -34,19 +30,17 @@ class LiSaAPI:
             analysis = r.json()
 
             strings = analysis['static_analysis']['strings']
-            endpoints_out =  analysis['dynamic_analysis']['endpoints']
+            endpoints_out = analysis['dynamic_analysis']['endpoints']
 
             payload.vt_result = analysis['virustotal']
             payload.vt_result['processing'] = False
             payload.save()
-
             # get payload from db
             # Store virustotal results in payload record
             # parse endpoints
             # parse strings for IP addresses
-
             # print(json.dumps(virus_total, indent=1))
-            print("success")
+            print(f"success | strings: {len(strings)} | endponts: {len(endpoints_out)}")
 
     def init_task_checker(self):
         while True:
