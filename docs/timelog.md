@@ -187,3 +187,4 @@
 * *4.0 hours* Created API wrapper for LiSa sandbox integration with processing script
 * *2.0 hours* Integrated LiSa API into payload analysis stage of processing script
 * *1.0 hours* Added blacklist checking using pydnsbl to shortlist candidate C2 servers
+* *3.0 hours* Implemented geodata creation for candidate C2 servers and fixed various bugs
