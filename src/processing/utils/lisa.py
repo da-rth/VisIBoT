@@ -25,7 +25,6 @@ class LiSaAPI:
 
     def create_file_task(self, payload):
         r = requests.post(f"{self.api_url}/tasks/create/file", {'url': payload.url})
-        data = r.json()
 
         if r.status_code == 200 and r.json():
             task_id = r.json()['task_id']
@@ -36,8 +35,8 @@ class LiSaAPI:
         r = requests.get(f"{self.api_url}/report/{task_id}")
         if r.status_code == 200:
             analysis = r.json()
-
-            strings = analysis['static_analysis']['strings'].copy()
+            # TODO: Strings analysis
+            # strings = analysis['static_analysis']['strings'].copy()
             endpoints = analysis['network_analysis']['endpoints'].copy()
             candidate_servers = []
 
@@ -80,11 +79,11 @@ class LiSaAPI:
     def init_task_checker(self):
         while self.running:
             tasks_to_remove = []
-            
+
             for payload, task_id in self.pending_task_ids:
                 if not self.running:
                     break
-                
+
                 r = requests.get(f"{self.api_url}/tasks/view/{task_id}")
 
                 if r.status_code == 500:
@@ -97,7 +96,7 @@ class LiSaAPI:
                         tasks_to_remove.append(task_id)
 
             self.pending_task_ids = [task for task in self.pending_task_ids if task[1] not in tasks_to_remove]
-            
+
             time.sleep(2)
 
         print("Stopped LiSa task. Exiting...")
