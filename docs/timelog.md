@@ -185,3 +185,4 @@
 
 ### 16 Dec 2020
 * *4.0 hours* Created API wrapper for LiSa sandbox integration with processing script
+* *2.0 hours* Integrated LiSa API into payload analysis stage of processing script
