@@ -32,7 +32,7 @@ I have modified this project to allow for bash script execution and malware anal
 - install docker and docker-compose onto your host
 - Clone into `LiSa` repository and enter File-URL-Support branch
     ```bash
-    ➜  ~ git clone https://github.com/denBot/LiSa -b File-URL-Support
+    ➜  ~ git clone https://github.com/denBot/LiSa-modified
     ➜  ~ cd LiSa
     ```
 
