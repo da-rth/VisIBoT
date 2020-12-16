@@ -17,6 +17,8 @@ PROC_PARAMS = [
     [('payload', 'chmod')],
     [('post_data', 'chmod')],
     [('tags', 'Mirai')],
+    [('tags', 'IoT')],
+    [('tags', 'Bashlite')],
     [('tags', 'Botnet')],
 ]
 
@@ -63,14 +65,14 @@ def query_badpackets(api, first_run=False):
         print(f" -> Querying params: {param_str}")
 
         with suppress(HTTPError, AttributeError):
-            time.sleep(1)
+            time.sleep(2)
             results_json = api.query(params).json()
             all_results += results_json['results']
             page_num = 2
 
             while results_json['next']:
                 print("    ... Querying Page", page_num)
-                time.sleep(1)
+                time.sleep(2)
                 results_json = api.get_url(results_json['next']).json()
                 all_results += results_json['results']
                 page_num += 1
@@ -113,7 +115,7 @@ def store_result(event_id, result_data):
         if existing_payload:
             existing_payload.updated_at = now
             existing_payload.save()
-            scanned_payloads.append(existing_payload.id)
+            scanned_payloads.append(existing_payload)
             continue
 
         geodata = geoip_info(ip)
@@ -123,7 +125,7 @@ def store_result(event_id, result_data):
 
         db.geodata_create_or_update(ip, hostname, "Loader Server", geodata, now)
         payload = db.payload_create_or_update(url, ip, now)
-        scanned_payloads.append(payload.id)
+        scanned_payloads.append(payload)
 
     geodata = geoip_info(result_data['source_ip_address'])
 

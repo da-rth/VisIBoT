@@ -141,14 +141,17 @@
 * *4.0 hours* Added i18n internationalization (language support) to Nuxt frontend
 * *2.0 hours* Improved URL Parsing process to ignore specific top-level domains
 
+
 ## Week 9
 
 ### 11 Nov 2020
 * *3.0 hours* Reserching potential Linux malware sandboxes
 * *3.0 hours* Trying out Cuckoo and Detux malware sandboxes
+
 ### 13 Nov 2020
 * *4.0 hours* Reading and taking notes on https://ieeexplore.ieee.org/document/4116687
 * *3.0 hours* Reading and taking notes on https://www.researchgate.net/publication/327622713_Spatial_Statistics_as_a_Metric_for_Detecting_Botnet_C2_Servers
+
 
 ## Week 10
 
@@ -157,19 +160,28 @@
 * *4.0 hours* Reading and taking notes on research paper https://ieeexplore.ieee.org/document/8969728
 * *4.0 hours* Reading and taking notes on research paper https://www.mdpi.com/1424-8220/19/3/727
 
+
 ## Week 11
+
 ### 07 Dec 2020
 * *3.0 hours* Creating flow-chart for processing script via draw.io
 * *2.0 hours* Researching LiSa Linux Sandbox
+
 ### 12 Dec 2020
 * *4.0 hours* Setting up and testing LiSa Linux Sandbox
 
+
 ## Week 12
+
 ### 14 Dec 2020
 * *6.0 hours* Modifying LiSa source-code to allow for URL submissions and bash script execution
 * *1.0 hours* Meeting with supervisor discussing project status
 
 ### 15 Dec 2020
 * *1.0 hours* Updating README.md with more detailed setup instructions
+* *0.5 hours* Updated .env.example with new env variables
 * *0.5 hours* Removing un-needed utility modules from processing project
+* *4.0 hours* Modifying LiSa source-code to allow for custom filename and arguments
 
+### 16 Dec 2020
+* *4.0 hours* Created API wrapper for LiSa sandbox integration with processing script

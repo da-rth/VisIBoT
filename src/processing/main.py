@@ -1,4 +1,5 @@
 from badpackets import BadPacketsAPI
+from utils.lisa import LiSaAPI
 from dotenv import load_dotenv
 from datetime import datetime
 from utils.misc import time_until, clear
@@ -95,7 +96,12 @@ def process_task(first_run=False):
         print(f"Processed {i+1}/{res_len} results", end="\r")
         payloads_to_process += future.result()
 
-    # print(payloads_to_process)
+    print(f"\nTotal Payloads: {len(payloads_to_process)}")
+
+    for payload in payloads_to_process:
+        create_task_success = lisa_api.create_file_task(payload)
+        if create_task_success:
+            print(f"id: {payload.id} - url: {payload.url}")
 
     print("Completed processing BadPackets results.\n")
 
@@ -120,25 +126,23 @@ def init_processing_loop():
 
 
 if __name__ == "__main__":
+    # Check processing script arguments
     parser = optparse.OptionParser()
     create_parser_options()
-
     options, args = parser.parse_args()
-
     check_options(options)
 
     clear()
-
     print("Initialised VisIBoT BadPackets Pre-processor 🤖")
 
     first_run = options.firstrun
     threads = options.threads
     hourly_min = options.hourly_min
-
     print("- Thread count:", threads, "\n- Execute minute:", hourly_min)
 
-    connect(host=os.getenv("MONGODB_URL"))
+    print("\nSetting up services")
 
+    connect(host=os.getenv("MONGODB_URL"))
     print("- Connected to Database")
 
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
@@ -148,8 +152,10 @@ if __name__ == "__main__":
         api_token=os.getenv("BADPACKETS_API_KEY")
     )
     bp_api.ping().raise_for_status()
-
     print("- BadPackets API: Authenticated token")
+
+    lisa_api = LiSaAPI(api_url=os.getenv("LISA_API_URL"))
+    print("- LiSa API: Setup")
 
     time.sleep(1)
 
@@ -163,4 +169,4 @@ if __name__ == "__main__":
         print("\n\nClosing processing script and waiting on threads to finish...\n")
     finally:
         executor.shutdown(wait=True, cancel_futures=True)
-        print("Goodbye")
+        print("\n\nGoodbye")
