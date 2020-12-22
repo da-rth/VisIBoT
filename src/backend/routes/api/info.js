@@ -36,4 +36,25 @@ router.route("/payload/:ipAddress").get(async (req, res) => {
     })
 })
 
+router.route("/tags").get(async (req, res) => {
+  Result.find()
+    .select({ tags: 1, _id: 0 })
+    .lean()
+    .exec(function (err, tags) {
+      let alltags = []
+      for (let tag of tags) {
+        let tags = tag.tags
+        alltags.push(tags)
+      }
+      console.log(alltags.length)
+      alltags = alltags.flat()
+      console.log(alltags.length)
+      alltags = [
+        ...new Map(alltags.map((item) => [item.description, item])).values(),
+      ]
+      console.log(alltags.length)
+      return getDocsResponse(res, alltags)
+    })
+})
+
 module.exports = router
