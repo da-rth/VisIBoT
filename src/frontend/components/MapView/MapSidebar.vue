@@ -43,12 +43,13 @@
 
         <b-form-group label="Toggle marker types" label-size="lg">
           <b-form-checkbox-group
+            v-model="selectedBotType"
             :options="[
-              'Bot Actvity',
-              'Unknown Acitivty',
-              'Report Servers',
-              'Loader Servers',
-              'C2 Servers',
+              'Bot',
+              'Unknown',
+              'Report Server',
+              'Loader Server',
+              'C2 Server',
             ]"
             size="lg"
             switches
@@ -78,9 +79,24 @@
 
 <script>
 export default {
+  data() {
+    return {
+      selectedBotType: this.$store.state.settings.mapSidebarSettings
+        .selectedBotType,
+      sidebarSettings: this.$store.state.settings.mapSidebarSettings,
+    }
+  },
   computed: {
     lightThemeEnabled() {
       return this.$store.state.settings.lightThemeEnabled
+    },
+  },
+  watch: {
+    selectedBotType: function (val) {
+      this.$store.commit("settings/setMapSidebarSettings", {
+        ...this.sidebarSettings,
+        selectedBotType: val,
+      })
     },
   },
   created() {

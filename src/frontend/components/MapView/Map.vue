@@ -100,6 +100,7 @@ export default {
         animateAddingMarkers: true,
         maxClusterRadius: 120,
       }),
+      mapSidebarSettings: this.$store.state.settings.mapSidebarSettings,
     }
   },
   head() {
@@ -129,7 +130,11 @@ export default {
   },
   watch: {
     markers(markers) {
-      this.mapMarkers = markers
+      this.mapMarkers = markers.filter((marker) => {
+        return this.$store.state.settings.mapSidebarSettings.selectedBotType.includes(
+          marker.server_type
+        )
+      })
     },
     mapMarkers(newMarkers) {
       this.updateMapWithNewMarkers(newMarkers)
@@ -139,6 +144,22 @@ export default {
         this.showToast("Error", "Something went wrong!", "danger")
       }
     },
+    mapSidebarSettings(val) {
+      this.mapSidebarSettings = val
+      this.updateMapWithNewMarkers(this.mapMarkers)
+    },
+  },
+  created() {
+    this.$store.watch(
+      (state) => state.settings.mapSidebarSettings.selectedBotType,
+      () => {
+        this.mapMarkers = this.markers.filter((marker) => {
+          return this.$store.state.settings.mapSidebarSettings.selectedBotType.includes(
+            marker.server_type
+          )
+        })
+      }
+    )
   },
   async beforeMount() {
     this.$store.dispatch("map/fetchMarkers")
@@ -148,6 +169,7 @@ export default {
       console.log("todo")
     },
     updateMapWithNewMarkers: function (markers) {
+      console.log("ping")
       let markerList = []
       this.$refs.map.mapObject.removeLayer(this.markerCluster)
       this.markerCluster.clearLayers()
