@@ -58,19 +58,22 @@
         </b-form-group>
 
         <b-form-group label="Marker Clustering" label-size="lg">
-          <label for="cluster-slider">Max cluster radius:</label>
-          <b-input
+          <b-form-spinbutton
             id="cluster-slider"
+            v-model="clusterRadius"
+            max="200"
+            min="20"
+            step="20"
             type="range"
-            aria-describedby="bot marker search"
-            class="mb-2"
+            style="margin-bottom: 10px;"
           />
-          <b-form-checkbox-group
-            :options="['Zoom on click', 'Show coverage on hover']"
-            size="lg"
-            switches
-            stacked
-          ></b-form-checkbox-group>
+          <b-form-checkbox v-model="zoomOnClick" switch>
+            Zoom map on cluster click
+          </b-form-checkbox>
+
+          <b-form-checkbox v-model="coverageOnHover" switch>
+            Show coverage on cluster hove
+          </b-form-checkbox>
         </b-form-group>
       </b-form>
     </b-sidebar>
@@ -81,9 +84,18 @@
 export default {
   data() {
     return {
+      sidebarSettings: this.$store.state.settings.mapSidebarSettings,
+
       selectedBotType: this.$store.state.settings.mapSidebarSettings
         .selectedBotType,
-      sidebarSettings: this.$store.state.settings.mapSidebarSettings,
+
+      clusterRadius: this.$store.state.settings.mapSidebarSettings
+        .clusterRadius,
+
+      coverageOnHover: this.$store.state.settings.mapSidebarSettings
+        .coverageOnHover,
+
+      zoomOnClick: this.$store.state.settings.mapSidebarSettings.zoomOnClick,
     }
   },
   computed: {
@@ -96,6 +108,24 @@ export default {
       this.$store.commit("settings/setMapSidebarSettings", {
         ...this.sidebarSettings,
         selectedBotType: val,
+      })
+    },
+    clusterRadius: function (val) {
+      this.$store.commit("settings/setMapSidebarSettings", {
+        ...this.sidebarSettings,
+        clusterRadius: val,
+      })
+    },
+    coverageOnHover: function (val) {
+      this.$store.commit("settings/setMapSidebarSettings", {
+        ...this.sidebarSettings,
+        coverageOnHover: val,
+      })
+    },
+    zoomOnClick: function (val) {
+      this.$store.commit("settings/setMapSidebarSettings", {
+        ...this.sidebarSettings,
+        zoomOnClick: val,
       })
     },
   },

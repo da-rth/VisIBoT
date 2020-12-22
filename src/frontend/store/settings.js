@@ -10,6 +10,9 @@ export const state = () => ({
       "Loader Server",
       "C2 Server",
     ],
+    clusterRadius: 100,
+    zoomOnClick: true,
+    coverageOnHover: true,
   },
 })
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-overlay
-      :show="markersLoading"
+      :show="markersLoading || markersReloading"
       bg-color="#181818"
       opacity="0.7"
       spinner-variant="primary"
@@ -94,13 +94,10 @@ export default {
         [20, 20],
         [-3, 50],
       ],
-      markerCluster: L.markerClusterGroup({
-        chunkedLoading: true,
-        chunkProgress: this.updateProgressBar,
-        animateAddingMarkers: true,
-        maxClusterRadius: 120,
-      }),
       mapSidebarSettings: this.$store.state.settings.mapSidebarSettings,
+      currentCuster: null,
+      markersReloading: false,
+      tags: null,
     }
   },
   head() {
@@ -126,6 +123,9 @@ export default {
       markersError: (state) => state.map.markersError,
       activeMarker: (state) => state.map.activeMarker,
       lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
+      selectedBotType: (state) =>
+        state.settings.mapSidebarSettings.selectedBotType,
+      clusterRadius: (state) => state.settings.mapSidebarSettings.clusterRadius,
     }),
   },
   watch: {
@@ -137,6 +137,7 @@ export default {
       })
     },
     mapMarkers(newMarkers) {
+      this.mapMarkers = newMarkers
       this.updateMapWithNewMarkers(newMarkers)
     },
     markersError(newError) {
@@ -148,18 +149,16 @@ export default {
       this.mapSidebarSettings = val
       this.updateMapWithNewMarkers(this.mapMarkers)
     },
-  },
-  created() {
-    this.$store.watch(
-      (state) => state.settings.mapSidebarSettings.selectedBotType,
-      () => {
-        this.mapMarkers = this.markers.filter((marker) => {
-          return this.$store.state.settings.mapSidebarSettings.selectedBotType.includes(
-            marker.server_type
-          )
-        })
-      }
-    )
+    clusterRadius() {
+      this.markersReloading = true
+      this.updateMapWithNewMarkers(this.mapMarkers)
+      this.markersReloading = false
+    },
+    selectedBotType(newVal) {
+      this.mapMarkers = this.markers.filter((marker) => {
+        return newVal.includes(marker.server_type)
+      })
+    },
   },
   async beforeMount() {
     this.$store.dispatch("map/fetchMarkers")
@@ -169,10 +168,18 @@ export default {
       console.log("todo")
     },
     updateMapWithNewMarkers: function (markers) {
-      console.log("ping")
+      console.log(markers)
       let markerList = []
-      this.$refs.map.mapObject.removeLayer(this.markerCluster)
-      this.markerCluster.clearLayers()
+      let markerCluster = L.markerClusterGroup({
+        chunkedLoading: true,
+        chunkProgress: this.updateProgressBar,
+        animateAddingMarkers: true,
+        maxClusterRadius: this.clusterRadius,
+      })
+
+      if (this.currentCuster) {
+        this.$refs.map.mapObject.removeLayer(this.currentCuster)
+      }
 
       for (let marker of markers) {
         let markerLatLng = L.latLng(
@@ -188,8 +195,9 @@ export default {
         })
         markerList.push(lMarker)
       }
-      this.markerCluster.addLayers(markerList)
-      this.$refs.map.mapObject.addLayer(this.markerCluster)
+      markerCluster.addLayers(markerList)
+      this.$refs.map.mapObject.addLayer(markerCluster)
+      this.currentCuster = markerCluster
     },
     updateProgressBar: function (processed, total, elapsed) {
       if (elapsed > 1000) {
