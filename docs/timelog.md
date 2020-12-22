@@ -188,3 +188,7 @@
 * *2.0 hours* Integrated LiSa API into payload analysis stage of processing script
 * *1.0 hours* Added blacklist checking using pydnsbl to shortlist candidate C2 servers
 * *3.0 hours* Implemented geodata creation for candidate C2 servers and fixed various bugs
+
+## Week 13
+### 22 Dec 2020
+* *8.0 hours* Front-end nuxt.js development - working on map sidebar features and new express.js backend api endpoint
