@@ -9,6 +9,10 @@ export const state = () => ({
   activeMarker: null,
   activeMarkerLoading: false,
   activeMarkerError: false,
+
+  searchTagDescriptions: [],
+  searchTagCategories: [],
+  searchTagCVEs: [],
 })
 
 export const mutations = {
@@ -42,6 +46,14 @@ export const mutations = {
   ["ACTIVE_MARKER_ERROR"](state) {
     state.activeMarkerError = true
   },
+
+  ["SEARCH_TAGS_STORE"](state, searchTags) {
+    state.searchTagDescriptions = searchTags.map((item) => item.description)
+    state.searchTagCVEs = [...new Set(searchTags.map((item) => item.cve))]
+    state.searchTagCategories = [
+      ...new Set(searchTags.map((item) => item.category)),
+    ]
+  },
 }
 
 export const actions = {
@@ -73,5 +85,15 @@ export const actions = {
         ) **/
       })
     context.commit("ACTIVE_MARKER_LOADED")
+  },
+  async fetchSearchTags(context) {
+    await axios
+      .get("http://localhost:8080/api/info/search-tags")
+      .then(async (response) => {
+        context.commit("SEARCH_TAGS_STORE", response.data)
+      })
+      .catch((e) => {
+        console.log("Failed to retrieve search tags", e)
+      })
   },
 }

@@ -162,6 +162,7 @@ export default {
   },
   async beforeMount() {
     this.$store.dispatch("map/fetchMarkers")
+    this.$store.dispatch("map/fetchSearchTags")
   },
   methods: {
     showConnectedMarkers: function () {

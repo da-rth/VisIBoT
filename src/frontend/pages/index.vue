@@ -1,7 +1,7 @@
 <template>
   <div>
-    <map-sidebar />
     <client-only>
+      <map-sidebar />
       <client-map />
     </client-only>
   </div>

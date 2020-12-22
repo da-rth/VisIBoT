@@ -18,6 +18,7 @@ export default {
   plugins: [
     { src: "@/plugins/vue2-leaflet-markercluster.js", mode: "client" },
     { src: "@/plugins/vue-flag-icon.js" },
+    { src: "@/plugins/vue-bootstrap-typehead.js", mode: "client" },
   ],
   auth: {
     plugins: [{ src: "~/plugins/init.js", mode: "client" }],

@@ -36,8 +36,12 @@ router.route("/payload/:ipAddress").get(async (req, res) => {
     })
 })
 
-router.route("/tags").get(async (req, res) => {
-  Result.find()
+router.route("/search-tags").get(async (req, res) => {
+  let nHoursAgo = new Date()
+
+  nHoursAgo.setHours(nHoursAgo.getHours() - 24)
+
+  Result.find({ updated_at: { $gte: nHoursAgo } })
     .select({ tags: 1, _id: 0 })
     .lean()
     .exec(function (err, tags) {
