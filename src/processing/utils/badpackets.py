@@ -48,7 +48,7 @@ def query_badpackets(api, first_run=False):
     all_results = []
 
     after_dt = (
-        datetime.utcnow() - timedelta(hours=FIRST_RUN_HOURS if first_run else 2)
+        datetime.utcnow() - timedelta(hours=FIRST_RUN_HOURS if first_run else 1)
     ).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     print(f"Querying BadPackets (last seen after {after_dt})")

@@ -163,7 +163,7 @@ if __name__ == "__main__":
         if first_run:
             print("\nPreparing first run...\n")
             process_task(first_run)
-        print(f"- Starting processing loop.\n- Next cycle at: {time_until(hourly_min)} (UTC)\n\n", end="\r")
+        print(f"\nStarting processing loop...\n- Next cycle at: {time_until(hourly_min)} (UTC)\n\n", end="\r")
         init_processing_loop()
     except (KeyboardInterrupt):
         print("\n\nClosing processing script and waiting on threads to finish...\n")
