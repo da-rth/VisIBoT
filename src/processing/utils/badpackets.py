@@ -140,7 +140,7 @@ def store_result(event_id, result_data):
         else:
             server_type = "Unknown"
 
-        geodata = db.geodata_create_or_update(ip, hostname, server_type, geodata, now)
+        geodata = db.geodata_create_or_update(ip, hostname, server_type, geodata, now, result_data['tags'])
 
         result_data['source_ip_address'] = geodata.id
         result_data['user_agent'] = useragent_parser(result_data['user_agent'])

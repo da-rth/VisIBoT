@@ -94,7 +94,6 @@ export default {
         [20, 20],
         [-3, 50],
       ],
-      mapSidebarSettings: this.$store.state.settings.mapSidebarSettings,
       currentCuster: null,
       markersReloading: false,
       tags: null,
@@ -123,41 +122,28 @@ export default {
       markersError: (state) => state.map.markersError,
       activeMarker: (state) => state.map.activeMarker,
       lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
-      selectedBotType: (state) =>
-        state.settings.mapSidebarSettings.selectedBotType,
-      clusterRadius: (state) => state.settings.mapSidebarSettings.clusterRadius,
+      mapSidebarSettings: (state) => state.settings.mapSidebarSettings,
     }),
   },
   watch: {
     markers(markers) {
-      this.mapMarkers = markers.filter((marker) => {
-        return this.$store.state.settings.mapSidebarSettings.selectedBotType.includes(
-          marker.server_type
-        )
-      })
-    },
-    mapMarkers(newMarkers) {
-      this.mapMarkers = newMarkers
-      this.updateMapWithNewMarkers(newMarkers)
+      console.log(markers)
+      this.mapMarkers = this.filterMarkers([...markers])
+      console.log(this.mapMarkers)
+      this.updateMapWithNewMarkers(this.mapMarkers)
     },
     markersError(newError) {
       if (newError) {
         this.showToast("Error", "Something went wrong!", "danger")
       }
     },
-    mapSidebarSettings(val) {
-      this.mapSidebarSettings = val
-      this.updateMapWithNewMarkers(this.mapMarkers)
-    },
-    clusterRadius() {
+    mapSidebarSettings() {
       this.markersReloading = true
+      console.log(this.markers)
+      this.mapMarkers = this.filterMarkers(this.markers)
+      console.log(this.mapMarkers)
       this.updateMapWithNewMarkers(this.mapMarkers)
       this.markersReloading = false
-    },
-    selectedBotType(newVal) {
-      this.mapMarkers = this.markers.filter((marker) => {
-        return newVal.includes(marker.server_type)
-      })
     },
   },
   async beforeMount() {
@@ -169,13 +155,14 @@ export default {
       console.log("todo")
     },
     updateMapWithNewMarkers: function (markers) {
-      console.log(markers)
       let markerList = []
       let markerCluster = L.markerClusterGroup({
         chunkedLoading: true,
         chunkProgress: this.updateProgressBar,
         animateAddingMarkers: true,
-        maxClusterRadius: this.clusterRadius,
+        maxClusterRadius: this.mapSidebarSettings.clusterRadius,
+        showCoverageOnHover: this.mapSidebarSettings.coverageOnHover,
+        zoomToBoundsOnClick: this.mapSidebarSettings.zoomOnClick,
       })
 
       if (this.currentCuster) {
@@ -267,6 +254,54 @@ export default {
         iconAnchor: [24, 41],
       })
     },
+    filterMarkers: function (markers) {
+      console.log("pong")
+      return markers.filter((marker) => {
+        let searchDescription = this.mapSidebarSettings.searchDescription
+        let selectedCategories = Array.from(
+          this.mapSidebarSettings.selectedCategories
+        )
+        let selectedCVEs = Array.from(this.mapSidebarSettings.selectedCVEs)
+
+        let includesCVEs = true
+        let includesCategories = true
+        let includesDescription = true
+        let includesServerType = this.mapSidebarSettings.selectedBotType.includes(
+          marker.server_type
+        )
+
+        if (marker.tags) {
+          let categories = marker.tags.categories
+          let cves = marker.tags.cves
+          let descriptions = marker.tags.descriptions
+
+          if (selectedCategories && categories) {
+            includesCategories = selectedCategories.some((element) =>
+              categories.includes(element)
+            )
+          }
+
+          if (selectedCVEs && cves) {
+            includesCVEs = selectedCVEs.some((element) =>
+              cves.includes(element)
+            )
+          }
+
+          if (searchDescription && descriptions) {
+            includesDescription = new RegExp(descriptions.join("|")).test(
+              searchDescription
+            )
+          }
+        }
+
+        return (
+          includesServerType &&
+          (includesCategories || selectedCategories.length == 0) &&
+          (includesCVEs || selectedCVEs.length == 0) &&
+          (includesDescription || searchDescription.length == 0)
+        )
+      })
+    }
   },
 }
 </script>

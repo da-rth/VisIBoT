@@ -14,16 +14,21 @@
       <b-form style="padding: 20px" @submit.stop.prevent>
         <b-form-group label="Filter BadPackets Results:" label-size="lg">
           <v-autocomplete
-            v-model="descSearch"
+            v-model="searchDescription"
             :min-matching-chars="0"
             :data="this.$store.state.map.searchTagDescriptions"
             placeholder="Search by description"
             aria-describedby="bot marker search"
             class="mb-2"
           />
+          <!--b-form-timepicker
+            locale="en"
+            class="mb-2"
+            placeholder="Seen after time (UTC)"
+          ></b-form-timepicker-->
           <b-form-tags
             id="tags-with-dropdown"
-            v-model="categoryValues"
+            v-model="selectedCategories"
             no-outer-focus
             class="mb-2"
           >
@@ -89,7 +94,7 @@
           </b-form-tags>
           <b-form-tags
             id="tags-with-dropdown"
-            v-model="cveValues"
+            v-model="selectedCVEs"
             no-outer-focus
             class="mb-2"
           >
@@ -155,28 +160,15 @@
           </b-form-tags>
         </b-form-group>
 
-        <b-form-group label="Results by date and time" label-size="lg">
-          <b-form-datepicker
-            id="results-datepicker"
-            placeholder="Seen at date (UTC)"
-            class="mb-2"
-          ></b-form-datepicker>
-          <b-form-timepicker
-            locale="en"
-            class="mb-2"
-            placeholder="Seen after time (UTC)"
-          ></b-form-timepicker>
-        </b-form-group>
-
         <b-form-group label="Toggle marker types" label-size="lg">
           <b-form-checkbox-group
             v-model="selectedBotType"
             :options="[
-              'Bot',
-              'Unknown',
-              'Report Server',
-              'Loader Server',
-              'C2 Server',
+              { text: 'Bot-like Activity', value: 'Bot' },
+              { text: 'Report Servers', value: 'Report Server' },
+              { text: 'Loader Servers', value: 'Loader Server' },
+              { text: 'Command & Control (C2) Servers', value: 'C2 Server' },
+              { text: 'Unknown Activity', value: 'Unknown' },
             ]"
             size="lg"
             switches
@@ -194,14 +186,16 @@
             type="range"
             style="margin-bottom: 10px"
           />
-          <b-form-checkbox v-model="zoomOnClick" switch>
+          <b-form-checkbox v-model="zoomOnClick" size="lg" switch>
             Zoom map on cluster click
           </b-form-checkbox>
 
-          <b-form-checkbox v-model="coverageOnHover" switch>
+          <b-form-checkbox v-model="coverageOnHover" size="lg" switch>
             Show coverage on cluster hove
           </b-form-checkbox>
         </b-form-group>
+        <br />
+        <b-button class="w-100" @click="updateMap">Update map</b-button>
       </b-form>
     </b-sidebar>
   </div>
@@ -224,35 +218,37 @@ export default {
 
       zoomOnClick: this.$store.state.settings.mapSidebarSettings.zoomOnClick,
 
-      descSearch: "",
+      searchDescription: this.$store.state.settings.mapSidebarSettings
+        .searchDescription,
+
+      selectedCategories: this.$store.state.settings.mapSidebarSettings
+        .selectedCategories,
+
+      selectedCVEs: this.$store.state.settings.mapSidebarSettings.selectedCVEs,
 
       categorySearch: "",
-      categoryValues: [],
-
       cveSearch: "",
       cveValues: [],
+      timeout: null,
     }
   },
   computed: {
     lightThemeEnabled() {
       return this.$store.state.settings.lightThemeEnabled
     },
-    criteria() {
-      return this.categorySearch.trim().toLowerCase()
-    },
     availableCatOptions() {
-      const criteria = this.criteria
+      const criteria = this.categorySearch.trim().toLowerCase()
       const options = this.$store.state.map.searchTagCategories.filter(
-        (opt) => this.categoryValues.indexOf(opt) === -1
+        (opt) => this.selectedCategories.indexOf(opt) === -1
       )
       return criteria
         ? options.filter((opt) => opt.toLowerCase().indexOf(criteria) > -1)
         : options
     },
     availableCVEOptions() {
-      const criteria = this.criteria
+      const criteria = this.cveSearch.trim().toLowerCase()
       const options = this.$store.state.map.searchTagCVEs.filter(
-        (opt) => this.categoryValues.indexOf(opt) === -1
+        (opt) => this.selectedCVEs.indexOf(opt) === -1
       )
       return criteria
         ? options.filter((opt) => opt.toLowerCase().indexOf(criteria) > -1)
@@ -271,32 +267,6 @@ export default {
       return ""
     },
   },
-  watch: {
-    selectedBotType: function (val) {
-      this.$store.commit("settings/setMapSidebarSettings", {
-        ...this.sidebarSettings,
-        selectedBotType: val,
-      })
-    },
-    clusterRadius: function (val) {
-      this.$store.commit("settings/setMapSidebarSettings", {
-        ...this.sidebarSettings,
-        clusterRadius: val,
-      })
-    },
-    coverageOnHover: function (val) {
-      this.$store.commit("settings/setMapSidebarSettings", {
-        ...this.sidebarSettings,
-        coverageOnHover: val,
-      })
-    },
-    zoomOnClick: function (val) {
-      this.$store.commit("settings/setMapSidebarSettings", {
-        ...this.sidebarSettings,
-        zoomOnClick: val,
-      })
-    },
-  },
   created() {
     this.$nuxt.$on("toggle-map-sidebar", () => {
       console.log("toggling sidebar")
@@ -306,6 +276,18 @@ export default {
     onCategoryTagClick({ option, addTag }) {
       addTag(option)
       this.search = ""
+    },
+    updateMap() {
+      this.$store.commit("settings/setMapSidebarSettings", {
+        ...this.sidebarSettings,
+        selectedCVEs: this.selectedCVEs,
+        selectedCategories: this.selectedCategories,
+        searchDescription: this.searchDescription,
+        zoomOnClick: this.zoomOnClick,
+        coverageOnHover: this.coverageOnHover,
+        clusterRadius: this.clusterRadius,
+        selectedBotType: this.selectedBotType,
+      })
     },
   },
 }

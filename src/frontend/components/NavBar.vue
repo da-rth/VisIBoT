@@ -34,8 +34,8 @@
         <b-icon-brightness-high-fill v-else />
       </b-nav-item>
       <b-nav-item @click="toggleSidebar()">
-        <b-icon-layout-sidebar-reverse v-if="sidebarEnabled" />
-        <b-icon-layout-sidebar-inset-reverse v-else />
+        <b-icon-layout-sidebar-inset-reverse v-if="sidebarEnabled" />
+        <b-icon-layout-sidebar-reverse v-else />
       </b-nav-item>
       <b-navbar-toggle target="collapse-area">
         <b-icon-three-dots />
@@ -87,8 +87,8 @@
           </b-nav-item>
 
           <b-nav-item id="tooltip-sidebar-target" @click="toggleSidebar()">
-            <b-icon-layout-sidebar-reverse v-if="sidebarEnabled" />
-            <b-icon-layout-sidebar-inset-reverse v-else />
+            <b-icon-layout-sidebar-inset-reverse v-if="sidebarEnabled" />
+            <b-icon-layout-sidebar-reverse v-else />
           </b-nav-item>
         </b-navbar-nav>
       </b-navbar-nav>

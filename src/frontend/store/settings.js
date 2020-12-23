@@ -13,6 +13,9 @@ export const state = () => ({
     clusterRadius: 100,
     zoomOnClick: true,
     coverageOnHover: true,
+    searchDescription: "",
+    selectedCategories: [],
+    selectedCVEs: [],
   },
 })
 
@@ -23,9 +26,6 @@ export const mutations = {
   setLocalStorage(state, local) {
     if (local.lightThemeEnabled) {
       state.lightThemeEnabled = local.lightThemeEnabled
-    }
-    if (local.mapSidebarSettings) {
-      state.mapSidebarSettings = local.mapSidebarSettings
     }
   },
   setSidebarEnabled(state, val) {
@@ -38,10 +38,6 @@ export const mutations = {
 
   setMapSidebarSettings(state, val) {
     state.mapSidebarSettings = val
-    localStorage.setItem(
-      "auth.mapSidebarSettings",
-      JSON.stringify(state.mapSidebarSettings)
-    )
   },
 
   toggleLightThemeEnabled(state) {
@@ -56,10 +52,8 @@ export const mutations = {
 export const actions = {
   initSettings(context) {
     const lightThemeEnabled = localStorage.getItem("auth.lightThemeEnabled")
-    const mapSidebarSettings = localStorage.getItem("auth.mapSidebarSettings")
     context.commit("setLocalStorage", {
       lightThemeEnabled,
-      mapSidebarSettings: JSON.parse(mapSidebarSettings),
     })
     context.commit("setSettingsLoaded", true)
   },

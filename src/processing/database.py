@@ -12,6 +12,7 @@ class GeoData(mongo.Document):
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
     data              = mongo.DictField(required=True)
     hostname          = mongo.StringField(required=False)
+    tags              = mongo.DictField(required=False)
     server_type       = mongo.StringField(
         required=True,
         choices=[
@@ -82,13 +83,30 @@ def result_create_or_update(event_id, result_data, now):
     return result
 
 
-def geodata_create_or_update(ip, hostname, server_type, geodata, now):
+def geodata_create_or_update(ip, hostname, server_type, geodata, now, tags=None):
+    if tags:
+        cves = []
+        categories = []
+        descriptions = []
+
+        for tag in tags:
+            cves.append(tag['cve'])
+            categories.append(tag['category'])
+            descriptions.append(tag['description'])
+
+        tags = {
+            'cves': cves,
+            'categories': categories,
+            'descriptions': descriptions,
+        }
+
     try:
         geodata = GeoData(
             ip_address=ip,
             hostname=hostname,
             server_type=server_type,
             data=geodata,
+            tags=tags,
         )
         geodata.save()
     except NotUniqueError:

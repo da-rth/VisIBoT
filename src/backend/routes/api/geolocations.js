@@ -18,6 +18,7 @@ router.route("/").get(async (req, res) => {
       server_type: 1,
       "data.coordinates.lat": 1,
       "data.coordinates.lng": 1,
+      tags: 1,
     })
     .exec(function (err, geodata) {
       if (err || !geodata)
