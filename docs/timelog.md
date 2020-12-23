@@ -192,3 +192,6 @@
 ## Week 13
 ### 22 Dec 2020
 * *8.0 hours* Front-end nuxt.js development - working on map sidebar features and new express.js backend api endpoint
+
+### 23 Dec 2020
+* *5.0 hours* Finished implementing map sidebar settings functionality
