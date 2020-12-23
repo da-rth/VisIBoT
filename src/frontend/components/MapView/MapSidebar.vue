@@ -12,12 +12,12 @@
       :width="!$device.isMobile ? '480px' : '280px'"
     >
       <b-form style="padding: 20px" @submit.stop.prevent>
-        <b-form-group label="Filter BadPackets Results:" label-size="lg">
+        <b-form-group :label="this.$t('Filter Results')" label-size="lg">
           <v-autocomplete
             v-model="searchDescription"
             :min-matching-chars="0"
             :data="this.$store.state.map.searchTagDescriptions"
-            placeholder="Search by description"
+            :placeholder="this.$t('Search by description')"
             aria-describedby="bot marker search"
             class="mb-2"
           />
@@ -41,11 +41,12 @@
                 menu-class="w-100"
               >
                 <template #button-content>
-                  <b-icon icon="tags"></b-icon> Select Categories
+                  <b-icon icon="tags"></b-icon>
+                  {{ $t("Select Categories") }}
                 </template>
                 <b-dropdown-form @submit.stop.prevent="() => {}">
                   <b-form-group
-                    label="Search categories"
+                    :label="$t('Search Categories')"
                     label-for="tag-search-input"
                     label-cols-md="auto"
                     class="mb-0"
@@ -71,7 +72,7 @@
                   {{ option }}
                 </b-dropdown-item-button>
                 <b-dropdown-text v-if="availableCatOptions.length === 0">
-                  There are no categories available to select
+                  {{ $t("There are no categories available to select") }}
                 </b-dropdown-text>
               </b-dropdown>
 
@@ -107,11 +108,12 @@
                 menu-class="w-100"
               >
                 <template #button-content>
-                  <b-icon icon="shield-lock"></b-icon> Select CVE Tags
+                  <b-icon icon="shield-lock"></b-icon>
+                  {{ $t("Select CVE Tags") }}
                 </template>
                 <b-dropdown-form @submit.stop.prevent="() => {}">
                   <b-form-group
-                    label="Search CVE tags"
+                    :label="$t('Search CVE tags')"
                     label-for="tag-search-input"
                     label-cols-md="auto"
                     class="mb-0"
@@ -137,7 +139,7 @@
                   {{ option }}
                 </b-dropdown-item-button>
                 <b-dropdown-text v-if="availableCVEOptions.length === 0">
-                  There are no CVE tags available to select
+                  {{ $t("There are no CVE tags available to select") }}
                 </b-dropdown-text>
               </b-dropdown>
 
@@ -160,15 +162,18 @@
           </b-form-tags>
         </b-form-group>
 
-        <b-form-group label="Toggle marker types" label-size="lg">
+        <b-form-group :label="this.$t('Toggle marker types')" label-size="lg">
           <b-form-checkbox-group
             v-model="selectedBotType"
             :options="[
-              { text: 'Bot-like Activity', value: 'Bot' },
-              { text: 'Report Servers', value: 'Report Server' },
-              { text: 'Loader Servers', value: 'Loader Server' },
-              { text: 'Command & Control (C2) Servers', value: 'C2 Server' },
-              { text: 'Unknown Activity', value: 'Unknown' },
+              { text: this.$t('Botnet Activity'), value: 'Bot' },
+              { text: this.$t('Report Servers'), value: 'Report Server' },
+              { text: this.$t('Loader Servers'), value: 'Loader Server' },
+              {
+                text: this.$t('Command & Control (C2) Servers'),
+                value: 'C2 Server',
+              },
+              { text: this.$t('Unknown Activity'), value: 'Unknown' },
             ]"
             size="lg"
             switches
@@ -176,7 +181,7 @@
           ></b-form-checkbox-group>
         </b-form-group>
 
-        <b-form-group label="Marker Clustering" label-size="lg">
+        <b-form-group :label="this.$t('Marker Clustering')" label-size="lg">
           <b-form-spinbutton
             id="cluster-slider"
             v-model="clusterRadius"
@@ -187,15 +192,17 @@
             style="margin-bottom: 10px"
           />
           <b-form-checkbox v-model="zoomOnClick" size="lg" switch>
-            Zoom map on cluster click
+            {{ $t("Zoom map on cluster click") }}
           </b-form-checkbox>
 
           <b-form-checkbox v-model="coverageOnHover" size="lg" switch>
-            Show coverage on cluster hove
+            {{ $t("Show coverage on hover") }}
           </b-form-checkbox>
         </b-form-group>
         <br />
-        <b-button class="w-100" @click="updateMap">Update map</b-button>
+        <b-button class="w-100" @click="updateMap">{{
+          $t("Update map")
+        }}</b-button>
       </b-form>
     </b-sidebar>
   </div>

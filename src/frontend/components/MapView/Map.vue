@@ -134,7 +134,13 @@ export default {
     },
     markersError(newError) {
       if (newError) {
-        this.showToast("Error", "Something went wrong!", "danger")
+        this.showToast(
+          this.$t("Error"),
+          this.$t(
+            "Something went wrong... we were unable to get the latest results. Please try again later."
+          ),
+          "danger"
+        )
       }
     },
     mapSidebarSettings() {
@@ -207,7 +213,7 @@ export default {
         case "C2 Server":
           return this.$t("C2 Server")
         case "Unknown":
-          return this.$t("Unknown")
+          return this.$t("Unknown Activity")
       }
     },
     showToast: function (title, body, variant) {
@@ -301,7 +307,7 @@ export default {
           (includesDescription || searchDescription.length == 0)
         )
       })
-    }
+    },
   },
 }
 </script>

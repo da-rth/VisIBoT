@@ -8,15 +8,19 @@
     style="z-index: 102"
   >
     <b-tooltip target="tooltip-lang-target" triggers="hover">
-      Change language
+      {{ $t("Change language") }}
     </b-tooltip>
 
     <b-tooltip target="tooltip-sidebar-target" triggers="hover">
-      {{ sidebarEnabled ? "Hide" : "Show" }} sidebar
+      {{ sidebarEnabled ? $t("Hide sidebar") : $t("Show sidebar") }}
     </b-tooltip>
 
     <b-tooltip target="tooltip-theme-target" triggers="hover">
-      Switch to {{ lightThemeEnabled ? "dark" : "light" }} theme
+      {{
+        lightThemeEnabled
+          ? $t("Change to dark theme")
+          : $t("Change to light theme")
+      }}
     </b-tooltip>
     <b-navbar-brand>Visi<span class="blue-bot">Bot</span></b-navbar-brand>
 
