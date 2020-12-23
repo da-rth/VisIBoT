@@ -195,3 +195,4 @@
 
 ### 23 Dec 2020
 * *5.0 hours* Finished implementing map sidebar settings functionality
+* *3.0 hours* Updating frontend language translation for sidebar and navbar text-content
