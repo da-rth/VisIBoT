@@ -209,8 +209,10 @@
 
 ### 14 Jan 2020
 * *4.0 hours* Further coding implementation for marker connections API endpoint
+* *1.0 hours* Implemented tftp URL extraction in utils/misc.py used by urlparser
 
 ### 15 Jan 2020
 * *2.0 hours* Refactored processing script URL validation stage and modified Payload + Results database tables to include references to related markers
 * *1.0 hours* Style-changes to Nuxt.js app Map Sidebar CSS
-* *6.o hours* Integrated connections API endpoint into frontend web app and finished initial implementation of marker connections feature
+* *6.0 hours* Integrated connections API endpoint into frontend web app and finished initial implementation of marker connections feature
+* *0.5 hours* Fixing linting bugs (pylama, eslint)

@@ -54,12 +54,12 @@ def parse_tftp_payload(payload_str):
     """
     with suppress(IndexError):
         payload_chars = payload_str.split(" ")
-        cmd_start = [i for i,s in enumerate(payload_chars) if 'tftp' in s][0]
-        cmd_end = cmd_start + 2 + [i for i,s in enumerate(payload_chars[cmd_start+1:]) if ';' in s][0]
+        cmd_start = [i for i, s in enumerate(payload_chars) if 'tftp' in s][0]
+        cmd_end = cmd_start + 2 + [i for i, s in enumerate(payload_chars[cmd_start+1:]) if ';' in s][0]
 
         tftp_command = " ".join(payload_chars[cmd_start:cmd_end]).replace(";", " ").split(" ")
 
-        host_index = [i for i,s in enumerate(tftp_command) if validators.ip_address.ipv4(s) or validators.domain(s)][0]
+        host_index = [i for i, s in enumerate(tftp_command) if validators.ip_address.ipv4(s) or validators.domain(s)][0]
         host = tftp_command[host_index]
         port = tftp_command[host_index+1] if tftp_command[host_index+1].isdigit() else None
 

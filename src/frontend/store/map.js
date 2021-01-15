@@ -114,5 +114,5 @@ export const actions = {
       .catch(() => {
         context.commit("MARKER_CONNECTIONS_RESET")
       })
-  }
+  },
 }

@@ -9,7 +9,10 @@
       z-index="5"
       :bg-variant="lightThemeEnabled ? 'light' : 'dark'"
       :text-variant="lightThemeEnabled ? 'dark' : 'light'"
-      :sidebar-class="{ lightBlur: lightThemeEnabled, darkBlur: !lightThemeEnabled }"
+      :sidebar-class="{
+        lightBlur: lightThemeEnabled,
+        darkBlur: !lightThemeEnabled,
+      }"
       :width="!$device.isMobile ? '480px' : '280px'"
     >
       <b-form style="padding: 20px" @submit.stop.prevent>

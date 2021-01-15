@@ -98,6 +98,7 @@ def process_task(first_run=False):
         payloads_to_process += future.result()
 
     print(f"\nTotal Payloads: {len(payloads_to_process)}")
+
     try:
         for payload in payloads_to_process:
             create_task_success = lisa_api.create_file_task(payload)
@@ -105,7 +106,6 @@ def process_task(first_run=False):
                 print(f"- [LiSa] Trying to analyze url: {payload.url}")
     except ConnectionError:
         print("\nNOTICE: Failed to connect to LiSa Server - Skipping payload malware analysis")
-
 
     print("\nCompleted processing BadPackets results. LiSa Analysis is running in background...\n")
 
