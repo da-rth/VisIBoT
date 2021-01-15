@@ -220,6 +220,7 @@ export default {
         )
         let lMarker = L.marker(markerLatLng, {
           title: this.getTitleTranslation(marker),
+          icon: this.getIcon(marker),
         })
         lMarker.on("click", () => {
           this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
@@ -290,7 +291,6 @@ export default {
     },
     getMarkerSvg: function (markerType) {
       let baseSvgName = "markers/marker"
-
       switch (markerType) {
         case "C2 Server":
           return `${baseSvgName}-red.svg`
@@ -306,6 +306,7 @@ export default {
     },
     getIcon: function (marker) {
       let markerSvg = this.getMarkerSvg(marker.server_type)
+
       return L.icon({
         iconUrl: markerSvg,
         iconSize: [47, 47],

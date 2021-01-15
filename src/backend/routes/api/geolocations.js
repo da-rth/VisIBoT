@@ -49,22 +49,25 @@ router.route("/full-details/:ip").get(async (req, res) => {
 
 let getPayloadConnections = async function (ipGeoData) {
   let connections = []
-  let allPayloads = await Payload.find({ ip_address: ipGeoData._id })
+  let allPayloads = await Payload.find({ ip_address: ipGeoData._id }).populate(
+    "candidate_C2s"
+  )
 
   for (let payload of allPayloads) {
     let payloadGeo = await GeoData.findOne({ _id: payload.ip_address })
-    let candidateC2sGeo = await GeoData.find({
-      _id: { $in: payload.candidate_C2s },
-    })
+
+    console.log(payload.candidate_C2s)
+
     let payloadResults = await Result.find({
       affiliated_ips: { $in: payload.ip_address },
     })
+
     let payloadResultsGeo = await GeoData.find({
       _id: { $in: payloadResults.map((result) => result.source_ip_address) },
     })
 
     connections = connections.concat(
-      candidateC2sGeo.map((geo) => {
+      payload.candidate_C2s.map((geo) => {
         return [payloadGeo.data.coordinates, geo.data.coordinates, geo._id]
       })
     )
@@ -89,7 +92,8 @@ let getC2Connections = async function (ipGeoData) {
     })
     let payloadResults = await Result.find({
       affiliated_ips: { $in: payload.ip_address },
-    })
+    }).populate("affiliated_ips")
+    console.log(payloadResults)
     let payloadResultsGeo = await GeoData.find({
       _id: { $in: payloadResults.map((result) => result.source_ip_address) },
     })
@@ -101,9 +105,11 @@ let getC2Connections = async function (ipGeoData) {
     )
 
     connections = connections.concat(
+      /**
       payloadResultsGeo.map((geo) => {
         return [payloadGeo.data.coordinates, geo.data.coordinates, geo._id]
-      })
+      })**/
+      payloadResultsGeo.map(async (geo) => await getPayloadConnections(geo))
     )
   }
   return connections
@@ -111,6 +117,7 @@ let getC2Connections = async function (ipGeoData) {
 
 let getResultConnections = async function (ipGeoData) {
   let connections = []
+
   let allResults = await Result.find({
     source_ip_address: ipGeoData._id,
   })
@@ -122,22 +129,18 @@ let getResultConnections = async function (ipGeoData) {
   })
 
   for (let payload of allPayloads) {
-    let payloadGeoData = await GeoData.findOne({ _id: payload.ip_address })
-    let C2GeoDatas = await GeoData.find({ _id: { $in: payload.candidate_C2s } })
+    let payloadGeo = await GeoData.findOne({ _id: payload.ip_address })
+    let c2Geos = await GeoData.find({ _id: { $in: payload.candidate_C2s } })
+
+    connections = connections.concat(await getPayloadConnections(payloadGeo))
+
+    for (let c2geo of c2Geos) {
+      connections = connections.concat(await getC2Connections(c2geo))
+    }
 
     connections = connections.concat([
-      [
-        ipGeoData.data.coordinates,
-        payloadGeoData.data.coordinates,
-        payloadGeoData._id,
-      ],
+      [ipGeoData.data.coordinates, payloadGeo.data.coordinates, payloadGeo._id],
     ])
-
-    connections = connections.concat(
-      C2GeoDatas.map((geo) => {
-        return [payloadGeoData.data.coordinates, geo.data.coordinates, geo._id]
-      })
-    )
   }
 
   return connections
