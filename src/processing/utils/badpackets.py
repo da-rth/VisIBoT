@@ -5,7 +5,7 @@ import time
 from datetime import datetime, timedelta
 from requests.exceptions import HTTPError
 from contextlib import suppress
-from utils.misc import url_parser, validate_url, useragent_parser, get_ip_hostname
+from utils.misc import url_parser, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
 
 
@@ -105,11 +105,10 @@ def store_result(event_id, result_data):
         return []
 
     payload_data = result_data['post_data'] + result_data['payload']
-    validated_urls = [validate_url(url) for url in url_parser(payload_data)]
-    validated_urls = [url for url in validated_urls if url]
+    validated_urls = [url for url in url_parser(payload_data) if url]
 
     for url_info in validated_urls:
-        url, hostname, ip = url_info
+        url, ip, hostname = url_info
         existing_payload = db.Payload.objects(url=url).first()
 
         if existing_payload:
@@ -135,7 +134,7 @@ def store_result(event_id, result_data):
 
         if has_botnet_tag(result_data['tags']):
             server_type = "Bot"
-        elif scanned_payloads and "<?xml" not in result_data['post_data']:
+        elif scanned_payloads:
             server_type = "Report Server"
         else:
             server_type = "Unknown"
@@ -144,8 +143,8 @@ def store_result(event_id, result_data):
 
         result_data['source_ip_address'] = geodata.id
         result_data['user_agent'] = useragent_parser(result_data['user_agent'])
-        result_data['scanned_payloads'] = scanned_payloads
-
+        result_data['scanned_urls'] = [payload.url for payload in scanned_payloads]
+        result_data['affiliated_ips'] = [payload.ip_address for payload in scanned_payloads]
         db.result_create_or_update(event_id, result_data, now)
 
     return scanned_payloads

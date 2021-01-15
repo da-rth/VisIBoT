@@ -37,6 +37,9 @@ router.route("/payload/:ipAddress").get(async (req, res) => {
 })
 
 router.route("/search-tags").get(async (req, res) => {
+  /**
+   * Returns an unique array of tags that are used for searching
+   */
   let nHoursAgo = new Date()
 
   nHoursAgo.setHours(nHoursAgo.getHours() - 24)
@@ -45,19 +48,18 @@ router.route("/search-tags").get(async (req, res) => {
     .select({ tags: 1, _id: 0 })
     .lean()
     .exec(function (err, tags) {
-      let alltags = []
+      let allTags = []
+
       for (let tag of tags) {
         let tags = tag.tags
-        alltags.push(tags)
+        allTags.push(tags)
       }
-      console.log(alltags.length)
-      alltags = alltags.flat()
-      console.log(alltags.length)
-      alltags = [
-        ...new Map(alltags.map((item) => [item.description, item])).values(),
-      ]
-      console.log(alltags.length)
-      return getDocsResponse(res, alltags)
+
+      return getDocsResponse(res, [
+        ...new Map(
+          allTags.flat().map((item) => [item.description, item])
+        ).values(),
+      ])
     })
 })
 

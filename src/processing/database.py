@@ -9,6 +9,7 @@ class GeoData(mongo.Document):
     BadPackets results
     """
     ip_address        = mongo.StringField(required=True, primary_key=True)
+    occurrences       = mongo.IntField(default=0)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
     data              = mongo.DictField(required=True)
     hostname          = mongo.StringField(required=False)
@@ -29,10 +30,12 @@ class Payload(mongo.Document):
     """
     Malware payload information retrieved from BadPackets results
     """
-    url               = mongo.StringField(required=True, unique=True)
+    url               = mongo.StringField(required=True, primary_key=True)
+    occurrences       = mongo.IntField(default=0)
     lisa              = mongo.DictField(required=False)
     ip_address        = mongo.ReferenceField(GeoData, required=True)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
+    candidate_C2s     = mongo.ListField(mongo.ReferenceField(GeoData, required=False), required=False, default=[])
 
 
 class Result(mongo.Document):
@@ -51,7 +54,8 @@ class Result(mongo.Document):
     first_seen        = mongo.StringField(required=True)
     last_seen         = mongo.StringField(required=True)
     tags              = mongo.ListField(mongo.DictField(required=True), required=True)
-    scanned_payloads  = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
+    scanned_urls      = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
+    affiliated_ips    = mongo.ListField(mongo.ReferenceField(GeoData, required=False), required=False)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
@@ -66,6 +70,7 @@ def payload_create_or_update(url, ip, now):
     except NotUniqueError:
         payload = Payload.objects(url=url).first()
         payload.updated_at = now
+        payload.occurrences += 1
         payload.save()
 
     return payload
@@ -77,6 +82,7 @@ def result_create_or_update(event_id, result_data, now):
         result.save()
     except (NotUniqueError, mongo.DuplicateKeyError):
         result = Result.objects(event_id=event_id).first()
+        result.scanned_payloads = list(set(result.scanned_payloads + result_data['scanned_payloads']))
         result.updated_at = now
         result.save()
 
@@ -112,6 +118,7 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, now, tags=None)
     except NotUniqueError:
         geodata = GeoData.objects(ip_address=ip).first()
         geodata.updated_at = now
+        geodata.occurrences += 1
         geodata.save()
 
     return geodata

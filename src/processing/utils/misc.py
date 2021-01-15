@@ -45,6 +45,31 @@ def parse_curl_payload(payload_str):
             return f"http://{url}" if not url.startswith("http") else url
 
 
+def parse_tftp_payload(payload_str):
+    """
+    Extracts URL information by parsing a payload string for tftp command information.
+    Rebuilds URL from extracted tftp command strings
+
+    Example: "tftp -l4 -r4 -g 127.0.0.1 36685" -> http://127.0.0.1:36685/
+    """
+    with suppress(IndexError):
+        payload_chars = payload_str.split(" ")
+        cmd_start = [i for i,s in enumerate(payload_chars) if 'tftp' in s][0]
+        cmd_end = cmd_start + 2 + [i for i,s in enumerate(payload_chars[cmd_start+1:]) if ';' in s][0]
+
+        tftp_command = " ".join(payload_chars[cmd_start:cmd_end]).replace(";", " ").split(" ")
+
+        host_index = [i for i,s in enumerate(tftp_command) if validators.ip_address.ipv4(s) or validators.domain(s)][0]
+        host = tftp_command[host_index]
+        port = tftp_command[host_index+1] if tftp_command[host_index+1].isdigit() else None
+
+        get_index = None
+        with suppress(ValueError):
+            get_index = tftp_command.index("get")
+
+        return f"http://{host}:{port}/{tftp_command[get_index+1] if get_index else ''}"
+
+
 def regex_url_parser(data):
     """Searches a string of data for a URL  using regular expression
 
@@ -109,25 +134,28 @@ def url_parser(data):
     urls = set()
     data = remove_noise(unquote(data))
 
-    extracted_urls = [url for url in extractor.find_urls(data) if valid_tld(url)]
+    wget_url = parse_wget_payload(data)
+    curl_url = parse_curl_payload(data)
+    tftp_url = parse_tftp_payload(data)
 
-    if extracted_urls:
-        urls.update([f'http://{url}' if not url.startswith("http") else url for url in extracted_urls])
+    if wget_url or curl_url or tftp_url:
+        if wget_url and valid_tld(wget_url):
+            urls.add(wget_url)
+        if curl_url and valid_tld(curl_url):
+            urls.add(curl_url)
+        if tftp_url and valid_tld(tftp_url):
+            urls.add(tftp_url)
     else:
-        wget_url = parse_wget_payload(data)
-        curl_url = parse_curl_payload(data)
+        extracted_urls = [url for url in extractor.find_urls(data) if valid_tld(url)]
 
-        if wget_url or curl_url:
-            if wget_url and valid_tld(wget_url):
-                urls.add(wget_url)
-            if curl_url and valid_tld(curl_url):
-                urls.add(curl_url)
+        if extracted_urls:
+            urls.update([f'http://{url}' if not url.startswith("http") else url for url in extracted_urls])
         else:
             regex_urls = regex_url_parser(data)
             urls.update([url for url in regex_urls if valid_tld(url)])
 
     # Remove duplicate URLs and validate TLD
-    return [url for url in urls if valid_tld(url)]
+    return [validate_url(url) for url in urls if valid_tld(url)]
 
 
 def ip_parser(input_str):
@@ -219,15 +247,25 @@ def validate_url(url):
 
     Returns:
         None: False is returned if URL is invalid
-        tuple: (ip, hostname) of URL is returned if valid
+        tuple: (url, ip, hostname) is returned if URL is valid
     """
     host = urlparse(url).hostname
+    hostname, address = None, None
 
-    with suppress(Exception):
-        if validators.domain(host):
-            return (url, host, socket.gethostbyname(host))
-        else:
-            return (url, socket.gethostbyaddr(host)[0], host)
+    if validators.ip_address.ipv4(host):
+        with suppress(Exception):
+            hostname = socket.gethostbyaddr(host)[0]
+        return (url, host, hostname)
+
+    elif validators.domain(host):
+        with suppress(Exception):
+            address = socket.gethostbyname(host)
+
+        if address:
+            return (url, address, host)
+
+    else:
+        return None
 
 
 def time_until(next_mins):

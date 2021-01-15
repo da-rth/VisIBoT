@@ -7,6 +7,7 @@ from pathlib import Path
 from utils.stack_thread import ThreadPoolExecutorStackTraced
 from concurrent.futures import as_completed
 from mongoengine import connect
+from requests.exceptions import ConnectionError
 import utils.badpackets as bp_utils
 import os
 import sys
@@ -97,11 +98,14 @@ def process_task(first_run=False):
         payloads_to_process += future.result()
 
     print(f"\nTotal Payloads: {len(payloads_to_process)}")
+    try:
+        for payload in payloads_to_process:
+            create_task_success = lisa_api.create_file_task(payload)
+            if create_task_success:
+                print(f"- [LiSa] Trying to analyze url: {payload.url}")
+    except ConnectionError:
+        print("\nNOTICE: Failed to connect to LiSa Server - Skipping payload malware analysis")
 
-    for payload in payloads_to_process:
-        create_task_success = lisa_api.create_file_task(payload)
-        if create_task_success:
-            print(f"- [LiSa] Trying to analyze url: {payload.url}")
 
     print("\nCompleted processing BadPackets results. LiSa Analysis is running in background...\n")
 

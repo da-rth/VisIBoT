@@ -35,15 +35,140 @@ router.route("/full-details/:ip").get(async (req, res) => {
     Payload.find({ ip_address: ip }),
   ])
     .then((all_results) => {
-      const [marker, payloads, results] = all_results
+      const [marker, results, payloads] = all_results
       let m = marker.toJSON()
       m.payloads = payloads
       m.results = results
       return res.json(m)
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error(err)
       return res.status(400).send("Could not find any details for given IP.")
     })
+})
+
+let getPayloadConnections = async function (ipGeoData) {
+  let connections = []
+  let allPayloads = await Payload.find({ ip_address: ipGeoData._id })
+
+  for (let payload of allPayloads) {
+    let payloadGeo = await GeoData.findOne({ _id: payload.ip_address })
+    let candidateC2sGeo = await GeoData.find({
+      _id: { $in: payload.candidate_C2s },
+    })
+    let payloadResults = await Result.find({
+      affiliated_ips: { $in: payload.ip_address },
+    })
+    let payloadResultsGeo = await GeoData.find({
+      _id: { $in: payloadResults.map((result) => result.source_ip_address) },
+    })
+
+    connections = connections.concat(
+      candidateC2sGeo.map((geo) => {
+        return [payloadGeo.data.coordinates, geo.data.coordinates, geo._id]
+      })
+    )
+
+    connections = connections.concat(
+      payloadResultsGeo.map((geo) => {
+        return [payloadGeo.data.coordinates, geo.data.coordinates, geo._id]
+      })
+    )
+  }
+  return connections
+}
+
+let getC2Connections = async function (ipGeoData) {
+  let connections = []
+  let allPayloads = await Payload.find({ candidate_C2s: ipGeoData._id })
+
+  for (let payload of allPayloads) {
+    let payloadGeo = await GeoData.findOne({ _id: payload.ip_address })
+    let candidateC2sGeo = await GeoData.find({
+      _id: { $in: payload.candidate_C2s },
+    })
+    let payloadResults = await Result.find({
+      affiliated_ips: { $in: payload.ip_address },
+    })
+    let payloadResultsGeo = await GeoData.find({
+      _id: { $in: payloadResults.map((result) => result.source_ip_address) },
+    })
+
+    connections = connections.concat(
+      candidateC2sGeo.map((geo) => {
+        return [payloadGeo.data.coordinates, geo.data.coordinates, geo._id]
+      })
+    )
+
+    connections = connections.concat(
+      payloadResultsGeo.map((geo) => {
+        return [payloadGeo.data.coordinates, geo.data.coordinates, geo._id]
+      })
+    )
+  }
+  return connections
+}
+
+let getResultConnections = async function (ipGeoData) {
+  let connections = []
+  let allResults = await Result.find({
+    source_ip_address: ipGeoData._id,
+  })
+
+  let allPayloads = await Payload.find({
+    ip_address: {
+      $in: allResults.map((result) => result.affiliated_ips).flat(),
+    },
+  })
+
+  for (let payload of allPayloads) {
+    let payloadGeoData = await GeoData.findOne({ _id: payload.ip_address })
+    let C2GeoDatas = await GeoData.find({ _id: { $in: payload.candidate_C2s } })
+
+    connections = connections.concat([
+      [
+        ipGeoData.data.coordinates,
+        payloadGeoData.data.coordinates,
+        payloadGeoData._id,
+      ],
+    ])
+
+    connections = connections.concat(
+      C2GeoDatas.map((geo) => {
+        return [payloadGeoData.data.coordinates, geo.data.coordinates, geo._id]
+      })
+    )
+  }
+
+  return connections
+}
+
+router.route("/connections/:ip").get(async (req, res) => {
+  let ipAddress = req.params.ip
+  let ipGeoData = await GeoData.findOne({ _id: ipAddress }).exec()
+
+  if (ipGeoData === null) {
+    return res
+      .status(400)
+      .send("No geo/connection data could be found for the given IP address.")
+  }
+  try {
+    switch (ipGeoData.server_type) {
+      case "Loader Server":
+        return res.status(200).send(await getPayloadConnections(ipGeoData))
+      case "C2 Server":
+        return res.status(200).send(await getC2Connections(ipGeoData))
+      default:
+        return res.status(200).send(await getResultConnections(ipGeoData))
+    }
+  } catch (err) {
+    console.error(err)
+    return res
+      .status(500)
+      .send(
+        "An error occurred when parsing database for IP address connections"
+      )
+  }
 })
 
 module.exports = router

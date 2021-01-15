@@ -9,6 +9,7 @@
       z-index="5"
       :bg-variant="lightThemeEnabled ? 'light' : 'dark'"
       :text-variant="lightThemeEnabled ? 'dark' : 'light'"
+      :sidebar-class="{ lightBlur: lightThemeEnabled, darkBlur: !lightThemeEnabled }"
       :width="!$device.isMobile ? '480px' : '280px'"
     >
       <b-form style="padding: 20px" @submit.stop.prevent>
@@ -320,5 +321,13 @@ export default {
     color: black !important;
     box-shadow: none;
   }
+}
+.lightBlur {
+  background-color: rgba(233, 233, 233, 0.75) !important;
+  backdrop-filter: blur(8px);
+}
+.darkBlur {
+  background-color: rgba(36, 36, 36, 0.75) !important;
+  backdrop-filter: blur(8px);
 }
 </style>

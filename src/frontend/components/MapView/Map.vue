@@ -44,6 +44,8 @@
               <b-button
                 class="popupBtn popupBtn--left"
                 variant="outline-primary"
+                :disabled="blockConnButton"
+                :class="{ connectionsActive: showConnections }"
                 @click="showConnectedMarkers()"
               >
                 <b-icon-diagram-2 />
@@ -70,6 +72,14 @@
             </b-row>
           </l-popup>
         </l-feature-group>
+
+        <div v-if="markerConnections && showConnections">
+          <l-polyline
+            v-for="coordinates in markerConnections"
+            :key="JSON.stringify(coordinates)"
+            :lat-lngs="coordinates.slice(0, -1)"
+          ></l-polyline>
+        </div>
       </l-map>
     </b-overlay>
     <marker-modal ref="markerModal" class="modal"></marker-modal>
@@ -94,9 +104,13 @@ export default {
         [20, 20],
         [-3, 50],
       ],
-      currentCuster: null,
+      currentClustered: null,
+      currentUnclustered: null,
       markersReloading: false,
       tags: null,
+      showConnections: false,
+      blockConnButton: true,
+      unclusteredMarkers: [],
     }
   },
   head() {
@@ -119,6 +133,7 @@ export default {
     ...mapState({
       markers: (state) => state.map.markers,
       markersLoading: (state) => state.map.markersLoading,
+      markerConnections: (state) => state.map.markerConnections,
       markersError: (state) => state.map.markersError,
       activeMarker: (state) => state.map.activeMarker,
       lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
@@ -127,9 +142,7 @@ export default {
   },
   watch: {
     markers(markers) {
-      console.log(markers)
       this.mapMarkers = this.filterMarkers([...markers])
-      console.log(this.mapMarkers)
       this.updateMapWithNewMarkers(this.mapMarkers)
     },
     markersError(newError) {
@@ -145,11 +158,19 @@ export default {
     },
     mapSidebarSettings() {
       this.markersReloading = true
-      console.log(this.markers)
       this.mapMarkers = this.filterMarkers(this.markers)
-      console.log(this.mapMarkers)
       this.updateMapWithNewMarkers(this.mapMarkers)
       this.markersReloading = false
+    },
+    markerConnections(newConnections) {
+      this.blockConnButton = newConnections.length == 0
+      this.showConnections = this.blockConnButton ? false : this.showConnections
+
+      if (this.showConnections) {
+        this.unclusteredMarkers = []
+        this.mapMarkers = this.filterMarkers(this.markers)
+        this.updateMapWithNewMarkers(this.mapMarkers)
+      }
     },
   },
   async beforeMount() {
@@ -158,9 +179,19 @@ export default {
   },
   methods: {
     showConnectedMarkers: function () {
-      console.log("todo")
+      this.showConnections = !this.showConnections
+      if (this.showConnections) {
+        this.mapMarkers = this.filterMarkers(this.markers)
+        this.updateMapWithNewMarkers(this.mapMarkers)
+      } else {
+        this.unclusteredMarkers = []
+        this.mapMarkers = this.filterMarkers(this.markers)
+        this.updateMapWithNewMarkers(this.mapMarkers)
+      }
+      // this.$store.commit("map/MARKER_CONNECTIONS_RESET")
     },
     updateMapWithNewMarkers: function (markers) {
+      let unclusteredMarkerList = []
       let markerList = []
       let markerCluster = L.markerClusterGroup({
         chunkedLoading: true,
@@ -170,9 +201,16 @@ export default {
         showCoverageOnHover: this.mapSidebarSettings.coverageOnHover,
         zoomToBoundsOnClick: this.mapSidebarSettings.zoomOnClick,
       })
+      let unclustered = L.markerClusterGroup({
+        maxClusterRadius: 0,
+      })
 
-      if (this.currentCuster) {
-        this.$refs.map.mapObject.removeLayer(this.currentCuster)
+      if (this.currentClustered) {
+        this.$refs.map.mapObject.removeLayer(this.currentClustered)
+      }
+
+      if (this.currentUnclustered) {
+        this.$refs.map.mapObject.removeLayer(this.currentUnclustered)
       }
 
       for (let marker of markers) {
@@ -186,12 +224,26 @@ export default {
         lMarker.on("click", () => {
           this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
           this.selectedMarker = marker
+          this.$store.dispatch(
+            "map/fetchMarkerConnections",
+            this.selectedMarker
+          )
         })
-        markerList.push(lMarker)
+
+        if (this.unclusteredMarkers.includes(marker._id)) {
+          unclusteredMarkerList.push(lMarker)
+        } else {
+          markerList.push(lMarker)
+        }
       }
       markerCluster.addLayers(markerList)
       this.$refs.map.mapObject.addLayer(markerCluster)
-      this.currentCuster = markerCluster
+
+      unclustered.addLayers(unclusteredMarkerList)
+      this.$refs.map.mapObject.addLayer(unclustered)
+
+      this.currentClustered = markerCluster
+      this.currentUnclustered = unclustered
     },
     updateProgressBar: function (processed, total, elapsed) {
       if (elapsed > 1000) {
@@ -261,14 +313,35 @@ export default {
       })
     },
     filterMarkers: function (markers) {
-      console.log("pong")
-      return markers.filter((marker) => {
+      this.unclusteredMarkers = []
+      let filteredMarkers = markers.filter((marker) => {
+        // Keep selected marker shown
+        if (this.selectedMarker && this.selectedMarker._id == marker._id) {
+          this.unclusteredMarkers.push(marker._id)
+          return true
+        }
+
+        if (this.showConnections) {
+          if (this.markerConnections.some((x) => marker._id == x[2])) {
+            // include marker if it is connected to currently selected marker
+            this.unclusteredMarkers.push(marker._id)
+            return true
+          } else if (
+            // filter out any other markers land on same coordinates
+            this.markerConnections.some(
+              (x) =>
+                JSON.stringify(marker.data.coordinates) == JSON.stringify(x[1])
+            )
+          ) {
+            return false
+          }
+        }
+
         let searchDescription = this.mapSidebarSettings.searchDescription
         let selectedCategories = Array.from(
           this.mapSidebarSettings.selectedCategories
         )
         let selectedCVEs = Array.from(this.mapSidebarSettings.selectedCVEs)
-
         let includesCVEs = true
         let includesCategories = true
         let includesDescription = true
@@ -307,6 +380,8 @@ export default {
           (includesDescription || searchDescription.length == 0)
         )
       })
+
+      return filteredMarkers
     },
   },
 }
@@ -430,5 +505,9 @@ export default {
 .leaflet-popup-tip-container,
 .leaflet-popup-close-button {
   display: none !important;
+}
+.connectionsActive {
+  background-color: #0078a8;
+  color: #fff;
 }
 </style>

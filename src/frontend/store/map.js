@@ -10,6 +10,8 @@ export const state = () => ({
   activeMarkerLoading: false,
   activeMarkerError: false,
 
+  markerConnections: [],
+
   searchTagDescriptions: [],
   searchTagCategories: [],
   searchTagCVEs: [],
@@ -45,6 +47,13 @@ export const mutations = {
   },
   ["ACTIVE_MARKER_ERROR"](state) {
     state.activeMarkerError = true
+  },
+
+  ["MARKER_CONNECTIONS_STORE"](state, connections) {
+    state.markerConnections = connections
+  },
+  ["MARKER_CONNECTIONS_RESET"](state) {
+    state.markerConnections = []
   },
 
   ["SEARCH_TAGS_STORE"](state, searchTags) {
@@ -96,4 +105,14 @@ export const actions = {
         console.log("Failed to retrieve search tags", e)
       })
   },
+  async fetchMarkerConnections(context, marker) {
+    await axios
+      .get(`http://localhost:8080/api/geolocations/connections/${marker._id}`)
+      .then(async (response) => {
+        context.commit("MARKER_CONNECTIONS_STORE", response.data)
+      })
+      .catch(() => {
+        context.commit("MARKER_CONNECTIONS_RESET")
+      })
+  }
 }

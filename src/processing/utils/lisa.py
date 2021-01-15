@@ -35,7 +35,6 @@ class LiSaAPI:
         r = requests.get(f"{self.api_url}/report/{task_id}")
         if r.status_code == 200:
             analysis = r.json()
-            # TODO: Strings analysis
             # strings = analysis['static_analysis']['strings'].copy()
             endpoints = analysis['network_analysis']['endpoints'].copy()
             candidate_servers = []
@@ -61,17 +60,24 @@ class LiSaAPI:
                     geodata = geoip_info(ip_address)
 
                     if geodata:
-                        hostname = get_ip_hostname(ip_address)
-                        db.geodata_create_or_update(
-                            ip_address,
-                            hostname,
-                            "C2 Server",
-                            geodata,
-                            datetime.utcnow()
-                        )
                         candidate_servers.append(ip_address)
 
-            print(f"- [LiSa] Success! Payload ID: {payload.id} | URL: {payload.url} | Total Candidate C2s: {len(candidate_servers)}")
+            stored_servers = []
+            for server in candidate_servers:
+                hostname = get_ip_hostname(ip_address)
+                c2_server = db.geodata_create_or_update(
+                    ip_address,
+                    hostname,
+                    "C2 Server",
+                    geodata,
+                    datetime.utcnow()
+                )
+                stored_servers.append(c2_server.id)
+
+            payload.candidate_C2s = list(set(stored_servers + payload.candidate_C2s))
+            payload.save()
+
+            print(f"- [LiSa] Success! Payload ID: {payload.id} | URL: {payload.url} | Total Candidate C2s: {len(stored_servers)}")
 
     def stop(self):
         self.running = False
@@ -80,7 +86,7 @@ class LiSaAPI:
         while self.running:
             tasks_to_remove = []
 
-            for payload, task_id in self.pending_task_ids:
+            for (payload, task_id) in self.pending_task_ids:
                 if not self.running:
                     break
 

@@ -14,7 +14,8 @@ const schema = new Schema(
     first_seen: Date,
     last_seen: Date,
     tags: Array,
-    scanned_payloads: [{ type: Schema.Types.ObjectId, ref: "Payload" }],
+    scanned_urls: [{ type: Schema.Types.String, ref: "Payload" }],
+    affiliated_ips: [{ type: Schema.Types.String, ref: "GeoData" }],
     updated_at: Date,
   },
   {}
