@@ -216,3 +216,4 @@
 * *1.0 hours* Style-changes to Nuxt.js app Map Sidebar CSS
 * *6.0 hours* Integrated connections API endpoint into frontend web app and finished initial implementation of marker connections feature
 * *0.5 hours* Fixing linting bugs (pylama, eslint)
+* *1.5 hours* Added various translations to web app, fixed a modal popup bug caused by possibly null geodata city attribute, started initial popup modal layout changes.
