@@ -28,5 +28,8 @@
   "Search Categories": "Categorias de Pesquisa",
   "There are no categories available to select": "Não há categorias disponíveis para selecionar",
   "Search CVE tags": "Pesquisar tags CVE",
-  "There are no CVE tags available to select": "Não há tags CVE disponíveis para seleção"
+  "There are no CVE tags available to select": "Não há tags CVE disponíveis para seleção",
+  "Loading map...": "Carregando o mapa...",
+  "Unknown City": "Cidade desconhecida",
+  "Unknown Country": "País Desconhecido"
 }

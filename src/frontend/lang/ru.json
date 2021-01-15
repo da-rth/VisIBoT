@@ -28,5 +28,8 @@
   "Search Categories": "Категории поиска",
   "There are no categories available to select": "Нет доступных категорий для выбора",
   "Search CVE tags": "Поиск по тегам CVE",
-  "There are no CVE tags available to select": "Нет доступных для выбора тегов CVE"
+  "There are no CVE tags available to select": "Нет доступных для выбора тегов CVE",
+  "Loading map...": "Загрузка карты...",
+  "Unknown City": "Неизвестный город",
+  "Unknown Country": "Неизвестная страна"
 }

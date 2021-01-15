@@ -28,5 +28,8 @@
   "Search Categories": "カテゴリを検索",
   "There are no categories available to select": "選択できるカテゴリはありません",
   "Search CVE tags": "CVEタグを検索する",
-  "There are no CVE tags available to select": "選択できるCVEタグはありません"
+  "There are no CVE tags available to select": "選択できるCVEタグはありません",
+  "Loading map...": "地図を読み込んでいます...",
+  "Unknown City": "未知の都市",
+  "Unknown Country": "不明な国"
 }

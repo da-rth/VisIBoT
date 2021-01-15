@@ -12,7 +12,7 @@
       <template #overlay>
         <div class="text-center" style="width: 100%">
           <b-spinner variant="primary" label="Spinning" />
-          <h4 class="overlay-text">Loading map...</h4>
+          <h4 class="overlay-text">{{ $t("Loading map...") }}.</h4>
         </div>
       </template>
 
@@ -83,6 +83,14 @@
       </l-map>
     </b-overlay>
     <marker-modal ref="markerModal" class="modal"></marker-modal>
+    <div v-if="!markersLoading" class="resultsCounter">
+      Results:
+      {{
+        mapMarkers.length != markers.length
+          ? `${mapMarkers.length} / ${markers.length}`
+          : markers.length
+      }}
+    </div>
   </div>
 </template>
 
@@ -510,5 +518,20 @@ export default {
 .connectionsActive {
   background-color: #0078a8;
   color: #fff;
+}
+
+.resultsCounter {
+  position: absolute;
+  background-color: #fff;
+  border-radius: 5px;
+  z-index: 999 !important;
+  bottom: 10px;
+  left: 10px;
+  border: 1px solid var(--primary);
+  font-size: 0.8rem;
+  padding: 2px 14px;
+  cursor: default;
+  user-select: none;
+  opacity: 0.9;
 }
 </style>

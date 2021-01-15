@@ -27,5 +27,8 @@
   "Search Categories": "搜索类别",
   "There are no categories available to select": "没有类别可供选择",
   "Search CVE tags": "搜索CVE标签",
-  "There are no CVE tags available to select": "没有CVE标签可供选择"
+  "There are no CVE tags available to select": "没有CVE标签可供选择",
+  "Loading map...": "正在载入地图...",
+  "Unknown City": "未知城市",
+  "Unknown Country": "未知国家"
 }
