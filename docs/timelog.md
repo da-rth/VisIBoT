@@ -196,3 +196,21 @@
 ### 23 Dec 2020
 * *5.0 hours* Finished implementing map sidebar settings functionality
 * *3.0 hours* Updating frontend language translation for sidebar and navbar text-content
+
+## Week 16
+### 8 Jan 2020
+* *3.0 hours* Refactoring some modifications to LiSa codebase
+* *5.0 hours* Researching and experimenting with URL phising detection via Machine Learning and Data Science techniques
+
+## Week 17
+### 12 Jan 2020
+* *3.0 hours* Refactoring pre-processing script
+* *3.0 hours* Initial implementation of marker connections API endpoint via express.js
+
+### 14 Jan 2020
+* *4.0 hours* Further coding implementation for marker connections API endpoint
+
+### 15 Jan 2020
+* *2.0 hours* Refactored processing script URL validation stage and modified Payload + Results database tables to include references to related markers
+* *1.0 hours* Style-changes to Nuxt.js app Map Sidebar CSS
+* *6.o hours* Integrated connections API endpoint into frontend web app and finished initial implementation of marker connections feature
