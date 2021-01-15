@@ -37,7 +37,9 @@
             <b-tab title="Analytics">
               <h1>some graphs here?</h1>
             </b-tab>
-            <b-tab title="VirusTotal" disabled><p>I'm a disabled tab!</p></b-tab>
+            <b-tab title="VirusTotal" disabled>
+              <p>I'm a disabled tab!</p>
+            </b-tab>
           </b-tabs>
         </div>
       </b-container>
