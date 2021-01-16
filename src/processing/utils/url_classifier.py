@@ -1,10 +1,6 @@
-import os
-import numpy as np
 import pandas as pd
-import random
 import re
 import nltk
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
@@ -13,6 +9,7 @@ from urllib.parse import urlparse
 from contextlib import suppress
 
 DEFAULT_DATAPATH = "../datasets/urldata.csv"
+
 
 class URLClassifier:
     """
@@ -32,19 +29,19 @@ class URLClassifier:
         print("- [URL Classifier] Loading URL dataset")
         self.url_df = pd.read_csv(datapath if datapath else DEFAULT_DATAPATH)
         self.tfidf_vec = TfidfVectorizer(tokenizer=self.gen_tokens)
-        self.model = LogisticRegression()	
+        self.model = LogisticRegression()
         self.setup()
 
     def setup(self):
         """
-        Fit and transform classification model using vectorized 
+        Fit and transform classification model using vectorized
         dataset and calculate accuracy score on testing dataset using trained model.
         """
         print("- [URL Classifier] Generating tokens: this may take some time...")
         url_df_vecs = self.tfidf_vec.fit_transform(self.url_df["url"])
         url_df_labels = self.url_df["label"]
 
-        print(f"- [URL Classifier] Training (75%) and testing (25%) on dataset.")
+        print("- [URL Classifier] Training (75%) and testing (25%) on dataset.")
         x_train, x_test, y_train, y_test = train_test_split(
             url_df_vecs,
             url_df_labels,
@@ -83,11 +80,11 @@ class URLClassifier:
 
         Args:
             urls (list): A list of URLs (strings) to be classified
-        
+
         Returns:
             None - The URL list contains an invalid or empty URL
             list(tuple) - A list of tuples for each classified URL: (url, label)
-        
+
         """
         if any(not url or '.' not in url for url in urls):
             return None
