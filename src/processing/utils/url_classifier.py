@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 import nltk
+from sklearn.exceptions import ConvergenceWarning
+from sklearn.utils._testing import ignore_warnings
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
@@ -23,15 +25,15 @@ class URLClassifier:
     to classify URLs using a TF-IDF Vectorizer and Logistic Regression model.
     """
     def __init__(self, datapath=None, verbose=True):
-        print("- [URL Classifier] Checking for NLTK stop-words dataset")
         nltk.download('stopwords', quiet=True)
         self.stoplist = stopwords.words('english') + ['http', 'https']
-        print("- [URL Classifier] Loading URL dataset")
+        print("- [URL Classifier] Loading malicious URL dataset")
         self.url_df = pd.read_csv(datapath if datapath else DEFAULT_DATAPATH)
         self.tfidf_vec = TfidfVectorizer(tokenizer=self.gen_tokens)
         self.model = LogisticRegression()
         self.setup()
 
+    @ignore_warnings(category=ConvergenceWarning)
     def setup(self):
         """
         Fit and transform classification model using vectorized
@@ -41,7 +43,7 @@ class URLClassifier:
         url_df_vecs = self.tfidf_vec.fit_transform(self.url_df["url"])
         url_df_labels = self.url_df["label"]
 
-        print("- [URL Classifier] Training (75%) and testing (25%) on dataset.")
+        print("- [URL Classifier] Training and testing on dataset.")
         x_train, x_test, y_train, y_test = train_test_split(
             url_df_vecs,
             url_df_labels,
@@ -83,12 +85,12 @@ class URLClassifier:
 
         Returns:
             None - The URL list contains an invalid or empty URL
-            list(tuple) - A list of tuples for each classified URL: (url, label)
+            list - A list of string labels representing classification of each URL.
+                A URL label can be either 'malicious' or 'benign'.
 
         """
         if any(not url or '.' not in url for url in urls):
             return None
 
         vec_urls = self.tfidf_vec.transform(urls)
-        results = self.model.predict(vec_urls)
-        return list(zip(urls, results))
+        return self.model.predict(vec_urls)

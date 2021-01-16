@@ -12,7 +12,7 @@ from contextlib import suppress
 
 extractor = URLExtract()
 
-IGNORE_TLDS = ["org", "edu", "gov", "arpa", "mil", "int", "arpa", "sh"]
+IGNORE_TLDS = ["edu", "gov", "mil", "int", "arpa", "sh"]
 URL_REGEX = r'(ftp|https?):\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 IPv4_REGEX = r'[0-9]+(?:\.[0-9]+){3}'
 IPv6_REGEX = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
@@ -239,8 +239,8 @@ def get_ip_hostname(ip):
 def validate_url(url):
     """
     Determines if a given URL is valid:
-    - hostname in URL is legal and points to real IP
-    - ip in URL is alive and points to some hostname
+    - domain in URL is legitimate and points to real IP
+    - IP address in URL is alive and points to some hostname
 
     Args:
         url (str): The URL to be validated

@@ -2,9 +2,11 @@
 import sys; sys.path.append("..")
 import database as db
 import time
+import validators
 from datetime import datetime, timedelta
 from requests.exceptions import HTTPError
 from contextlib import suppress
+from urllib.parse import urlparse
 from utils.misc import url_parser, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
 
@@ -80,7 +82,7 @@ def query_badpackets(api, first_run=False):
     return all_results
 
 
-def store_result(event_id, result_data):
+def store_result(event_id, result_data, url_classifier):
     """
     Takes a given event_id and results dict for a BadPackets result
     and processes it:
@@ -109,6 +111,14 @@ def store_result(event_id, result_data):
 
     for url_info in validated_urls:
         url, ip, hostname = url_info
+
+        # Skip if url contains a benign domain/path
+        if validators.domain(urlparse(url).hostname):
+            url_class = url_classifier.classify_urls([url])
+
+            if url_class and url_class[0] == 'benign':
+                continue
+
         existing_payload = db.Payload.objects(url=url).first()
 
         if existing_payload:

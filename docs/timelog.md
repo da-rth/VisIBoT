@@ -217,3 +217,7 @@
 * *6.0 hours* Integrated connections API endpoint into frontend web app and finished initial implementation of marker connections feature
 * *0.5 hours* Fixing linting bugs (pylama, eslint)
 * *1.5 hours* Added various translations to web app, fixed a modal popup bug caused by possibly null geodata city attribute, started initial popup modal layout changes.
+
+### 16 Jan 2020
+* *2.0 hours* Researching malicious URL classification techniques and data-sets
+* *5.5 hours* Added malicious URL classification to URL Validation process during BadPackets payload extraction in processing script

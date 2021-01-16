@@ -23,6 +23,12 @@ class LiSaAPI:
         self.t = threading.Thread(name='init_task_checker', target=self.init_task_checker)
         self.t.start()
 
+        try:
+            requests.get(self.api_url)
+            print("- LiSa API: Setup complete. API Endpoint is online.")
+        except Exception:
+            print("- LiSa API: Error! LiSa Server could not be reached. Is it running?")
+
     def create_file_task(self, payload):
         r = requests.post(f"{self.api_url}/tasks/create/file", {'url': payload.url})
 

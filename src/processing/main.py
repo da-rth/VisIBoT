@@ -3,6 +3,7 @@ from utils.lisa import LiSaAPI
 from dotenv import load_dotenv
 from datetime import datetime
 from utils.misc import time_until, clear
+from utils.url_classifier import URLClassifier
 from pathlib import Path
 from utils.stack_thread import ThreadPoolExecutorStackTraced
 from concurrent.futures import as_completed
@@ -90,7 +91,7 @@ def process_task(first_run=False):
 
     print(f"\nTotal BadPackets results to process: {res_len}\n")
 
-    futures = [executor.submit(bp_utils.store_result, evt, res) for evt, res in results.items()]
+    futures = [executor.submit(bp_utils.store_result, evt, res, url_classifier) for evt, res in results.items()]
 
     payloads_to_process = []
     for i, future in enumerate(as_completed(futures)):
@@ -144,10 +145,13 @@ if __name__ == "__main__":
     hourly_min = options.hourly_min
     print("- Thread count:", threads, "\n- Execute minute:", hourly_min)
 
+    print("\nSetting up URL Classifier")
+    url_classifier = URLClassifier('datasets/urldata.csv')
+
     print("\nSetting up services")
 
     connect(host=os.getenv("MONGODB_URL"))
-    print("- Connected to Database")
+    print("- MongoDB: Connected to VisIBoT database")
 
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
 
@@ -159,13 +163,12 @@ if __name__ == "__main__":
     print("- BadPackets API: Authenticated token")
 
     lisa_api = LiSaAPI(api_url=os.getenv("LISA_API_URL"))
-    print("- LiSa API: Setup")
 
     time.sleep(1)
 
     try:
         if first_run:
-            print("\nPreparing first run...\n")
+            print("\nExecuting first run...\n")
             process_task(first_run)
         print(f"\nStarting processing loop...\n- Next cycle at: {time_until(hourly_min)} (UTC)\n\n", end="\r")
         init_processing_loop()
