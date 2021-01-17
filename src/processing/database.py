@@ -38,6 +38,16 @@ class Payload(mongo.Document):
     candidate_C2s     = mongo.ListField(mongo.ReferenceField(GeoData, required=False), required=False, default=[])
 
 
+class CandidateC2Server(mongo.Document):
+    """
+    Candidate C2 Server extracted from network analysis of malware extracted from a payload
+    """
+    ip_address        = mongo.ReferenceField(GeoData, required=True)
+    payloads          = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
+    occurrences       = mongo.IntField(default=0)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
+
+
 class Result(mongo.Document):
     """
     BadPackets Result JSON information
@@ -59,52 +69,46 @@ class Result(mongo.Document):
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
-def payload_create_or_update(url, ip, now):
+def payload_create_or_update(url, ip):
     try:
         payload = Payload(
             url=url,
-            ip_address=ip,
-            updated_at=now
+            ip_address=ip
         )
         payload.save()
     except NotUniqueError:
         payload = Payload.objects(url=url).first()
-        payload.updated_at = now
-        payload.occurrences += 1
-        payload.save()
-
+        payload.update(
+            set__updated_at=datetime.utcnow(),
+            inc__occurrences=1
+        )
     return payload
 
 
-def result_create_or_update(event_id, result_data, now):
+def result_create_or_update(event_id, result_data):
     try:
         result = Result(**result_data)
         result.save()
     except (NotUniqueError, mongo.DuplicateKeyError):
         result = Result.objects(event_id=event_id).first()
-        result.scanned_payloads = list(set(result.scanned_payloads + result_data['scanned_payloads']))
-        result.updated_at = now
-        result.save()
-
+        result.update(
+            add_to_set__scanned_payloads=result_data['scanned_payloads'],
+            set__updated_at=datetime.utcnow()
+        )
     return result
 
 
-def geodata_create_or_update(ip, hostname, server_type, geodata, now, tags=None):
-    if tags:
-        cves = []
-        categories = []
-        descriptions = []
+def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
+    flattened_tags = {
+        'cves': [],
+        'categories': [],
+        'descriptions': [],
+    }
 
-        for tag in tags:
-            cves.append(tag['cve'])
-            categories.append(tag['category'])
-            descriptions.append(tag['description'])
-
-        tags = {
-            'cves': cves,
-            'categories': categories,
-            'descriptions': descriptions,
-        }
+    for tag in tags:
+        flattened_tags['cves'].append(tag['cve'])
+        flattened_tags['categories'].append(tag['category'])
+        flattened_tags['descriptions'].append(tag['description'])
 
     try:
         geodata = GeoData(
@@ -112,13 +116,30 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, now, tags=None)
             hostname=hostname,
             server_type=server_type,
             data=geodata,
-            tags=tags,
+            tags=flattened_tags if tags else {},
         )
         geodata.save()
     except NotUniqueError:
         geodata = GeoData.objects(ip_address=ip).first()
-        geodata.updated_at = now
-        geodata.occurrences += 1
-        geodata.save()
-
+        geodata.update(
+            set__updated_at=datetime.utcnow(),
+            inc__occurrences=1
+        )
     return geodata
+
+
+def candidate_c2_create_or_update(ip_address, payload_ids):
+    try:
+        c2 = CandidateC2Server(
+            ip_address=ip_address,
+            payloads=payload_ids
+        )
+        c2.save()
+    except NotUniqueError:
+        c2 = CandidateC2Server(ip_address=geodata).first()
+        c2.update(
+            add_to_set__payloads=payload_ids,
+            inc__occurrences=1,
+            set__updated_at=datetime.utcnow(),
+        )
+    return c2

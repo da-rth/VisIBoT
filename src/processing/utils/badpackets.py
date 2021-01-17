@@ -11,7 +11,7 @@ from utils.misc import url_parser, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
 
 
-FIRST_RUN_HOURS = 24
+FIRST_RUN_HOURS = 12
 BASE_PARAMS = {
     'limit': 1000,
 }
@@ -97,13 +97,13 @@ def store_result(event_id, result_data, url_classifier):
         result_data (dict): The dictionary (JSON Object) result data
     """
     scanned_payloads = []
-    now = datetime.utcnow()
 
     existing_result = db.Result.objects(event_id=event_id).first()
 
     if existing_result:
-        existing_result.updated_at = now
-        existing_result.save()
+        existing_result.update(
+            set__updated_at = datetime.utcnow()
+        )
         return []
 
     payload_data = result_data['post_data'] + result_data['payload']
@@ -122,8 +122,9 @@ def store_result(event_id, result_data, url_classifier):
         existing_payload = db.Payload.objects(url=url).first()
 
         if existing_payload:
-            existing_payload.updated_at = now
-            existing_payload.save()
+            existing_payload.update(
+                set__updated_at = datetime.utcnow()
+            )
             scanned_payloads.append(existing_payload)
             continue
 
@@ -132,8 +133,8 @@ def store_result(event_id, result_data, url_classifier):
         if not geodata:
             continue
 
-        db.geodata_create_or_update(ip, hostname, "Loader Server", geodata, now)
-        payload = db.payload_create_or_update(url, ip, now)
+        db.geodata_create_or_update(ip, hostname, "Loader Server", geodata)
+        payload = db.payload_create_or_update(url, ip)
         scanned_payloads.append(payload)
 
     geodata = geoip_info(result_data['source_ip_address'])
@@ -149,12 +150,12 @@ def store_result(event_id, result_data, url_classifier):
         else:
             server_type = "Unknown"
 
-        geodata = db.geodata_create_or_update(ip, hostname, server_type, geodata, now, result_data['tags'])
+        geodata = db.geodata_create_or_update(ip, hostname, server_type, geodata, result_data['tags'])
 
         result_data['source_ip_address'] = geodata.id
         result_data['user_agent'] = useragent_parser(result_data['user_agent'])
         result_data['scanned_urls'] = [payload.url for payload in scanned_payloads]
         result_data['affiliated_ips'] = [payload.ip_address for payload in scanned_payloads]
-        db.result_create_or_update(event_id, result_data, now)
+        db.result_create_or_update(event_id, result_data)
 
     return scanned_payloads

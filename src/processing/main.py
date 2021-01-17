@@ -10,6 +10,7 @@ from concurrent.futures import as_completed
 from mongoengine import connect
 from requests.exceptions import ConnectionError
 import utils.badpackets as bp_utils
+import threading
 import os
 import sys
 import time
@@ -98,20 +99,25 @@ def process_task(first_run=False):
         print(f"Processed {i+1}/{res_len} results", end="\r")
         payloads_to_process += future.result()
 
-    print(f"\nTotal Payloads: {len(payloads_to_process)}")
-
     try:
-        for payload in payloads_to_process:
-            create_task_success = lisa_api.create_file_task(payload)
-            if create_task_success:
-                print(f"- [LiSa] Trying to analyze url: {payload.url}")
+        print(f"\n\nInitializing malware analysis: requesting LiSa analysis for {len(payloads_to_process)} payloads (Exec time: 20s).")
+        print("- Note: Some malware URLs may already be offline. These will be skipped.")
+
+        futures = [executor.submit(lisa_api.create_file_task, payload) for payload in payloads_to_process]
+        created_lisa_tasks = sum(1 for future in futures if future.result())
+
+        if created_lisa_tasks > 0:
+            print(f"\n- [LiSa] Executing malware for {created_lisa_tasks} payloads. This will run in background.")
+        else:
+            print(f"- [LiSa] No analysis tasks were created. No binaries could be retrieved from payload URLs.")
+
     except ConnectionError:
         print("\nNOTICE: Failed to connect to LiSa Server - Skipping payload malware analysis")
 
-    print("\nCompleted processing BadPackets results. LiSa Analysis is running in background...\n")
+    print("\n- Completed processing BadPackets results.")
 
     if not first_run:
-        print(f"Waiting until next cycle at: {time_until(hourly_min)} (UTC)\n", end="\r")
+        print(f"Waiting until next cycle at: {time_until(hourly_min)} (UTC)")
 
 
 def init_processing_loop():
@@ -138,7 +144,7 @@ if __name__ == "__main__":
     check_options(options)
 
     clear()
-    print("Initialised VisIBoT BadPackets Pre-processor 🤖")
+    print("Initialised VisIBoT Processing Script 🤖")
 
     first_run = options.firstrun
     threads = options.threads
@@ -148,7 +154,7 @@ if __name__ == "__main__":
     print("\nSetting up URL Classifier")
     url_classifier = URLClassifier('datasets/urldata.csv')
 
-    print("\nSetting up services")
+    print("\nSetting up services:")
 
     connect(host=os.getenv("MONGODB_URL"))
     print("- MongoDB: Connected to VisIBoT database")
@@ -163,6 +169,8 @@ if __name__ == "__main__":
     print("- BadPackets API: Authenticated token")
 
     lisa_api = LiSaAPI(api_url=os.getenv("LISA_API_URL"))
+    t = threading.Thread(target=lisa_api.init_task_checker)
+    t.start()
 
     time.sleep(1)
 
@@ -170,7 +178,8 @@ if __name__ == "__main__":
         if first_run:
             print("\nExecuting first run...\n")
             process_task(first_run)
-        print(f"\nStarting processing loop...\n- Next cycle at: {time_until(hourly_min)} (UTC)\n\n", end="\r")
+        
+        print(f"- Next cycle at: {time_until(hourly_min)} (UTC)\n\n", end="\r")
         init_processing_loop()
     except (KeyboardInterrupt):
         print("\n\nClosing processing script and waiting on threads to finish...\n")

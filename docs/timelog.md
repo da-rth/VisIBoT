@@ -221,3 +221,6 @@
 ### 16 Jan 2020
 * *2.0 hours* Researching malicious URL classification techniques and data-sets
 * *5.5 hours* Added malicious URL classification to URL Validation process during BadPackets payload extraction in processing script
+
+### 17 Jan 2020
+* *9.0 hours* Re-writing and improving malware analysis stage of processing script.
