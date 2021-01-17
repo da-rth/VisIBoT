@@ -2,12 +2,10 @@
 import sys; sys.path.append("..")
 import database as db
 import requests
-import threading
 import time
 import pydnsbl
 from .stack_thread import ThreadPoolExecutorStackTraced
 from IPy import IP
-from datetime import datetime
 from utils.misc import get_ip_hostname
 from utils.geodata import geoip_info
 from contextlib import suppress
@@ -26,6 +24,7 @@ class LiSaAPI:
         self.processing_tasks_count = 0
         self.blink = False
         self.can_clear = False
+        self.api_retries = 3
         self.executor = ThreadPoolExecutorStackTraced(max_workers=4)
 
         try:
@@ -85,8 +84,8 @@ class LiSaAPI:
                     "C2 Server",
                     geodata
                 )
-                
-                c2 = db.candidate_c2_create_or_update(
+
+                db.candidate_c2_create_or_update(
                     ip_address=c2_geo.id,
                     payload_ids=[payload.id]
                 )
@@ -103,64 +102,69 @@ class LiSaAPI:
 
     def stop(self):
         self.running = False
-    
+
     def print_output(self):
         self.blink = not self.blink
         print((
-            f"\r- [LiSa] Malware Analysis - Pending: {len(self.pending_task_ids)} | " \
-            f"Processing: {self.processing_tasks_count} | " \
-            f"Successful: {self.successful_tasks_count} | " \
-            f"Failed: {self.failed_tasks_count}" \
+            f"\r- [LiSa] Malware Analysis - Pending: {len(self.pending_task_ids)} | "
+            f"Processing: {self.processing_tasks_count} | "
+            f"Successful: {self.successful_tasks_count} | "
+            f"Failed: {self.failed_tasks_count}"
             f"{' ...' if self.blink else '    '}"
         ), end="", flush=True)
 
+    def reset_vars(self):
+        self.successful_tasks_count = 0
+        self.failed_tasks_count = 0
+        self.processing_tasks_count = 0
+        self.api_retries = 3
+
+    def check_tasks(self):
+        complete_tasks_list = {}
+        tasks_to_remove = []
+        self.can_clear = True
+
+        r = requests.get(f"{self.api_url}/tasks?limit=20")
+
+        if not r.json():
+            self.api_retries -= 1
+
+            if self.api_retries <= 0:
+                print("- [LiSa] Could not reach LiSa task list endpoint after 3 retries... cancelling pending tasks.", flush=True)
+                self.pending_task_ids = []
+                return
+
+        with suppress(TypeError):
+            complete_tasks_list = {r['task_id']: r['status'] for r in r.json()}
+
+        for (payload, task_id) in self.pending_task_ids:
+            if not self.running:
+                break
+
+            if task_id in complete_tasks_list:
+                status = complete_tasks_list[task_id]
+
+                if status:
+                    if status == 'SUCCESS':
+                        self.processing_tasks_count += 1
+                        self.executor.submit(self.process_task_result, payload, task_id)
+
+                    if status == 'FAILURE':
+                        self.failed_tasks_count += 1
+
+                    tasks_to_remove.append(task_id)
+
+        self.pending_task_ids = [t for t in self.pending_task_ids if t[1] not in tasks_to_remove]
+
     def init_task_checker(self):
-        api_retries = 3
         print("- LiSa API: Initialized LiSa Task Checker Loop")
+
         while self.running:
 
             if self.pending_task_ids:
-                tasks_to_remove = []
-
-                self.can_clear = True
-
-                r = requests.get(f"{self.api_url}/tasks?limit=20")
-
-                if not r.json():
-                    api_retries -= 1
-
-                    if api_retries == 0:
-                        print("- [LiSa] Could not reach LiSa task list endpoint after 3 retries... cancelling pending tasks.", flush=True)
-                        self.pending_task_ids = []
-                        continue
-
-                with suppress(TypeError):
-                    complete_tasks_list = {r['task_id']: r['status'] for r in r.json()}
-
-                    for (payload, task_id) in self.pending_task_ids:
-                        if not self.running:
-                            break
-
-                        if task_id in complete_tasks_list:
-                            status = complete_tasks_list[task_id]
-
-                            if status:
-                                if status == 'SUCCESS':
-                                    self.processing_tasks_count += 1
-                                    self.executor.submit(self.process_task_result, payload, task_id)
-
-                                if status == 'FAILURE':
-                                    self.failed_tasks_count += 1
-
-                                tasks_to_remove.append(task_id)
-
-                    self.pending_task_ids = [t for t in self.pending_task_ids if t[1] not in tasks_to_remove]
-
+                self.check_tasks()
             else:
-                self.successful_tasks_count = 0
-                self.failed_tasks_count = 0
-                self.processing_tasks_count = 0
-                api_retries = 3
+                self.reset_vars()
 
             if self.processing_tasks_count > 0 or len(self.pending_task_ids) > 0:
                 self.print_output()

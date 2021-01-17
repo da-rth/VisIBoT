@@ -102,7 +102,7 @@ def store_result(event_id, result_data, url_classifier):
 
     if existing_result:
         existing_result.update(
-            set__updated_at = datetime.utcnow()
+            set__updated_at=datetime.utcnow()
         )
         return []
 
@@ -123,7 +123,7 @@ def store_result(event_id, result_data, url_classifier):
 
         if existing_payload:
             existing_payload.update(
-                set__updated_at = datetime.utcnow()
+                set__updated_at=datetime.utcnow()
             )
             scanned_payloads.append(existing_payload)
             continue

@@ -109,7 +109,7 @@ def process_task(first_run=False):
         if created_lisa_tasks > 0:
             print(f"\n- [LiSa] Executing malware for {created_lisa_tasks} payloads. This will run in background.")
         else:
-            print(f"- [LiSa] No analysis tasks were created. No binaries could be retrieved from payload URLs.")
+            print("- [LiSa] No analysis tasks were created. No binaries could be retrieved from payload URLs.")
 
     except ConnectionError:
         print("\nNOTICE: Failed to connect to LiSa Server - Skipping payload malware analysis")
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         if first_run:
             print("\nExecuting first run...\n")
             process_task(first_run)
-        
+
         print(f"- Next cycle at: {time_until(hourly_min)} (UTC)\n\n", end="\r")
         init_processing_loop()
     except (KeyboardInterrupt):

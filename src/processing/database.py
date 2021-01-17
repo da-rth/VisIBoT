@@ -136,7 +136,7 @@ def candidate_c2_create_or_update(ip_address, payload_ids):
         )
         c2.save()
     except NotUniqueError:
-        c2 = CandidateC2Server(ip_address=geodata).first()
+        c2 = CandidateC2Server(ip_address=ip_address).first()
         c2.update(
             add_to_set__payloads=payload_ids,
             inc__occurrences=1,
