@@ -3,6 +3,12 @@ from mongoengine.errors import NotUniqueError
 from datetime import datetime
 
 
+high_tier_server_types = [
+    "C2 Server",
+    "Loader Server",
+]
+
+
 class GeoData(mongo.Document):
     """
     Server/IP Address information pulled from payload data of
@@ -44,6 +50,7 @@ class CandidateC2Server(mongo.Document):
     """
     ip_address        = mongo.ReferenceField(GeoData, required=True)
     payloads          = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
+    heuristics        = mongo.ListField(mongo.StringField())
     occurrences       = mongo.IntField(default=0)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
@@ -121,24 +128,38 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         geodata.save()
     except NotUniqueError:
         geodata = GeoData.objects(ip_address=ip).first()
+
+        loader_to_c2 = (geodata.server_type == "Loader Server" and server_type == "C2 Server")
+        bot_to_report_server = geodata.server_type in ["Bot", "Unknown"] and server_type == "Report Server"
+        low_tier_to_high_tier = (
+            geodata.server_type in ["Report Server", "Bot", "Unknown"]
+            and server_type in ["C2 Server", "Loader Server"]
+        )
+
+        if not (loader_to_c2 or bot_to_report_server or low_tier_to_high_tier):
+            server_type = geodata.server_type
+
         geodata.update(
             set__updated_at=datetime.utcnow(),
+            set__server_type=server_type,
             inc__occurrences=1
         )
     return geodata
 
 
-def candidate_c2_create_or_update(ip_address, payload_ids):
+def candidate_c2_create_or_update(ip_address, payload_ids, heuristics):
     try:
         c2 = CandidateC2Server(
             ip_address=ip_address,
-            payloads=payload_ids
+            payloads=payload_ids,
+            heuristics=heuristics
         )
         c2.save()
     except NotUniqueError:
         c2 = CandidateC2Server(ip_address=ip_address).first()
         c2.update(
             add_to_set__payloads=payload_ids,
+            add_to_set__heuristics=heuristics,
             inc__occurrences=1,
             set__updated_at=datetime.utcnow(),
         )

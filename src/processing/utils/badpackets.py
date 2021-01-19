@@ -11,7 +11,7 @@ from utils.misc import url_parser, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
 
 
-FIRST_RUN_HOURS = 12
+FIRST_RUN_HOURS = 6
 BASE_PARAMS = {
     'limit': 1000,
 }
