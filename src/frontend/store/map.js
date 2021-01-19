@@ -11,6 +11,7 @@ export const state = () => ({
   activeMarkerError: false,
 
   markerConnections: [],
+  showConnections: false,
 
   searchTagDescriptions: [],
   searchTagCategories: [],
@@ -54,6 +55,12 @@ export const mutations = {
   },
   ["MARKER_CONNECTIONS_RESET"](state) {
     state.markerConnections = []
+  },
+  ["TOGGLE_SHOW_CONNECTIONS"](state) {
+    state.showConnections = !state.showConnections
+  },
+  ["SET_SHOW_CONNECTIONS"](state, val) {
+    state.showConnections = val
   },
 
   ["SEARCH_TAGS_STORE"](state, searchTags) {

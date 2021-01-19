@@ -31,5 +31,6 @@
   "There are no CVE tags available to select": "Нет доступных для выбора тегов CVE",
   "Loading map...": "Загрузка карты...",
   "Unknown City": "Неизвестный город",
-  "Unknown Country": "Неизвестная страна"
+  "Unknown Country": "Неизвестная страна",
+  "Hide connections": "Скрыть связи"
 }

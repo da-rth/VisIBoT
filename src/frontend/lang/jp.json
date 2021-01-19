@@ -31,5 +31,6 @@
   "There are no CVE tags available to select": "選択できるCVEタグはありません",
   "Loading map...": "地図を読み込んでいます...",
   "Unknown City": "未知の都市",
-  "Unknown Country": "不明な国"
+  "Unknown Country": "不明な国",
+  "Hide connections": "接続を非表示にする"
 }

@@ -78,13 +78,14 @@
             v-for="coordinates in markerConnections"
             :key="JSON.stringify(coordinates)"
             :lat-lngs="coordinates.slice(0, -1)"
+            color="#17a2b8"
           ></l-polyline>
         </div>
       </l-map>
     </b-overlay>
     <marker-modal ref="markerModal" class="modal"></marker-modal>
     <div v-if="!markersLoading" class="resultsCounter">
-      Results:
+      Markers:
       {{
         mapMarkers.length != markers.length
           ? `${mapMarkers.length} / ${markers.length}`
@@ -116,7 +117,6 @@ export default {
       currentUnclustered: null,
       markersReloading: false,
       tags: null,
-      showConnections: false,
       blockConnButton: true,
       unclusteredMarkers: [],
     }
@@ -142,6 +142,7 @@ export default {
       markers: (state) => state.map.markers,
       markersLoading: (state) => state.map.markersLoading,
       markerConnections: (state) => state.map.markerConnections,
+      showConnections: (state) => state.map.showConnections,
       markersError: (state) => state.map.markersError,
       activeMarker: (state) => state.map.activeMarker,
       lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
@@ -171,8 +172,12 @@ export default {
       this.markersReloading = false
     },
     markerConnections(newConnections) {
+      console.log(newConnections)
       this.blockConnButton = newConnections.length == 0
-      this.showConnections = this.blockConnButton ? false : this.showConnections
+
+      if (this.blockConnButton) {
+        this.$store.commit("map/SET_SHOW_CONNECTIONS", false)
+      }
 
       if (this.showConnections) {
         this.unclusteredMarkers = []
@@ -180,6 +185,13 @@ export default {
         this.updateMapWithNewMarkers(this.mapMarkers)
       }
     },
+    showConnections(showConn) {
+      if (!showConn) {
+        this.unclusteredMarkers = []
+        this.mapMarkers = this.filterMarkers(this.markers)
+        this.updateMapWithNewMarkers(this.mapMarkers)
+      }
+    }
   },
   async beforeMount() {
     this.$store.dispatch("map/fetchMarkers")
@@ -187,12 +199,14 @@ export default {
   },
   methods: {
     showConnectedMarkers: function () {
-      this.showConnections = !this.showConnections
+      this.$store.commit("map/TOGGLE_SHOW_CONNECTIONS")
+
       if (this.showConnections) {
         this.mapMarkers = this.filterMarkers(this.markers)
         this.updateMapWithNewMarkers(this.mapMarkers)
       } else {
         this.unclusteredMarkers = []
+        this.$store.commit("map/MARKER_CONNECTIONS_RESE")
         this.mapMarkers = this.filterMarkers(this.markers)
         this.updateMapWithNewMarkers(this.mapMarkers)
       }
@@ -255,12 +269,12 @@ export default {
       this.currentUnclustered = unclustered
     },
     updateProgressBar: function (processed, total, elapsed) {
+      /**
       if (elapsed > 1000) {
         console.log(Math.round((processed / total) * 100) + "%")
-      }
-
+      }**/
       if (processed === total) {
-        console.log("complete")
+        console.log("Retrieved geodata from server.")
       }
     },
     getTitleTranslation: function (marker) {

@@ -22,7 +22,7 @@
           : $t("Change to light theme")
       }}
     </b-tooltip>
-    <b-navbar-brand>Visi<span class="blue-bot">Bot</span></b-navbar-brand>
+    <b-navbar-brand href="/">Visi<span class="blue-bot">Bot</span></b-navbar-brand>
 
     <b-navbar-nav
       v-if="$device.isMobile"

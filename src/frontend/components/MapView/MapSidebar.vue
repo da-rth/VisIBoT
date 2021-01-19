@@ -25,11 +25,6 @@
             aria-describedby="bot marker search"
             class="mb-2"
           />
-          <!--b-form-timepicker
-            locale="en"
-            class="mb-2"
-            placeholder="Seen after time (UTC)"
-          ></b-form-timepicker-->
           <b-form-tags
             id="tags-with-dropdown"
             v-model="selectedCategories"
@@ -167,46 +162,66 @@
         </b-form-group>
 
         <b-form-group :label="this.$t('Toggle marker types')" label-size="lg">
-          <b-form-checkbox-group
+          <b-form-checkbox
+            v-for="field in checkboxFields"
+            :key="field.value"
             v-model="selectedBotType"
-            :options="[
-              { text: this.$t('Botnet Activity'), value: 'Bot' },
-              { text: this.$t('Report Servers'), value: 'Report Server' },
-              { text: this.$t('Loader Servers'), value: 'Loader Server' },
-              {
-                text: this.$t('Command & Control (C2) Servers'),
-                value: 'C2 Server',
-              },
-              { text: this.$t('Unknown Activity'), value: 'Unknown' },
-            ]"
+            :class="{
+              inactiveSwitch: !selectedBotType.includes(field.value),
+            }"
+            :value="field.value"
             size="lg"
-            switches
-            stacked
-          ></b-form-checkbox-group>
+            switch
+          >
+            <span style="user-select: none">{{ field.text }}</span>
+            <img class="marker-legend-icon" :src="field.icon" height="28" />
+          </b-form-checkbox>
         </b-form-group>
 
         <b-form-group :label="this.$t('Marker Clustering')" label-size="lg">
           <b-form-spinbutton
             id="cluster-slider"
             v-model="clusterRadius"
-            max="200"
-            min="20"
+            max="240"
+            min="0"
             step="20"
             type="range"
             style="margin-bottom: 10px"
           />
-          <b-form-checkbox v-model="zoomOnClick" size="lg" switch>
+          <b-form-checkbox
+            v-model="zoomOnClick"
+            size="lg"
+            style="user-select: none"
+            switch
+          >
             {{ $t("Zoom map on cluster click") }}
           </b-form-checkbox>
 
-          <b-form-checkbox v-model="coverageOnHover" size="lg" switch>
+          <b-form-checkbox
+            v-model="coverageOnHover"
+            style="user-select: none"
+            size="lg"
+            switch
+          >
             {{ $t("Show coverage on hover") }}
           </b-form-checkbox>
         </b-form-group>
+
         <br />
+
         <b-button class="w-100" @click="updateMap">{{
           $t("Update map")
         }}</b-button>
+
+        <b-button
+          v-if="$store.state.map.showConnections"
+          variant="info"
+          style="margin-top: 20px"
+          class="w-100"
+          @click="$store.commit('map/SET_SHOW_CONNECTIONS', false)"
+        >
+          {{ $t("Hide connections") }}
+        </b-button>
       </b-form>
     </b-sidebar>
   </div>
@@ -241,6 +256,33 @@ export default {
       cveSearch: "",
       cveValues: [],
       timeout: null,
+      checkboxFields: [
+        {
+          text: this.$t("Unknown Activity"),
+          value: "Unknown",
+          icon: "markers/marker-unknown.svg",
+        },
+        {
+          text: this.$t("Botnet Activity"),
+          value: "Bot",
+          icon: "markers/marker-bot.svg",
+        },
+        {
+          text: this.$t("Report Servers"),
+          value: "Report Server",
+          icon: "markers/marker-report.svg",
+        },
+        {
+          text: this.$t("Loader Servers"),
+          value: "Loader Server",
+          icon: "markers/marker-loader.svg",
+        },
+        {
+          text: `${this.$t("Command & Control (C2) Servers")}`,
+          value: "C2 Server",
+          icon: "markers/marker-c2.svg",
+        },
+      ],
     }
   },
   computed: {
@@ -332,5 +374,28 @@ export default {
 .darkBlur {
   background-color: rgba(36, 36, 36, 0.75) !important;
   backdrop-filter: blur(8px);
+}
+.custom-control-label {
+  display: flex !important;
+  justify-content: space-between !important;
+}
+.b-form-tag {
+  font-size: 0.85rem;
+  background: #51a1ba;
+  margin: 4px 0;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  user-select: none;
+}
+.b-form-tag:hover {
+  background: #327d94;
+}
+.marker-legend-icon {
+  background: #fff;
+  border-radius: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+.inactiveSwitch span,
+.inactiveSwitch img {
+  opacity: 0.65;
 }
 </style>
