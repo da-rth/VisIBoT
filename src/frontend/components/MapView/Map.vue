@@ -301,15 +301,15 @@ export default {
       let baseSvgName = "markers/marker"
       switch (markerType) {
         case "C2 Server":
-          return `${baseSvgName}-red.svg`
+          return `${baseSvgName}-c2.svg`
         case "Report Server":
-          return `${baseSvgName}-pink.svg`
+          return `${baseSvgName}-report.svg`
         case "Loader Server":
-          return `${baseSvgName}-orange.svg`
+          return `${baseSvgName}-loader.svg`
         case "Bot":
-          return `${baseSvgName}-blue.svg`
+          return `${baseSvgName}-bot.svg`
         default:
-          return `${baseSvgName}-green.svg`
+          return `${baseSvgName}-unknown.svg`
       }
     },
     getIcon: function (marker) {
@@ -318,7 +318,7 @@ export default {
       return L.icon({
         iconUrl: markerSvg,
         iconSize: [47, 47],
-        iconAnchor: [24, 41],
+        iconAnchor: [23, 42],
       })
     },
     filterMarkers: function (markers) {
@@ -519,7 +519,6 @@ export default {
   background-color: #0078a8;
   color: #fff;
 }
-
 .resultsCounter {
   position: absolute;
   background-color: #fff;
