@@ -224,3 +224,11 @@
 
 ### 17 Jan 2020
 * *9.0 hours* Re-writing and improving malware analysis stage of processing script.
+
+## Week 18
+### 18 Jan 2020
+* *1.0 hours* Modifying LiSa source-code to account for API throttling caused by processing script
+* *7.0 hours* Re-writing LiSa API integration to work around API throttling and inconsistent API response formats
+
+### 19 Jan 2020
+* *3.0 hours* Testing and refactoring LiSa C2 heuristics stage of processing script
