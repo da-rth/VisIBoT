@@ -107,15 +107,15 @@ def result_create_or_update(event_id, result_data):
 
 def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     flattened_tags = {
-        'cves': [],
-        'categories': [],
-        'descriptions': [],
+        'cves': set(),
+        'categories': set(),
+        'descriptions': set(),
     }
 
     for tag in tags:
-        flattened_tags['cves'].append(tag['cve'])
-        flattened_tags['categories'].append(tag['category'])
-        flattened_tags['descriptions'].append(tag['description'])
+        flattened_tags['cves'].add(tag['cve'])
+        flattened_tags['categories'].add(tag['category'])
+        flattened_tags['descriptions'].add(tag['description'])
 
     try:
         geodata = GeoData(
@@ -129,17 +129,36 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     except NotUniqueError:
         geodata = GeoData.objects(ip_address=ip).first()
 
-        loader_to_c2 = (geodata.server_type == "Loader Server" and server_type == "C2 Server")
-        bot_to_report_server = geodata.server_type in ["Bot", "Unknown"] and server_type == "Report Server"
+        loader_to_c2 = (
+            geodata.server_type == "Loader Server" and
+            server_type == "C2 Server"
+        )
+
+        bot_to_report_server = (
+            geodata.server_type in ["Bot", "Unknown"] and
+            server_type == "Report Server"
+        )
+
         low_tier_to_high_tier = (
-            geodata.server_type in ["Report Server", "Bot", "Unknown"]
-            and server_type in ["C2 Server", "Loader Server"]
+            geodata.server_type in ["Report Server", "Bot", "Unknown"] and
+            server_type in ["C2 Server", "Loader Server"]
         )
 
         if not (loader_to_c2 or bot_to_report_server or low_tier_to_high_tier):
             server_type = geodata.server_type
 
+        updated_tags = geodata.tags.copy()#
+
+        for k,v in updated_tags.items():
+            updated_tags[k] = set(v)
+    
+        for tag in tags:
+            updated_tags['cves'].add(tag['cve'])
+            updated_tags['categories'].add(tag['category'])
+            updated_tags['descriptions'].add(tag['description'])
+
         geodata.update(
+            set__tags=updated_tags,
             set__updated_at=datetime.utcnow(),
             set__server_type=server_type,
             inc__occurrences=1

@@ -86,19 +86,14 @@ export const actions = {
     context.commit("MARKERS_LOADED")
   },
   async fetchActiveMarker(context, marker) {
+    context.commit("ACTIVE_MARKER_LOADING")
     await axios
-      .get(`http://localhost:8080/api/geolocations/full-details/${marker._id}`)
+      .get(`http://localhost:8080/api/info/${marker._id}`)
       .then(async (response) => {
         context.commit("ACTIVE_MARKER_STORE", response.data)
       })
       .catch(() => {
         context.commit("ACTIVE_MARKER_ERROR")
-        /**
-        this.showToast(
-          "Sorry, we're having some trouble.",
-          "We couldn't get some information for the marker.",
-          "danger"
-        ) **/
       })
     context.commit("ACTIVE_MARKER_LOADED")
   },

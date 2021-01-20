@@ -99,14 +99,14 @@ class LiSaAPI:
             if ip_address.iptype() == 'PRIVATE':
                 continue
 
-            is_transaction = endpoint['data_in'] > 0 and endpoint['data_out'] > 0
+            is_receive_only = endpoint['data_in'] > 0 and endpoint['data_out'] == 0
             is_hardcoded_s = endpoint['ip'] in strings
             is_blacklisted = DNSBL_CATEGORY_CNC in ip_checker.check(ip_str).categories
 
             heuristics = []
 
-            if is_transaction:
-                heuristics.append("Transaction from IP")
+            if is_receive_only:
+                heuristics.append("Received data from IP without exchange.")
 
             if is_blacklisted:
                 heuristics.append("Blacklisted C2 IP")

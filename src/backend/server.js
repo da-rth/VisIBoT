@@ -9,6 +9,7 @@ require("dotenv").config()
 
 connectDB()
 
+require("./models/CandidateC2Server")
 require("./models/Result")
 require("./models/Payload")
 require("./models/GeoData")
@@ -18,7 +19,11 @@ if (process.env.NODE_ENV === "development") {
   app.use(require("morgan")("dev"))
 }
 
-app.use(cors())
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+)
 app.use(require("./routes"))
 app.use(bodyParser.json())
 

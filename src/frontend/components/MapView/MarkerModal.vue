@@ -16,8 +16,6 @@
     <div v-if="activeMarker">
       <b-container fluid>
         <div v-if="activeMarker">
-          <h1 v-if="activeMarker.info">have info</h1>
-
           <b-tabs content-class="mt-3">
             <b-tab title="Information" active>
               <pre><code v-highlight class="javascript">{{ JSON.stringify(activeMarker, null, 2) }}</code></pre>
@@ -89,18 +87,18 @@ export default {
         : "Possible " + this.activeMarker.server_type + " Activity"
     },
     getCountry: function () {
-      if (this.activeMarker.data.country) {
-        return this.activeMarker.data.country.names[this.currentLocale.code]
-          ? this.activeMarker.data.country.names[this.currentLocale.code]
-          : this.activeMarker.data.country.names.en
+      if (this.activeMarker.geoInfo.data.country) {
+        return this.activeMarker.geoInfo.data.country.names[this.currentLocale.code]
+          ? this.activeMarker.geoInfo.data.country.names[this.currentLocale.code]
+          : this.activeMarker.geoInfo.data.country.names.en
       }
       return this.$t("Unknown Country")
     },
     getCity: function () {
-      if (this.activeMarker.data.city) {
-        return this.activeMarker.data.city.names[this.currentLocale.code]
-          ? this.activeMarker.data.city.names[this.currentLocale.code]
-          : this.activeMarker.data.city.names.en
+      if (this.activeMarker.geoInfo.data.city) {
+        return this.activeMarker.geoInfo.data.city.names[this.currentLocale.code]
+          ? this.activeMarker.geoInfo.data.city.names[this.currentLocale.code]
+          : this.activeMarker.geoInfo.data.city.names.en
       }
       return this.$t("Unknown City")
     },

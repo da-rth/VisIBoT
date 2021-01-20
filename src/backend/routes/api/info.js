@@ -1,7 +1,10 @@
 "use strict"
 const express = require("express")
+
+const GeoData = require("../../models/GeoData")
 const Result = require("../../models/Result")
 const Payload = require("../../models/Payload")
+const CandidateC2Server = require("../../models/CandidateC2Server")
 
 let router = express.Router()
 
@@ -17,22 +20,26 @@ const getDocsResponse = (res, docs) => {
   }
 }
 
-router.route("/result/:ipAddress").get(async (req, res) => {
-  Result.find({ source_ip_address: req.params.ipAddress })
-    .sort("-updated_at")
-    .populate("scanned_payloads")
-    .lean()
-    .exec(function (err, docs) {
-      return getDocsResponse(res, docs)
+router.route("/:ip").get(async (req, res) => {
+  let ip = req.params.ip
+  Promise.all([
+    GeoData.findOne({ _id: ip }),
+    Result.find({ source_ip_address: ip }).populate("scanned_urls"),
+    Payload.find({ ip_address: ip }).populate("candidate_C2s"),
+    CandidateC2Server.findOne({ ip_address: ip }).populate("payloads"),
+  ])
+    .then((all_results) => {
+      const [geoInfo, results, payloads, c2s] = all_results
+      return res.json({
+        geoInfo,
+        results,
+        payloads,
+        c2s,
+      })
     })
-})
-
-router.route("/payload/:ipAddress").get(async (req, res) => {
-  Payload.find({ ip_address: req.params.ipAddress })
-    .sort("-updated_at")
-    .lean()
-    .exec(function (err, docs) {
-      return getDocsResponse(res, docs)
+    .catch((err) => {
+      console.error(err)
+      return res.status(400).send("Could not find information for given IP.")
     })
 })
 

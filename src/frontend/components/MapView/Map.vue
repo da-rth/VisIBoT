@@ -145,6 +145,7 @@ export default {
       showConnections: (state) => state.map.showConnections,
       markersError: (state) => state.map.markersError,
       activeMarker: (state) => state.map.activeMarker,
+      activeMarkerError: (state) => state.map.activeMarkerError,
       lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
       mapSidebarSettings: (state) => state.settings.mapSidebarSettings,
     }),
@@ -191,7 +192,23 @@ export default {
         this.mapMarkers = this.filterMarkers(this.markers)
         this.updateMapWithNewMarkers(this.mapMarkers)
       }
-    }
+    },
+    activeMarker(newMarker) {
+      if (newMarker) {
+        this.$refs.markerModal.show()
+      }
+    },
+    activeMarkerError(isError) {
+      console.log("error")
+      if (isError) {
+        console.log("error")
+        this.showToast(
+          "Sorry, we're having some trouble.",
+          "We couldn't get some information for the marker.",
+          "danger"
+        )
+      }
+    },
   },
   async beforeMount() {
     this.$store.dispatch("map/fetchMarkers")
@@ -302,7 +319,6 @@ export default {
       })
     },
     showMarkerModal: async function () {
-      this.$refs.markerModal.show()
       if (
         this.activeMarker &&
         this.selectedMarker._id !== this.activeMarker._id
