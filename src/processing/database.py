@@ -147,11 +147,11 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         if not (loader_to_c2 or bot_to_report_server or low_tier_to_high_tier):
             server_type = geodata.server_type
 
-        updated_tags = geodata.tags.copy()#
+        updated_tags = geodata.tags.copy()
 
-        for k,v in updated_tags.items():
+        for k, v in updated_tags.items():
             updated_tags[k] = set(v)
-    
+
         for tag in tags:
             updated_tags['cves'].add(tag['cve'])
             updated_tags['categories'].add(tag['category'])
