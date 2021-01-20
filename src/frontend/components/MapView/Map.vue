@@ -285,7 +285,7 @@ export default {
       this.currentClustered = markerCluster
       this.currentUnclustered = unclustered
     },
-    updateProgressBar: function (processed, total, elapsed) {
+    updateProgressBar: function (processed, total) {
       /**
       if (elapsed > 1000) {
         console.log(Math.round((processed / total) * 100) + "%")

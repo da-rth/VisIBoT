@@ -88,15 +88,21 @@ export default {
     },
     getCountry: function () {
       if (this.activeMarker.geoInfo.data.country) {
-        return this.activeMarker.geoInfo.data.country.names[this.currentLocale.code]
-          ? this.activeMarker.geoInfo.data.country.names[this.currentLocale.code]
+        return this.activeMarker.geoInfo.data.country.names[
+          this.currentLocale.code
+        ]
+          ? this.activeMarker.geoInfo.data.country.names[
+              this.currentLocale.code
+            ]
           : this.activeMarker.geoInfo.data.country.names.en
       }
       return this.$t("Unknown Country")
     },
     getCity: function () {
       if (this.activeMarker.geoInfo.data.city) {
-        return this.activeMarker.geoInfo.data.city.names[this.currentLocale.code]
+        return this.activeMarker.geoInfo.data.city.names[
+          this.currentLocale.code
+        ]
           ? this.activeMarker.geoInfo.data.city.names[this.currentLocale.code]
           : this.activeMarker.geoInfo.data.city.names.en
       }
