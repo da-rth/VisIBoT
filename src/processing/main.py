@@ -2,6 +2,7 @@ from badpackets import BadPacketsAPI
 from utils.lisa import LiSaAPI
 from dotenv import load_dotenv
 from datetime import datetime
+from utils.args import check_options
 from utils.misc import time_until, clear
 from utils.url_classifier import URLClassifier
 from pathlib import Path
@@ -12,71 +13,13 @@ from requests.exceptions import ConnectionError
 import utils.badpackets as bp_utils
 import threading
 import os
-import sys
 import time
-import optparse
+
 
 load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
 
 
 # Main Methods
-def create_parser_options():
-    """
-    Adds various command-line arguments supported by the processing script.
-    """
-    parser.add_option(
-        "-t",
-        "--threads",
-        action="store",
-        dest="threads",
-        help="The number of worker threads to use while processing results.",
-        default=4,
-        type=int
-    )
-    parser.add_option(
-        "-f",
-        "--firstrun",
-        action="store_true",
-        dest="firstrun",
-        help="Executes with 'first run' parameters (gets results from last 24h)",
-        default=False
-    )
-    parser.add_option(
-        "-m",
-        "--minute",
-        action="store",
-        dest="hourly_min",
-        help="The minute when the hourly processor executes",
-        default=15,
-        type=int
-    )
-
-
-def check_options(options):
-    """
-    Validates the command-line arguments provided by the user.
-
-    Raises:
-        SystemExit: If option is provided invalid value, print error and exit
-    """
-    threads_ok = options.threads >= 1
-    hour_min_ok = 0 <= options.hourly_min <= 59
-
-    if (threads_ok and hour_min_ok):
-        return
-
-    err_msg = "error: invalid parameter(s)"
-
-    if not threads_ok:
-        err_msg = "\n".join([err_msg, " -f, --firstrun: Number of threads must be at least 1."])
-    if not hour_min_ok:
-        err_msg = "\n".join([err_msg, " -m, --minute: Minute value must be between 0-59."])
-
-    print(err_msg, file=sys.stderr)
-
-    raise SystemExit()
-
-
 def process_task(first_run=False):
     """
     The main processing task which runs in a background thread
@@ -124,35 +67,38 @@ def init_processing_loop():
 
 
 if __name__ == "__main__":
-    # Check processing script arguments
-    parser = optparse.OptionParser()
-    create_parser_options()
-    options, args = parser.parse_args()
-    check_options(options)
-
-    clear()
-    print("Initialised VisIBoT Processing Script 🤖")
-
+    # Parse command-line arguments
+    options = check_options()
     first_run = options.firstrun
     threads = options.threads
     hourly_min = options.hourly_min
-    print("- Thread count:", threads, "\n- Execute minute:", hourly_min)
-
-    print("\nSetting up services:")
-
-    connect(host=os.getenv("MONGODB_URL"))
-    print("- Connected to VisIBoT MongoDB database")
-
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
 
+    # API Instances
     bp_api = BadPacketsAPI(
         api_url=os.getenv("BADPACKETS_API_URL"),
         api_token=os.getenv("BADPACKETS_API_KEY")
     )
+
+    lisa_api = LiSaAPI(
+        api_url=os.getenv("LISA_API_URL")
+    )
+
+    # Clear console and launch script
+    clear()
+    print(
+        "Initialized VisIBoT Processing Script 🤖",
+        f"- Thread count {threads}",
+        f"- Execute at {hourly_min} min\n",
+        "Setting up services:", sep="\n"
+    )
+
+    connect(host=os.getenv("MONGODB_URL"))
+    print("- Connected to VisIBoT MongoDB database")
+
     bp_api.ping().raise_for_status()
     print("- Authenticated BadPackets token")
 
-    lisa_api = LiSaAPI(api_url=os.getenv("LISA_API_URL"))
     t = threading.Thread(target=lisa_api.init_task_checker)
     t.start()
 
