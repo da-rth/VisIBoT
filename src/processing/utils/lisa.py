@@ -22,22 +22,6 @@ providers = [
 ]
 
 
-def remove_noise(s):
-    """
-    Replaces annoying substrings with space characters
-
-    Args:
-        s (str): The string to be filtered from noise
-
-    Returns:
-        str: The string with noise removed
-    """
-    for x in [";", "${IFS}", "\"", "'", "`", "+"]:
-        if x in s:
-            s = s.replace(x, " ")
-    return s
-
-
 class LiSaAPI:
 
     def __init__(self, api_url, exec_time=30):
@@ -49,9 +33,24 @@ class LiSaAPI:
         self.processing_task_ids = []
         self.complete_task_ids = []
         self.pending_task_ids = []
-        self.count_c2s = 0
+        self.all_CNCs = set()
+        self.all_P2Ps = set()
         self.adding_tasks = False
         self.executor = ThreadPoolExecutorStackTraced(max_workers=4)
+        self.p2p_routers = [
+            "router.utorrent.com",
+            "dht.transmissionbt.com",
+            "router.bittorrent.com",
+            "bttracker.debian.org",
+        ]
+        self.spreading_keywords = [
+            "chmod",
+            "wget",
+            "curl",
+            "tftp"
+            "/tmp",
+            "http"
+        ]
         self.__is_online()
 
     def __is_online(self):
@@ -62,7 +61,7 @@ class LiSaAPI:
             print("- Error: LiSa Server could not be reached. Is it running?")
             self.running = False
 
-    def __create_entry(self, ip_address, payload, heuristics):
+    def __create_geo_entry(self, ip_address, geo_type):
         geodata = geoip_info(ip_address)
 
         if not geodata:
@@ -70,25 +69,35 @@ class LiSaAPI:
 
         hostname = get_ip_hostname(ip_address)
 
-        geo = db.geodata_create_or_update(
+        return db.geodata_create_or_update(
             ip_address,
             hostname,
-            "C2 Server",
+            geo_type,
             geodata
         )
 
-        db.candidate_c2_create_or_update(
+    def __create_cnc_entry(self, geo, payload, heuristics):
+        return db.candidate_cnc_create_or_update(
             ip_address=geo.id,
             payload_ids=[payload.id],
             heuristics=heuristics
         )
 
-        return geo
+    def __create_p2p_entry(self, geo, payload, heuristics, nodes):
+        return db.candidate_p2p_create_or_update(
+            ip_address=geo.id,
+            payload_ids=[payload.id],
+            heuristics=heuristics,
+            nodes=nodes
+        )
 
-    def __check_requests_chmod(self, ip_address, analysis):
+    def __is_endpoint_spreading(self, ip_address, analysis):
         for req in analysis['network_analysis']['http_requests']:
             if 'headers' in req and ip_address in req['headers'].get('Host', ''):
-                if "chmod" in req['uri'] or "chmod" in req['headers'].get('SOAPAction', ''):
+                uri_has_keyword = any(s in req['uri'] for s in self.spreading_keywords)
+                soap_has_keyword = any(s in req['headers'].get('SOAPAction', '') for s in self.spreading_keywords)
+
+                if uri_has_keyword or soap_has_keyword:
                     return True
 
         return False
@@ -97,9 +106,22 @@ class LiSaAPI:
         ip_info = IP(ip)
         return ip_info.iptype() == 'PRIVATE'
 
+    def __is_p2p(self, analysis):
+        for dns_q in analysis['network_analysis']['dns_questions']:
+            if dns_q.get('name', None) in self.p2p_routers:
+                return True
+        """
+        for string in analysis['static_analysis']['strings']:
+            if any(string in router for router in self.p2p_routers):
+                return True
+        """
+        return False
+
     def __process_task_result(self, payload, task_id):
-        candidate_C2s = []
         ip_checker = DNSBLIpChecker(providers=providers)
+
+        candidate_CNCs = []
+        candidate_P2Ps = []
 
         time.sleep(1)
 
@@ -107,49 +129,83 @@ class LiSaAPI:
 
         response = requests.get(f"{self.api_url}/report/{task_id}")
         analysis = response.json() if response.json() else None
+        is_p2p = self.__is_p2p(analysis)
 
         for endpoint in analysis['network_analysis']['endpoints']:
+            heuristics = []
             ip_address = endpoint['ip']
 
-            if self.__is_private_ip(ip_address) or self.__check_requests_chmod(ip_address, analysis):
+            if self.__is_private_ip(ip_address) or self.__is_endpoint_spreading(ip_address, analysis):
                 continue
 
-            heuristics = []
-
-            is_transaction = endpoint['data_in'] > 0 and endpoint['data_out'] > 0
-            is_hardcoded_s = any(ip_address in s for s in analysis['static_analysis']['strings'])
-            is_blacklisted = DNSBL_CATEGORY_CNC in ip_checker.check(ip_address).categories
-
-            if is_transaction:
-                heuristics.append("Data transaction from IP")
-
-            if is_blacklisted:
-                heuristics.append("Blacklisted C2 IP")
-
-            if is_hardcoded_s:
-                heuristics.append("Hard-coded IP")
+            heuristics = self.__identify_heuristics(
+                endpoint,
+                analysis['static_analysis']['strings'],
+                ip_checker
+            )
 
             if heuristics:
-                geo = self.__create_entry(ip_address, payload, heuristics)
+                geo_type = "P2P Node" if is_p2p else "C2 Server"
+                geo = self.__create_geo_entry(ip_address, geo_type)
 
                 if geo:
-                    candidate_C2s.append(geo)
-                    self.count_c2s += 1
+                    if is_p2p:
+                        candidate_P2Ps.append((geo, heuristics))
+                        self.all_P2Ps.add(geo.id)
+                    else:
+                        candidate_CNCs.append((geo, heuristics))
+                        self.all_CNCs.add(geo.id)
 
-        analysis['binary_info'] = analysis['static_analysis']['binary_info'].copy()
+        for node_geo, heuristics in candidate_P2Ps:
+            nodes = list(set(n.id for n, _ in candidate_P2Ps if n.id != node_geo.id))
+            self.__create_p2p_entry(node_geo, payload, heuristics, nodes)
+
+        for cnc_geo, heuristics in candidate_CNCs:
+            self.__create_cnc_entry(cnc_geo, payload, heuristics)
+
         analysis['task_id'] = task_id
+        analysis['payload'] = payload
 
-        del analysis['static_analysis']
-        del analysis['dynamic_analysis']
-        del analysis['network_analysis']
-
-        payload.update(
-            set__lisa=analysis,
-            set__candidate_C2s=candidate_C2s
-        )
+        self.__process_payload(payload, analysis, candidate_CNCs, candidate_P2Ps)
 
         self.complete_task_ids.append(task_id)
         self.processing_task_ids.remove(task_id)
+
+    def __identify_heuristics(self, endpoint, strings, ip_checker):
+        heuristics = []
+
+        blacklist_categories = ip_checker.check(endpoint['ip']).categories
+
+        if (endpoint['data_in'] > 0) and (endpoint['data_out'] == 0):
+            heuristics.append("Data in-only from IP")
+
+        if (endpoint['data_in'] > 0) and (endpoint['data_out'] > 0):
+            heuristics.append("Data in-out from IP")
+
+        if any(endpoint['ip'] in s for s in strings):
+            heuristics.append("Blacklisted C2 IP")
+
+        if DNSBL_CATEGORY_CNC in blacklist_categories:
+            heuristics.append("Connection to hard-coded IP")
+
+        return heuristics
+
+    def __process_payload(self, payload, analysis, candidate_CNCs, candidate_P2Ps):
+        lisa_analysis = db.lisa_analysis_create_or_update(analysis)
+
+        cnc_geos = [geo.id for geo, _ in candidate_CNCs]
+        p2p_geos = [geo.id for geo, _ in candidate_P2Ps]
+
+        payload.update(
+            set__lisa=lisa_analysis,
+            add_to_set__candidate_C2s=cnc_geos,
+            add_to_set__candidate_P2Ps=p2p_geos,
+        )
+
+        all_ips = cnc_geos + p2p_geos
+
+        if all_ips:
+            db.geo_connections_create_or_update(payload.ip_address, all_ips)
 
     def __check_tasks(self):
         tasks_to_remove = []
@@ -168,15 +224,16 @@ class LiSaAPI:
 
                 if status:
                     if status == 'SUCCESS':
-                        self.executor.submit(self.__process_task_result, payload, task_id)
-                        # self.__process_task_result(payload, task_id)
+                        # self.executor.submit(self.__process_task_result, payload, task_id)
+                        self.__process_task_result(payload, task_id)
                     tasks_to_remove.append(task_id)
 
         self.pending_task_ids = [t for t in self.pending_task_ids if t[1] not in tasks_to_remove]
 
     def __reset(self):
         self.processing = False
-        self.count_c2s = 0
+        self.all_CNCs = set()
+        self.all_P2Ps = set()
         self.pending_task_ids = []
         self.complete_task_ids = []
         self.processing_task_ids = []
@@ -187,18 +244,26 @@ class LiSaAPI:
         while self.running:
             if (self.pending_task_ids or self.processing_task_ids) and not self.adding_tasks:
                 self.blink = not self.blink
-                print((
-                    f"\r- [LiSa] Tasks pending: {len(self.pending_task_ids)} | "
-                    f"processing: {len(self.processing_task_ids)} | "
-                    f"complete: {len(self.complete_task_ids)} | "
-                    f"possible C2s: {self.count_c2s} {'...' if self.blink else '   '}"
-                ), end="")
+                print(
+                    f"\r- [LiSa] Tasks pending: {len(self.pending_task_ids)} |",
+                    f"processing: {len(self.processing_task_ids)} |",
+                    f"complete: {len(self.complete_task_ids)} |",
+                    f"possible C2s: {len(self.all_CNCs)} |",
+                    f"possible P2Ps: {len(self.all_P2Ps)}",
+                    f"{'...' if self.blink else '   '}",
+                    end=""
+                )
 
             if self.pending_task_ids:
                 self.__check_tasks()
 
             elif (not self.adding_tasks) and (not self.processing_task_ids) and self.processing:
-                print(f"\n- [LiSa] Finished Analysis: Identified {self.count_c2s} candidate C2 Servers from {len(self.complete_task_ids)} analysis tasks.", flush=True)
+                print(
+                    f"\n- [LiSa] Finished Analysis: Identified {len(self.all_CNCs)} C2 Servers",
+                    f"and {len(self.all_P2Ps)} P2P Nodes from {len(self.complete_task_ids)} analysis",
+                    "tasks.",
+                    flush=True
+                )
                 self.__reset()
 
             time.sleep(5)

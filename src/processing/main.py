@@ -39,7 +39,7 @@ def process_task(first_run=False):
 
     payloads_to_process = set()
     for i, future in enumerate(as_completed(futures)):
-        print(f"Processed {i+1}/{res_len} results", end="\r")
+        print(f"Processed {i+1}/{res_len} results    ", end="\r")
         payloads_to_process.update(future.result())
 
     print(f"\nCompleted processing BadPackets results. Next cycle at: {time_until(hourly_min)} (UTC).\n")
@@ -67,14 +67,12 @@ def init_processing_loop():
 
 
 if __name__ == "__main__":
-    # Parse command-line arguments
     options = check_options()
     first_run = options.firstrun
     threads = options.threads
     hourly_min = options.hourly_min
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
 
-    # API Instances
     bp_api = BadPacketsAPI(
         api_url=os.getenv("BADPACKETS_API_URL"),
         api_token=os.getenv("BADPACKETS_API_KEY")
@@ -84,7 +82,6 @@ if __name__ == "__main__":
         api_url=os.getenv("LISA_API_URL")
     )
 
-    # Clear console and launch script
     clear()
     print(
         "Initialized VisIBoT Processing Script 🤖",
@@ -99,8 +96,7 @@ if __name__ == "__main__":
     bp_api.ping().raise_for_status()
     print("- Authenticated BadPackets token")
 
-    t = threading.Thread(target=lisa_api.init_task_checker)
-    t.start()
+    threading.Thread(target=lisa_api.init_task_checker).start()
 
     print("\nSetting up URL Classifier")
     url_classifier = URLClassifier('datasets/urldata.csv')

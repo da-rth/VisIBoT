@@ -282,6 +282,11 @@ export default {
           value: "C2 Server",
           icon: "markers/marker-c2.svg",
         },
+        {
+          text: `${this.$t("Peer-to-Peer Nodes")}`,
+          value: "P2P Node",
+          icon: "markers/marker-p2p.svg",
+        },
       ],
     }
   },

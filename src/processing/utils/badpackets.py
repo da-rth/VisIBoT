@@ -11,7 +11,7 @@ from utils.misc import url_parser, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
 
 
-FIRST_RUN_HOURS = 24
+FIRST_RUN_HOURS = 18
 BASE_PARAMS = {
     'limit': 1000,
 }
@@ -96,6 +96,7 @@ def store_result(event_id, result_data, url_classifier):
         event_id (str): The event_id of the given BadPackets Result
         result_data (dict): The dictionary (JSON Object) result data
     """
+    connections = []
     scanned_payloads = []
 
     existing_result = db.Result.objects(event_id=event_id).first()
@@ -133,7 +134,9 @@ def store_result(event_id, result_data, url_classifier):
         if not geodata:
             continue
 
-        db.geodata_create_or_update(ip, hostname, "Loader Server", geodata)
+        geo = db.geodata_create_or_update(ip, hostname, "Loader Server", geodata)
+        connections.append(geo)
+
         payload = db.payload_create_or_update(url, ip)
         scanned_payloads.append(payload)
 
@@ -150,7 +153,16 @@ def store_result(event_id, result_data, url_classifier):
         else:
             server_type = "Unknown"
 
-        geodata = db.geodata_create_or_update(ip, hostname, server_type, geodata, result_data['tags'])
+        geodata = db.geodata_create_or_update(
+            ip,
+            hostname,
+            server_type,
+            geodata,
+            result_data['tags']
+        )
+
+        if connections:
+            db.connections_create_or_update(geodata, connections)
 
         result_data['source_ip_address'] = geodata.id
         result_data['user_agent'] = useragent_parser(result_data['user_agent'])

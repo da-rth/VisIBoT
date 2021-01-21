@@ -20,29 +20,6 @@ const getDocsResponse = (res, docs) => {
   }
 }
 
-router.route("/:ip").get(async (req, res) => {
-  let ip = req.params.ip
-  Promise.all([
-    GeoData.findOne({ _id: ip }),
-    Result.find({ source_ip_address: ip }).populate("scanned_urls"),
-    Payload.find({ ip_address: ip }).populate("candidate_C2s"),
-    CandidateC2Server.findOne({ ip_address: ip }).populate("payloads"),
-  ])
-    .then((all_results) => {
-      const [geoInfo, results, payloads, c2s] = all_results
-      return res.json({
-        geoInfo,
-        results,
-        payloads,
-        c2s,
-      })
-    })
-    .catch((err) => {
-      console.error(err)
-      return res.status(400).send("Could not find information for given IP.")
-    })
-})
-
 router.route("/search-tags").get(async (req, res) => {
   /**
    * Returns an unique array of tags that are used for searching
@@ -67,6 +44,29 @@ router.route("/search-tags").get(async (req, res) => {
           allTags.flat().map((item) => [item.description, item])
         ).values(),
       ])
+    })
+})
+
+router.route("/:ip").get(async (req, res) => {
+  let ip = req.params.ip
+  Promise.all([
+    GeoData.findOne({ _id: ip }),
+    Result.find({ source_ip_address: ip }).populate("scanned_urls"),
+    Payload.find({ ip_address: ip }).populate("candidate_C2s"),
+    CandidateC2Server.findOne({ ip_address: ip }).populate("payloads"),
+  ])
+    .then((all_results) => {
+      const [geoInfo, results, payloads, c2s] = all_results
+      return res.json({
+        geoInfo,
+        results,
+        payloads,
+        c2s,
+      })
+    })
+    .catch((err) => {
+      console.error(err)
+      return res.status(400).send("Could not find information for given IP.")
     })
 })
 

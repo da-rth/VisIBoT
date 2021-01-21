@@ -9,6 +9,7 @@ export const state = () => ({
       "Report Server",
       "Loader Server",
       "C2 Server",
+      "P2P Node",
     ],
     clusterRadius: 100,
     zoomOnClick: true,

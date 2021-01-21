@@ -20,7 +20,7 @@
         ref="map"
         :zoom="4"
         :min-zoom="3"
-        :max-zoom="20"
+        :max-zoom="22"
         :options="{ zoomControl: false, attributionControl: false }"
         :bounds="bounds"
         :max-bounds="bounds"
@@ -75,8 +75,8 @@
 
         <div v-if="markerConnections && showConnections">
           <l-polyline
-            v-for="coordinates in markerConnections"
-            :key="JSON.stringify(coordinates)"
+            v-for="(coordinates, index) in markerConnections"
+            :key="index"
             :lat-lngs="coordinates.slice(0, -1)"
             color="#17a2b8"
           ></l-polyline>
@@ -105,8 +105,8 @@ export default {
       mapMarkers: [],
       selectedMarker: null,
       bounds: [
-        [-88, -200],
-        [90, 200],
+        [-88, -250],
+        [90, 250],
       ],
       relatedCoords: [
         [30, 0],
@@ -332,6 +332,8 @@ export default {
       switch (markerType) {
         case "C2 Server":
           return `${baseSvgName}-c2.svg`
+        case "P2P Node":
+          return `${baseSvgName}-p2p.svg`
         case "Report Server":
           return `${baseSvgName}-report.svg`
         case "Loader Server":
