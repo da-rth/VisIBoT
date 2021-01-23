@@ -26,61 +26,6 @@ router.route("/").get(async (req, res) => {
     })
 })
 
-async function getAllConnections(ipGeo) {
-  let allConnections = []
-
-  let ipConn = await IpGeoConnection.findOne({ _id: ipGeo })
-  let inConns = await IpGeoConnection.find({ connections: ipGeo })
-
-  if (ipConn) {
-    for (let conn of ipConn.connections) {
-      let connGeo = await IpGeoData.findOne({ _id: conn })
-
-      if (connGeo) {
-        allConnections = allConnections.concat([
-          [
-            [ipGeo.data.coordinates, connGeo.data.coordinates],
-            [ipGeo.id, connGeo.id],
-            [ipGeo.server_type, connGeo.server_type],
-          ],
-        ])
-
-        if (!ipConn.connections.includes(ipGeo.id)) {
-          allConnections = allConnections.concat(
-            await getAllConnections(connGeo)
-          )
-        }
-      }
-    }
-  }
-
-  for (let ipConn of inConns) {
-    let inGeo = await IpGeoData.findOne({ _id: ipConn.id })
-
-    for (let conn of ipConn.connections) {
-      let connGeo = await IpGeoData.findOne({ _id: conn })
-
-      if (connGeo) {
-        allConnections = allConnections.concat([
-          [
-            [inGeo.data.coordinates, connGeo.data.coordinates],
-            [inGeo.id, connGeo.id],
-            [inGeo.server_type, connGeo.server_type],
-          ],
-        ])
-
-        if (!ipConn.connections.includes(ipGeo.id)) {
-          allConnections = allConnections.concat(
-            await getAllConnections(connGeo)
-          )
-        }
-      }
-    }
-  }
-
-  return allConnections
-}
-
 router.route("/connections/:ip").get(async (req, res) => {
   let ipConns = await IpGeoConnection.aggregate([
     {
@@ -137,26 +82,6 @@ router.route("/connections/:ip").get(async (req, res) => {
   }
 
   return res.status(200).send(connections)
-  /**
-  let ipGeo = await IpGeoData.findOne({ _id: req.params.ip })
-
-  if (ipGonns == null) {
-    return res
-      .status(400)
-      .send("No geo/connection data could be found for the given IP address.")
-  }
-
-  try {
-    return res.status(200).send(ipConns)
-  } catch (err) {
-    console.error(err)
-    return res
-      .status(500)
-      .send(
-        "An error occurred when parsing database for IP address connections"
-      )
-  }
-  **/
 })
 
 module.exports = router
