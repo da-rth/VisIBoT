@@ -268,6 +268,11 @@ export default {
           icon: "markers/marker-bot.svg",
         },
         {
+          text: this.$t("Malicious Bots"),
+          value: "Malicious Bot",
+          icon: "markers/marker-malicious-bot.svg",
+        },
+        {
           text: this.$t("Report Servers"),
           value: "Report Server",
           icon: "markers/marker-report.svg",

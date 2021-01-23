@@ -1,110 +1,17 @@
 "use strict"
 const express = require("express")
 
-const GeoData = require("../../models/GeoData")
-const Result = require("../../models/Result")
-const Payload = require("../../models/Payload")
+const IpGeoData = require("../../models/IpGeoData")
+const IpGeoConnection = require("../../models/IpGeoConnection")
 
 let router = express.Router()
-
-// Helper Functions
-
-let getPayloadConnections = async function (ipGeoData) {
-  let connections = []
-  let allPayloads = await Payload.find({ ip_address: ipGeoData._id }).populate(
-    "ip_address candidate_C2s"
-  )
-
-  for (let payload of allPayloads) {
-    let payloadResults = await Result.find({
-      affiliated_ips: { $in: payload.ip_address._id },
-    })
-
-    let payloadResultsGeo = await GeoData.find({
-      _id: { $in: payloadResults.map((result) => result.source_ip_address) },
-    })
-
-    connections = connections.concat(
-      payload.candidate_C2s.map((geo) => {
-        return [
-          payload.ip_address.data.coordinates,
-          geo.data.coordinates,
-          geo._id,
-        ]
-      })
-    )
-
-    connections = connections.concat(
-      payloadResultsGeo.map((geo) => {
-        return [
-          payload.ip_address.data.coordinates,
-          geo.data.coordinates,
-          geo._id,
-        ]
-      })
-    )
-  }
-  return connections
-}
-
-let getC2Connections = async function (ipGeoData) {
-  let connections = []
-  let allPayloads = await Payload.find({
-    candidate_C2s: ipGeoData._id,
-  }).populate("ip_address")
-
-  for (let payload of allPayloads) {
-    connections = connections.concat(
-      await getPayloadConnections(payload.ip_address)
-    )
-  }
-
-  return connections
-}
-
-let getResultConnections = async function (ipGeoData) {
-  let connections = []
-
-  let allResults = await Result.find({
-    source_ip_address: ipGeoData._id,
-  })
-
-  let allPayloads = await Payload.find({
-    ip_address: {
-      $in: allResults.map((result) => result.affiliated_ips).flat(),
-    },
-  }).populate("ip_address candidate_C2s")
-
-  for (let payload of allPayloads) {
-    connections = connections.concat(
-      await getPayloadConnections(payload.ip_address)
-    )
-  }
-
-  /**
-  let allResults = await Result.find({
-    source_ip_address: ipGeoData._id,
-  }).populate("scanned_urls.ip_address scanned_urls.candidate_C2s")
-
-  for (let result of allResults) {
-    for (let payload of result.scanned_urls) {
-      connections = connections.concat(
-        await getPayloadConnections(payload.ip_address)
-      )
-    }
-  } **/
-
-  return connections
-}
-
-// Routes
 
 router.route("/").get(async (req, res) => {
   let nHoursAgo = new Date()
 
   nHoursAgo.setHours(nHoursAgo.getHours() - 24)
 
-  GeoData.find({ updated_at: { $gte: nHoursAgo } })
+  IpGeoData.find({ updated_at: { $gte: nHoursAgo } })
     .lean()
     .select({
       server_type: 1,
@@ -119,24 +26,128 @@ router.route("/").get(async (req, res) => {
     })
 })
 
-router.route("/connections/:ip").get(async (req, res) => {
-  let ipAddress = req.params.ip
-  let ipGeoData = await GeoData.findOne({ _id: ipAddress }).exec()
+async function getAllConnections(ipGeo) {
+  let allConnections = []
 
-  if (ipGeoData === null) {
+  let ipConn = await IpGeoConnection.findOne({ _id: ipGeo })
+  let inConns = await IpGeoConnection.find({ connections: ipGeo })
+
+  if (ipConn) {
+    for (let conn of ipConn.connections) {
+      let connGeo = await IpGeoData.findOne({ _id: conn })
+
+      if (connGeo) {
+        allConnections = allConnections.concat([
+          [
+            [ipGeo.data.coordinates, connGeo.data.coordinates],
+            [ipGeo.id, connGeo.id],
+            [ipGeo.server_type, connGeo.server_type],
+          ],
+        ])
+
+        if (!ipConn.connections.includes(ipGeo.id)) {
+          allConnections = allConnections.concat(
+            await getAllConnections(connGeo)
+          )
+        }
+      }
+    }
+  }
+
+  for (let ipConn of inConns) {
+    let inGeo = await IpGeoData.findOne({ _id: ipConn.id })
+
+    for (let conn of ipConn.connections) {
+      let connGeo = await IpGeoData.findOne({ _id: conn })
+
+      if (connGeo) {
+        allConnections = allConnections.concat([
+          [
+            [inGeo.data.coordinates, connGeo.data.coordinates],
+            [inGeo.id, connGeo.id],
+            [inGeo.server_type, connGeo.server_type],
+          ],
+        ])
+
+        if (!ipConn.connections.includes(ipGeo.id)) {
+          allConnections = allConnections.concat(
+            await getAllConnections(connGeo)
+          )
+        }
+      }
+    }
+  }
+
+  return allConnections
+}
+
+router.route("/connections/:ip").get(async (req, res) => {
+  let ipConns = await IpGeoConnection.aggregate([
+    {
+      $match: {
+        source_ip: req.params.ip,
+      },
+    },
+    {
+      $graphLookup: {
+        from: "ip_geo_connection",
+        startWith: "$destination_ip",
+        connectFromField: "destination_ip",
+        connectToField: "source_ip",
+        as: "connections",
+        restrictSearchWithMatch: {
+          destination_ip: {
+            $ne: req.params.ip,
+          },
+        },
+      },
+    },
+  ])
+
+  if (!ipConns.length) {
+    ipConns = await IpGeoConnection.aggregate([
+      {
+        $match: {
+          destination_ip: req.params.ip,
+        },
+      },
+      {
+        $graphLookup: {
+          from: "ip_geo_connection",
+          startWith: "$source_ip",
+          connectFromField: "source_ip",
+          connectToField: "destination_ip",
+          as: "connections",
+          restrictSearchWithMatch: {
+            source_ip: {
+              $ne: req.params.ip,
+            },
+          },
+        },
+      },
+    ])
+  }
+
+  let connections = []
+
+  for (let ipConn of ipConns) {
+    connections = connections.concat(ipConns[0].connections)
+    delete ipConn.connections
+    connections = connections.concat([ipConn])
+  }
+
+  return res.status(200).send(connections)
+  /**
+  let ipGeo = await IpGeoData.findOne({ _id: req.params.ip })
+
+  if (ipGonns == null) {
     return res
       .status(400)
       .send("No geo/connection data could be found for the given IP address.")
   }
+
   try {
-    switch (ipGeoData.server_type) {
-      case "Loader Server":
-        return res.status(200).send(await getPayloadConnections(ipGeoData))
-      case "C2 Server":
-        return res.status(200).send(await getC2Connections(ipGeoData))
-      default:
-        return res.status(200).send(await getResultConnections(ipGeoData))
-    }
+    return res.status(200).send(ipConns)
   } catch (err) {
     console.error(err)
     return res
@@ -145,6 +156,7 @@ router.route("/connections/:ip").get(async (req, res) => {
         "An error occurred when parsing database for IP address connections"
       )
   }
+  **/
 })
 
 module.exports = router

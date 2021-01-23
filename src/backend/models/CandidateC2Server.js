@@ -5,10 +5,11 @@ const schema = new Schema(
     occurrences: Number,
     ip_address: {
       type: Schema.Types.String,
-      ref: "GeoData",
+      ref: "IpGeoData",
       required: true,
     },
-    payloads: [{ type: Schema.Types.String, ref: "Payload" }],
+    payloads: [{ type: Schema.Types.String, ref: "MalwarePayload" }],
+    heuristics: [String],
     updated_at: Date,
   },
   {}

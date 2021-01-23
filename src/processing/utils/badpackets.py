@@ -11,7 +11,7 @@ from utils.misc import url_parser, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
 
 
-FIRST_RUN_HOURS = 18
+FIRST_RUN_HOURS = 24
 BASE_PARAMS = {
     'limit': 1000,
 }
@@ -23,14 +23,6 @@ PROC_PARAMS = [
     [('tags', 'Bashlite')],
     [('tags', 'Botnet')],
 ]
-
-
-def has_botnet_tag(tags):
-    for tag in tags:
-        desc = tag['description'].lower()
-        category = tag['category'].lower()
-        if "scan" in desc or "botnet" in category:
-            return True
 
 
 def query_badpackets(api, first_run=False):
@@ -99,7 +91,7 @@ def store_result(event_id, result_data, url_classifier):
     connections = []
     scanned_payloads = []
 
-    existing_result = db.Result.objects(event_id=event_id).first()
+    existing_result = db.BadpacketsResult.objects(event_id=event_id).first()
 
     if existing_result:
         existing_result.update(
@@ -120,7 +112,7 @@ def store_result(event_id, result_data, url_classifier):
             if url_class and url_class[0] == 'benign':
                 continue
 
-        existing_payload = db.Payload.objects(url=url).first()
+        existing_payload = db.MalwarePayload.objects(url=url).first()
 
         if existing_payload:
             existing_payload.update(
@@ -146,10 +138,26 @@ def store_result(event_id, result_data, url_classifier):
         ip = result_data['source_ip_address']
         hostname = get_ip_hostname(ip)
 
-        if has_botnet_tag(result_data['tags']):
+        has_botnet_tag = False
+        has_device_tag = False
+
+        for tag in result_data.get('tags', []):
+    
+            if tag['category'] == "Botnet Activity":
+                has_botnet_tag = True
+    
+            if tag['category'] in ["IoT", "Router", "Platform"] :
+                has_device_tag = True
+
+        if scanned_payloads:
+            if has_device_tag or has_botnet_tag:
+                server_type = "Malicious Bot"
+            else:
+                server_type = "Report Server"
+
+        elif has_botnet_tag:
             server_type = "Bot"
-        elif scanned_payloads:
-            server_type = "Report Server"
+
         else:
             server_type = "Unknown"
 
@@ -161,8 +169,8 @@ def store_result(event_id, result_data, url_classifier):
             result_data['tags']
         )
 
-        if connections:
-            db.connections_create_or_update(geodata, connections)
+        for conn in connections:
+            db.geo_connections_create_or_update(geodata, conn)
 
         result_data['source_ip_address'] = geodata.id
         result_data['user_agent'] = useragent_parser(result_data['user_agent'])

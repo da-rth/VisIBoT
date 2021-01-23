@@ -25,12 +25,17 @@
         :bounds="bounds"
         :max-bounds="bounds"
         :max-bounds-viscosity="1.0"
+        :edge-buffer-tiles="5"
         class="visibot-map"
       >
         <l-tile-layer
           :url="`https://tiles.stadiamaps.com/tiles/alidade_smooth${
             lightThemeEnabled ? '' : '_dark'
           }/{z}/{x}/{y}{r}.png`"
+          :options="{
+            edgeBufferTiles: 5,
+          }"
+          :edge-buffer-tiles="5"
         ></l-tile-layer>
 
         <l-control-zoom
@@ -44,11 +49,25 @@
               <b-button
                 class="popupBtn popupBtn--left"
                 variant="outline-primary"
-                :disabled="blockConnButton"
-                :class="{ connectionsActive: showConnections }"
+                :disabled="
+                  isSelectedConnectionDisabled || isSelectedConnectionsLoading
+                "
+                :class="{
+                  connectionsActive:
+                    !isSelectedConnectionDisabled && showConnections,
+                  connectionsDisabled: isSelectedConnectionDisabled,
+                  connectionsDisabledActive:
+                    isSelectedConnectionDisabled && showConnections,
+                  connectionsLoading: isSelectedConnectionsLoading,
+                }"
                 @click="showConnectedMarkers()"
               >
-                <b-icon-diagram-2 />
+                <b-spinner
+                  v-if="isSelectedConnectionsLoading"
+                  small
+                  label="Loading..."
+                />
+                <b-icon-diagram-2 v-else />
               </b-button>
               <b-button
                 class="popupBtn popupBtn--middle"
@@ -73,13 +92,32 @@
           </l-popup>
         </l-feature-group>
 
-        <div v-if="markerConnections && showConnections">
-          <l-polyline
-            v-for="(coordinates, index) in markerConnections"
-            :key="index"
-            :lat-lngs="coordinates.slice(0, -1)"
-            color="#17a2b8"
-          ></l-polyline>
+        <div v-if="isSelectedConnectionsLoaded && showConnections">
+          <template
+            v-for="(conn, index) in markerConnections[selectedMarker._id]"
+          >
+            <l-polyline
+              :key="index"
+              :lat-lngs="[
+                conn.source_ip.coordinates,
+                conn.destination_ip.coordinates,
+              ]"
+              :color="getCircleMarkerColor(conn)"
+              :opacity="0.3"
+            ></l-polyline>
+
+            <l-circle-marker
+              :key="`${index}-point`"
+              :lat-lng="getCircleMarkerLatLng(conn)"
+              :fill="true"
+              :radius="1"
+              :opaity="0.9"
+              :weight="10"
+              :color="getCircleMarkerColor(conn)"
+              class-name="circleMarker"
+              @click="selectCircleMarker(conn)"
+            />
+          </template>
         </div>
       </l-map>
     </b-overlay>
@@ -103,22 +141,14 @@ export default {
   data: function () {
     return {
       mapMarkers: [],
-      selectedMarker: null,
+      selectedMarker: Object.create(null),
       bounds: [
         [-88, -250],
         [90, 250],
       ],
-      relatedCoords: [
-        [30, 0],
-        [20, 20],
-        [-3, 50],
-      ],
-      currentClustered: null,
-      currentUnclustered: null,
+      currentClustered: [],
       markersReloading: false,
       tags: null,
-      blockConnButton: true,
-      unclusteredMarkers: [],
     }
   },
   head() {
@@ -142,13 +172,35 @@ export default {
       markers: (state) => state.map.markers,
       markersLoading: (state) => state.map.markersLoading,
       markerConnections: (state) => state.map.markerConnections,
+      markerConnectionsLoading: (state) => state.map.markerConnectionsLoading,
+      markerConnectionsDisabled: (state) => state.map.markerConnectionsDisabled,
+      markerConnectionsLoaded: (state) => state.map.markerConnectionsLoaded,
       showConnections: (state) => state.map.showConnections,
+      lastConnectionId: (state) => state.map.lastConnectionId,
       markersError: (state) => state.map.markersError,
       activeMarker: (state) => state.map.activeMarker,
       activeMarkerError: (state) => state.map.activeMarkerError,
       lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
       mapSidebarSettings: (state) => state.settings.mapSidebarSettings,
     }),
+    isSelectedConnectionsLoaded: function () {
+      return (
+        this.selectedMarker &&
+        this.markerConnectionsLoaded.includes(this.selectedMarker._id)
+      )
+    },
+    isSelectedConnectionsLoading: function () {
+      return (
+        this.selectedMarker &&
+        this.markerConnectionsLoading.includes(this.selectedMarker._id)
+      )
+    },
+    isSelectedConnectionDisabled: function () {
+      return (
+        this.selectedMarker &&
+        this.markerConnectionsDisabled.includes(this.selectedMarker._id)
+      )
+    },
   },
   watch: {
     markers(markers) {
@@ -172,23 +224,23 @@ export default {
       this.updateMapWithNewMarkers(this.mapMarkers)
       this.markersReloading = false
     },
-    markerConnections(newConnections) {
-      console.log(newConnections)
-      this.blockConnButton = newConnections.length == 0
-
-      if (this.blockConnButton) {
-        this.$store.commit("map/SET_SHOW_CONNECTIONS", false)
+    markerConnections() {
+      if (
+        this.selectedMarker &&
+        this.selectedMarker._id in this.markerConnections
+      ) {
+        if (this.markerConnections[this.selectedMarker._id].length == 0) {
+          this.disabledConnections.push(this.selectedMarker._id)
+        }
       }
 
       if (this.showConnections) {
-        this.unclusteredMarkers = []
         this.mapMarkers = this.filterMarkers(this.markers)
         this.updateMapWithNewMarkers(this.mapMarkers)
       }
     },
     showConnections(showConn) {
       if (!showConn) {
-        this.unclusteredMarkers = []
         this.mapMarkers = this.filterMarkers(this.markers)
         this.updateMapWithNewMarkers(this.mapMarkers)
       }
@@ -217,39 +269,21 @@ export default {
   methods: {
     showConnectedMarkers: function () {
       this.$store.commit("map/TOGGLE_SHOW_CONNECTIONS")
-
-      if (this.showConnections) {
-        this.mapMarkers = this.filterMarkers(this.markers)
-        this.updateMapWithNewMarkers(this.mapMarkers)
-      } else {
-        this.unclusteredMarkers = []
-        this.$store.commit("map/MARKER_CONNECTIONS_RESE")
-        this.mapMarkers = this.filterMarkers(this.markers)
-        this.updateMapWithNewMarkers(this.mapMarkers)
-      }
-      // this.$store.commit("map/MARKER_CONNECTIONS_RESET")
+      this.mapMarkers = this.filterMarkers(this.markers)
+      this.updateMapWithNewMarkers(this.mapMarkers)
     },
     updateMapWithNewMarkers: function (markers) {
-      let unclusteredMarkerList = []
       let markerList = []
       let markerCluster = L.markerClusterGroup({
         chunkedLoading: true,
-        chunkProgress: this.updateProgressBar,
         animateAddingMarkers: true,
         maxClusterRadius: this.mapSidebarSettings.clusterRadius,
         showCoverageOnHover: this.mapSidebarSettings.coverageOnHover,
         zoomToBoundsOnClick: this.mapSidebarSettings.zoomOnClick,
       })
-      let unclustered = L.markerClusterGroup({
-        maxClusterRadius: 0,
-      })
 
       if (this.currentClustered) {
         this.$refs.map.mapObject.removeLayer(this.currentClustered)
-      }
-
-      if (this.currentUnclustered) {
-        this.$refs.map.mapObject.removeLayer(this.currentUnclustered)
       }
 
       for (let marker of markers) {
@@ -261,38 +295,26 @@ export default {
           title: this.getTitleTranslation(marker),
           icon: this.getIcon(marker),
         })
-        lMarker.on("click", () => {
-          this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
-          this.selectedMarker = marker
-          this.$store.dispatch(
-            "map/fetchMarkerConnections",
-            this.selectedMarker
-          )
-        })
-
-        if (this.unclusteredMarkers.includes(marker._id)) {
-          unclusteredMarkerList.push(lMarker)
-        } else {
-          markerList.push(lMarker)
-        }
+        lMarker
+          .on("click", () => {
+            this.selectedMarker = marker
+            this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
+          })
+          .on("mouseover", () => {
+            console.log("bing")
+            console.log(
+              this.markerConnections,
+              marker._id in this.markerConnections
+            )
+            if (!(marker._id in this.markerConnections)) {
+              this.$store.dispatch("map/fetchMarkerConnections", marker)
+            }
+          })
+        markerList.push(lMarker)
       }
       markerCluster.addLayers(markerList)
       this.$refs.map.mapObject.addLayer(markerCluster)
-
-      unclustered.addLayers(unclusteredMarkerList)
-      this.$refs.map.mapObject.addLayer(unclustered)
-
       this.currentClustered = markerCluster
-      this.currentUnclustered = unclustered
-    },
-    updateProgressBar: function (processed, total) {
-      /**
-      if (elapsed > 1000) {
-        console.log(Math.round((processed / total) * 100) + "%")
-      }**/
-      if (processed === total) {
-        console.log("Retrieved geodata from server.")
-      }
     },
     getTitleTranslation: function (marker) {
       switch (marker.server_type) {
@@ -306,6 +328,68 @@ export default {
           return this.$t("C2 Server")
         case "Unknown":
           return this.$t("Unknown Activity")
+      }
+    },
+    getCircleMarkerColor: function (conn) {
+      console.log("conn", conn)
+      let sourceIp = conn.source_ip
+      let destIp = conn.destination_ip
+      let endpointType = destIp.server_type
+
+      if (
+        sourceIp.ip_address != this.selectedMarker._id &&
+        destIp.ip_address == this.selectedMarker._id
+      ) {
+        endpointType = sourceIp.server_type
+      }
+
+      console.log(endpointType)
+
+      switch (endpointType) {
+        case "Bot":
+          return "#51a1ba"
+        case "Malicious Bot":
+          return "#46b8a2"
+        case "Loader Server":
+          return "#ff9033"
+        case "Report Server":
+          return "#895dda"
+        case "C2 Server":
+          return "#da4e5b"
+        case "P2P Node":
+          return "#b18873"
+        default:
+          return "#919191"
+      }
+    },
+    selectCircleMarker: function (conn) {
+      let sourceIp = conn.source_ip
+      let destIp = conn.destination_ip
+      let ipAddress = destIp.ip_address
+
+      if (
+        sourceIp.ip_address != this.selectedMarker._id &&
+        destIp.ip_address == this.selectedMarker._id
+      ) {
+        ipAddress = sourceIp.ip_address
+      }
+
+      let marker = this.markers.find((m) => m._id == ipAddress)
+      if (marker) {
+        this.$store.dispatch("map/fetchActiveMarker", marker)
+      }
+    },
+    getCircleMarkerLatLng: function (conn) {
+      let sourceIp = conn.source_ip
+      let destIp = conn.destination_ip
+
+      if (
+        sourceIp.ip_address != this.selectedMarker._id &&
+        destIp.ip_address == this.selectedMarker._id
+      ) {
+        return sourceIp.coordinates
+      } else {
+        return destIp.coordinates
       }
     },
     showToast: function (title, body, variant) {
@@ -334,10 +418,12 @@ export default {
           return `${baseSvgName}-c2.svg`
         case "P2P Node":
           return `${baseSvgName}-p2p.svg`
-        case "Report Server":
-          return `${baseSvgName}-report.svg`
         case "Loader Server":
           return `${baseSvgName}-loader.svg`
+        case "Report Server":
+          return `${baseSvgName}-report.svg`
+        case "Malicious Bot":
+          return `${baseSvgName}-malicious-bot.svg`
         case "Bot":
           return `${baseSvgName}-bot.svg`
         default:
@@ -354,28 +440,9 @@ export default {
       })
     },
     filterMarkers: function (markers) {
-      this.unclusteredMarkers = []
       let filteredMarkers = markers.filter((marker) => {
-        // Keep selected marker shown
-        if (this.selectedMarker && this.selectedMarker._id == marker._id) {
-          this.unclusteredMarkers.push(marker._id)
-          return true
-        }
-
-        if (this.showConnections) {
-          if (this.markerConnections.some((x) => marker._id == x[2])) {
-            // include marker if it is connected to currently selected marker
-            this.unclusteredMarkers.push(marker._id)
-            return true
-          } else if (
-            // filter out any other markers land on same coordinates
-            this.markerConnections.some(
-              (x) =>
-                JSON.stringify(marker.data.coordinates) == JSON.stringify(x[1])
-            )
-          ) {
-            return false
-          }
+        if (this.showConnections && this.isSelectedConnectionsLoaded) {
+          return marker._id == this.selectedMarker._id
         }
 
         let searchDescription = this.mapSidebarSettings.searchDescription
@@ -551,6 +618,15 @@ export default {
   background-color: #0078a8;
   color: #fff;
 }
+.connectionsLoading {
+  padding-bottom: -8px;
+}
+.connectionsDisabled {
+  opacity: 0.3;
+}
+.connectionsDisabledActive {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
 .resultsCounter {
   position: absolute;
   background-color: #fff;
@@ -564,5 +640,13 @@ export default {
   cursor: default;
   user-select: none;
   opacity: 0.9;
+}
+
+.circleMarker {
+  transition: stroke-width 0.25s ease;
+}
+
+.circleMarker:hover {
+  stroke-width: 16px;
 }
 </style>

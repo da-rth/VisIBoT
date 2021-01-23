@@ -249,6 +249,11 @@ def validate_url(url):
         None: False is returned if URL is invalid
         tuple: (url, ip, hostname) is returned if URL is valid
     """
+    ignore_exts = [".png", ".jpg", ".jpeg", ".html", ".xml"]
+
+    if any(url.lower().endswith(s) for s in ignore_exts):
+        return None
+
     host = urlparse(url).hostname
     hostname, address = None, None
 

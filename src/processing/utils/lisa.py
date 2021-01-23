@@ -165,6 +165,10 @@ class LiSaAPI:
 
         analysis['task_id'] = task_id
         analysis['payload'] = payload
+        analysis['binary_info'] = analysis['static_analysis']['binary_info'].copy()
+
+        del analysis['dynamic_analysis']
+        del analysis['static_analysis']
 
         self.__process_payload(payload, analysis, candidate_CNCs, candidate_P2Ps)
 
@@ -202,10 +206,10 @@ class LiSaAPI:
             add_to_set__candidate_P2Ps=p2p_geos,
         )
 
-        all_ips = cnc_geos + p2p_geos
+        all_geos = cnc_geos + p2p_geos
 
-        if all_ips:
-            db.geo_connections_create_or_update(payload.ip_address, all_ips)
+        for geo in all_geos:
+            db.geo_connections_create_or_update(payload.ip_address, geo)
 
     def __check_tasks(self):
         tasks_to_remove = []
@@ -245,11 +249,11 @@ class LiSaAPI:
             if (self.pending_task_ids or self.processing_task_ids) and not self.adding_tasks:
                 self.blink = not self.blink
                 print(
-                    f"\r- [LiSa] Tasks pending: {len(self.pending_task_ids)} |",
-                    f"processing: {len(self.processing_task_ids)} |",
-                    f"complete: {len(self.complete_task_ids)} |",
-                    f"possible C2s: {len(self.all_CNCs)} |",
-                    f"possible P2Ps: {len(self.all_P2Ps)}",
+                    f"\r- [LiSa] Tasks pending: {len(self.pending_task_ids)} | "
+                    f"processing: {len(self.processing_task_ids)} | "
+                    f"complete: {len(self.complete_task_ids)} | "
+                    f"possible C2s: {len(self.all_CNCs)} | "
+                    f"possible P2Ps: {len(self.all_P2Ps)} "
                     f"{'...' if self.blink else '   '}",
                     end=""
                 )
@@ -259,7 +263,7 @@ class LiSaAPI:
 
             elif (not self.adding_tasks) and (not self.processing_task_ids) and self.processing:
                 print(
-                    f"\n- [LiSa] Finished Analysis: Identified {len(self.all_CNCs)} C2 Servers",
+                    f"- [LiSa] Finished Analysis: Identified {len(self.all_CNCs)} C2 Servers",
                     f"and {len(self.all_P2Ps)} P2P Nodes from {len(self.complete_task_ids)} analysis",
                     "tasks.",
                     flush=True

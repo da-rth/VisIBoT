@@ -3,13 +3,7 @@ from mongoengine.errors import NotUniqueError
 from datetime import datetime
 
 
-high_tier_server_types = [
-    "C2 Server",
-    "Loader Server",
-]
-
-
-class GeoData(mongo.Document):
+class IpGeoData(mongo.Document):
     """
     Server/IP Address information pulled from payload data of
     BadPackets results
@@ -27,28 +21,32 @@ class GeoData(mongo.Document):
             "P2P Node",
             "Loader Server",
             "Report Server",
+            "Malicious Bot",
             "Bot",
             "Unknown"
         ]
     )
 
 
-class GeoConnection(mongo.Document):
-    ip_address        = mongo.ReferenceField(GeoData, required=True)
-    connections       = mongo.ListField(mongo.ReferenceField(GeoData, required=False), required=False, default=[])
+class IpGeoConnection(mongo.Document):
+    """
+    OneToMany Document containing all connections between one IpGeoData Object and various others
+    """
+    source_ip         = mongo.ReferenceField(IpGeoData, required=True)
+    destination_ip    = mongo.ReferenceField(IpGeoData, unique=True)
 
 
-class Payload(mongo.Document):
+class MalwarePayload(mongo.Document):
     """
     Malware payload information retrieved from BadPackets results
     """
     url               = mongo.StringField(required=True, primary_key=True)
     occurrences       = mongo.IntField(default=0)
     lisa              = mongo.ReferenceField('LisaAnalysis', required=False)
-    ip_address        = mongo.ReferenceField(GeoData, required=True)
+    ip_address        = mongo.ReferenceField(IpGeoData, required=True)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
-    candidate_C2s     = mongo.ListField(mongo.ReferenceField(GeoData, required=False), required=False, default=[])
-    candidate_P2Ps    = mongo.ListField(mongo.ReferenceField(GeoData, required=False), required=False, default=[])
+    candidate_C2s     = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
+    candidate_P2Ps    = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
 
 
 class LisaAnalysis(mongo.DynamicDocument):
@@ -56,15 +54,15 @@ class LisaAnalysis(mongo.DynamicDocument):
     Malware binary information obtained from LiSa Sandbox
     """
     task_id           = mongo.StringField(required=True, primary_key=True)
-    payload           = mongo.ReferenceField(Payload, required=False)
+    payload           = mongo.ReferenceField(MalwarePayload, required=True)
 
 
 class CandidateC2Server(mongo.Document):
     """
     Candidate C2 Server extracted from network analysis of malware extracted from a payload
     """
-    ip_address        = mongo.ReferenceField(GeoData, required=True)
-    payloads          = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
+    ip_address        = mongo.ReferenceField(IpGeoData, required=True)
+    payloads          = mongo.ListField(mongo.ReferenceField(MalwarePayload, required=False), required=False)
     heuristics        = mongo.ListField(mongo.StringField())
     occurrences       = mongo.IntField(default=0)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
@@ -74,20 +72,20 @@ class CandidateP2pNode(mongo.Document):
     """
     Candidate C2 Server extracted from network analysis of malware extracted from a payload
     """
-    ip_address        = mongo.ReferenceField(GeoData, required=True)
-    payloads          = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
+    ip_address        = mongo.ReferenceField(IpGeoData, required=True)
+    payloads          = mongo.ListField(mongo.ReferenceField(MalwarePayload, required=False), required=False)
     nodes             = mongo.ListField(mongo.ReferenceField('self', required=False), required=False)
     heuristics        = mongo.ListField(mongo.StringField())
     occurrences       = mongo.IntField(default=0)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
-class Result(mongo.Document):
+class BadpacketsResult(mongo.Document):
     """
     BadPackets Result JSON information
     """
     event_id          = mongo.StringField(required=True, primary_key=True)
-    source_ip_address = mongo.ReferenceField(GeoData, required=True)
+    source_ip_address = mongo.ReferenceField(IpGeoData, required=True)
     country           = mongo.StringField(required=True, max_length=4)
     user_agent        = mongo.DictField(required=True)
     payload           = mongo.StringField(required=True)
@@ -98,14 +96,14 @@ class Result(mongo.Document):
     first_seen        = mongo.StringField(required=True)
     last_seen         = mongo.StringField(required=True)
     tags              = mongo.ListField(mongo.DictField(required=True), required=True)
-    scanned_urls      = mongo.ListField(mongo.ReferenceField(Payload, required=False), required=False)
-    affiliated_ips    = mongo.ListField(mongo.ReferenceField(GeoData, required=False), required=False)
+    scanned_urls      = mongo.ListField(mongo.ReferenceField(MalwarePayload, required=False), required=False)
+    affiliated_ips    = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
 def payload_create_or_update(url, ip, lisa=None, candidate_C2s=[], candidate_P2Ps=[]):
     try:
-        payload = Payload(
+        payload = MalwarePayload(
             url=url,
             ip_address=ip,
             lisa=lisa,
@@ -114,7 +112,7 @@ def payload_create_or_update(url, ip, lisa=None, candidate_C2s=[], candidate_P2P
         )
         payload.save()
     except NotUniqueError:
-        payload = Payload.objects(url=url).first()
+        payload = MalwarePayload.objects(url=url).first()
         payload.update(
             set__updated_at=datetime.utcnow(),
             set__lisa=lisa if lisa else payload.lisa,
@@ -127,10 +125,10 @@ def payload_create_or_update(url, ip, lisa=None, candidate_C2s=[], candidate_P2P
 
 def result_create_or_update(event_id, result_data):
     try:
-        result = Result(**result_data)
+        result = BadpacketsResult(**result_data)
         result.save()
-    except (NotUniqueError, mongo.DuplicateKeyError):
-        result = Result.objects(event_id=event_id).first()
+    except NotUniqueError:
+        result = BadpacketsResult.objects(event_id=event_id).first()
         result.update(
             add_to_set__scanned_payloads=result_data['scanned_payloads'],
             set__updated_at=datetime.utcnow()
@@ -151,7 +149,7 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         flattened_tags['descriptions'].add(tag['description'])
 
     try:
-        geodata = GeoData(
+        geodata = IpGeoData(
             ip_address=ip,
             hostname=hostname,
             server_type=server_type,
@@ -160,24 +158,29 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         )
         geodata.save()
     except NotUniqueError:
-        geodata = GeoData.objects(ip_address=ip).first()
+        geodata = IpGeoData.objects(ip_address=ip).first()
 
         loader_to_c2_p2p = (
             geodata.server_type == "Loader Server" and
             (server_type == "C2 Server" or server_type == "P2P Node")
         )
 
+        report_to_loader = (
+            geodata.server_type in ["Report Server", "Malicious Bot"] and
+            server_type == "Loader Server"
+        )
+
         bot_to_report = (
             geodata.server_type in ["Bot", "Unknown"] and
-            server_type == "Report Server"
+            server_type == "Report Server" or server_type == "Malicious Bot"
         )
 
         low_to_high = (
-            geodata.server_type in ["Report Server", "Bot", "Unknown"] and
-            server_type in ["C2 Server", "Loader Server"]
+            geodata.server_type in ["Report Server", "Malicious Bot", "Bot", "Unknown"] and
+            server_type in ["C2 Server", "P2P Node", "Loader Server"]
         )
 
-        if not (loader_to_c2_p2p or bot_to_report or low_to_high):
+        if not (loader_to_c2_p2p or report_to_loader or bot_to_report or low_to_high):
             server_type = geodata.server_type
 
         if 'cves' in geodata.tags:
@@ -245,21 +248,18 @@ def lisa_analysis_create_or_update(lisa_analysis):
     try:
         lisa = LisaAnalysis(**lisa_analysis)
         lisa.save()
-    except (NotUniqueError, mongo.DuplicateKeyError):
+    except NotUniqueError:
         lisa = LisaAnalysis.objects(task_id=lisa_analysis['task_id']).first()
     return lisa
 
 
-def geo_connections_create_or_update(ip_address, connections):
+def geo_connections_create_or_update(source_ip, destination_ip):
     try:
-        conn = GeoConnection(
-            ip_address=ip_address,
-            connections=connections
+        conn = IpGeoConnection(
+            source_ip=source_ip,
+            destination_ip=destination_ip
         )
         conn.save()
-    except (NotUniqueError, mongo.DuplicateKeyError):
-        conn = GeoConnection.objects(ip_address=ip_address).first()
-        conn.update(
-            add_to_set__connections=connections,
-        )
+    except NotUniqueError:
+        conn = IpGeoConnection.objects(source_ip=source_ip).first()
     return conn

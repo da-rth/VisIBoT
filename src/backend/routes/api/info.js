@@ -1,10 +1,11 @@
 "use strict"
 const express = require("express")
 
-const GeoData = require("../../models/GeoData")
-const Result = require("../../models/Result")
-const Payload = require("../../models/Payload")
+const IpGeoData = require("../../models/IpGeoData")
+const BadpacketsResult = require("../../models/BadpacketsResult")
+const MalwarePayload = require("../../models/MalwarePayload")
 const CandidateC2Server = require("../../models/CandidateC2Server")
+const CandidateP2PNode = require("../../models/CandidateP2PNode")
 
 let router = express.Router()
 
@@ -28,7 +29,7 @@ router.route("/search-tags").get(async (req, res) => {
 
   nHoursAgo.setHours(nHoursAgo.getHours() - 24)
 
-  Result.find({ updated_at: { $gte: nHoursAgo } })
+  BadpacketsResult.find({ updated_at: { $gte: nHoursAgo } })
     .select({ tags: 1, _id: 0 })
     .lean()
     .exec(function (err, tags) {
@@ -47,21 +48,23 @@ router.route("/search-tags").get(async (req, res) => {
     })
 })
 
-router.route("/:ip").get(async (req, res) => {
+router.route("/summary/:ip").get(async (req, res) => {
   let ip = req.params.ip
   Promise.all([
-    GeoData.findOne({ _id: ip }),
-    Result.find({ source_ip_address: ip }).populate("scanned_urls"),
-    Payload.find({ ip_address: ip }).populate("candidate_C2s"),
-    CandidateC2Server.findOne({ ip_address: ip }).populate("payloads"),
+    IpGeoData.findOne({ _id: ip }),
+    BadpacketsResult.find({ source_ip_address: ip }),
+    MalwarePayload.find({ ip_address: ip }),
+    CandidateC2Server.findOne({ ip_address: ip }),
+    CandidateP2PNode.findOne({ ip_address: ip }),
   ])
     .then((all_results) => {
-      const [geoInfo, results, payloads, c2s] = all_results
+      const [geoInfo, results, payloads, c2s, p2ps] = all_results
       return res.json({
         geoInfo,
         results,
         payloads,
         c2s,
+        p2ps,
       })
     })
     .catch((err) => {

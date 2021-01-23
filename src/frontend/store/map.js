@@ -10,7 +10,11 @@ export const state = () => ({
   activeMarkerLoading: false,
   activeMarkerError: false,
 
-  markerConnections: [],
+  connectionsError: [],
+  markerConnectionsLoading: [],
+  markerConnectionsDisabled: [],
+  markerConnectionsLoaded: [],
+  markerConnections: Object.create(null),
   showConnections: false,
 
   searchTagDescriptions: [],
@@ -50,11 +54,51 @@ export const mutations = {
     state.activeMarkerError = true
   },
 
-  ["MARKER_CONNECTIONS_STORE"](state, connections) {
-    state.markerConnections = connections
+  ["MARKER_CONNECTIONS_LOADING"](state, marker) {
+    state.markerConnectionsLoading.push(marker._id)
   },
-  ["MARKER_CONNECTIONS_RESET"](state) {
-    state.markerConnections = []
+  ["MARKER_CONNECTIONS_ERROR"](state, marker) {
+    state.markerConnectionsLoading = state.markerConnectionsLoading.filter(
+      (e) => e !== marker._id
+    )
+    state.markerConnections[marker._id] = []
+    state.markerConnectionsDisabled.push(marker._id)
+  },
+  ["MARKER_CONNECTIONS_STORE"](state, marker) {
+    state.markerConnectionsLoading = state.markerConnectionsLoading.filter(
+      (e) => e !== marker._id
+    )
+    if (marker.connections.length == 0) {
+      state.markerConnectionsDisabled.push(marker._id)
+    } else {
+      state.markerConnectionsLoaded.push(marker._id)
+
+      let markerConnections = marker.connections
+        .map((c) => {
+          let sourceMarker = state.markers.find((m) => m._id == c.source_ip)
+          let destMarker = state.markers.find((m) => m._id == c.destination_ip)
+
+          if (!(sourceMarker && destMarker)) {
+            return null
+          } else {
+            return {
+              source_ip: {
+                ip_address: sourceMarker._id,
+                server_type: sourceMarker.server_type,
+                coordinates: sourceMarker.data.coordinates,
+              },
+              destination_ip: {
+                ip_address: destMarker._id,
+                server_type: destMarker.server_type,
+                coordinates: destMarker.data.coordinates,
+              },
+            }
+          }
+        })
+        .filter((e) => e != null)
+
+      state.markerConnections[marker._id] = markerConnections
+    }
   },
   ["TOGGLE_SHOW_CONNECTIONS"](state) {
     state.showConnections = !state.showConnections
@@ -86,9 +130,8 @@ export const actions = {
     context.commit("MARKERS_LOADED")
   },
   async fetchActiveMarker(context, marker) {
-    context.commit("ACTIVE_MARKER_LOADING")
     await axios
-      .get(`http://localhost:8080/api/info/${marker._id}`)
+      .get(`http://localhost:8080/api/info/summary/${marker._id}`)
       .then(async (response) => {
         context.commit("ACTIVE_MARKER_STORE", response.data)
       })
@@ -108,13 +151,15 @@ export const actions = {
       })
   },
   async fetchMarkerConnections(context, marker) {
+    context.commit("MARKER_CONNECTIONS_LOADING", marker)
     await axios
       .get(`http://localhost:8080/api/geolocations/connections/${marker._id}`)
       .then(async (response) => {
-        context.commit("MARKER_CONNECTIONS_STORE", response.data)
+        marker.connections = response.data
+        context.commit("MARKER_CONNECTIONS_STORE", marker)
       })
       .catch(() => {
-        context.commit("MARKER_CONNECTIONS_RESET")
+        context.commit("MARKER_CONNECTIONS_ERROR", marker)
       })
   },
 }

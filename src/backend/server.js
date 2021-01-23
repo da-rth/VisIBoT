@@ -10,9 +10,9 @@ require("dotenv").config()
 connectDB()
 
 require("./models/CandidateC2Server")
-require("./models/Result")
-require("./models/Payload")
-require("./models/GeoData")
+require("./models/BadpacketsResult")
+require("./models/MalwarePayload")
+require("./models/IpGeoData")
 
 if (process.env.NODE_ENV === "development") {
   console.log("Developer Mode")
