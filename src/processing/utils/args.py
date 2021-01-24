@@ -34,6 +34,14 @@ def create_parser():
         default=15,
         type=int
     )
+    parser.add_option(
+        "-d",
+        "--drop-db",
+        action="store_true",
+        dest="drop_db",
+        help="Drops VisIBoT database before initializing processing script. Before dropping, you will be asked to confirm this action.",
+        default=False
+    )
 
     return parser
 

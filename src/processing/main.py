@@ -1,25 +1,36 @@
+import os
+import time
+import logging
+import threading
+import utils.collect as collection_utils
 from badpackets import BadPacketsAPI
 from utils.lisa import LiSaAPI
 from dotenv import load_dotenv
 from datetime import datetime
 from utils.args import check_options
 from utils.misc import time_until, clear
-from utils.url_classifier import URLClassifier
 from pathlib import Path
 from utils.stack_thread import ThreadPoolExecutorStackTraced
 from concurrent.futures import as_completed
 from mongoengine import connect
 from requests.exceptions import ConnectionError
-import utils.badpackets as bp_utils
-import threading
-import os
-import time
+from logging.handlers import RotatingFileHandler
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(name)-25s %(levelname)-8s %(message)s",
+    datefmt="%d-%m-%y %H:%M:%S",
+    handlers=[
+        RotatingFileHandler(
+            filename='visibot.log',
+            maxBytes=5*1024*1024,
+        ),
+    ]
+)
+logging.getLogger("filelock").setLevel(logging.ERROR)
+logger = logging.getLogger('main')
 
 
-load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
-
-
-# Main Methods
 def process_task(first_run=False):
     """
     The main processing task which runs in a background thread
@@ -30,17 +41,18 @@ def process_task(first_run=False):
             collect results last seen from current time - FIRST_RUN_HOURS
             instead of 1 hour.
     """
-    results = {res['event_id']: res for res in bp_utils.query_badpackets(bp_api, first_run)}
+    results = collection_utils.query_badpackets(bp_api, first_run)
     res_len = len(results)
 
     print(f"\nTotal BadPackets results to process: {res_len}\n")
 
-    futures = [executor.submit(bp_utils.store_result, evt, res, url_classifier) for evt, res in results.items()]
+    futures = [executor.submit(collection_utils.store_result, result) for result in results]
 
     payloads_to_process = set()
     for i, future in enumerate(as_completed(futures)):
-        print(f"Processed {i+1}/{res_len} results    ", end="\r")
-        payloads_to_process.update(future.result())
+        print(f"\rProcessed {i+1}/{res_len} results | potential payloads: {len(payloads_to_process)}", end="")
+        result_payloads = future.result()
+        payloads_to_process.update(result_payloads)
 
     print(f"\nCompleted processing BadPackets results. Next cycle at: {time_until(hourly_min)} (UTC).\n")
 
@@ -57,9 +69,9 @@ def init_processing_loop():
     and the processing task executes once per hour at: HH::hourly_min:00
     """
     while True:
-        dtnow = datetime.utcnow()
+        dt_now = datetime.utcnow()
 
-        if (dtnow.minute == hourly_min and dtnow.second == 0):
+        if (dt_now.minute == hourly_min and dt_now.second == 0):
             print("Hourly processing script triggered\n")
             executor.submit(process_task)
 
@@ -67,20 +79,29 @@ def init_processing_loop():
 
 
 if __name__ == "__main__":
+    load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
+
     options = check_options()
     first_run = options.firstrun
     threads = options.threads
     hourly_min = options.hourly_min
-    executor = ThreadPoolExecutorStackTraced(max_workers=threads)
+    drop_db = options.drop_db
 
-    bp_api = BadPacketsAPI(
-        api_url=os.getenv("BADPACKETS_API_URL"),
-        api_token=os.getenv("BADPACKETS_API_KEY")
-    )
+    executor = ThreadPoolExecutorStackTraced(max_workers=threads)
 
     lisa_api = LiSaAPI(
         api_url=os.getenv("LISA_API_URL")
     )
+    try:
+        bp_api = BadPacketsAPI(
+            api_url=os.getenv("BADPACKETS_API_URL"),
+            api_token=os.getenv("BADPACKETS_API_KEY")
+        )
+    except Exception:
+        msg = "Failed to authorize BadPackets API with provided API key"
+        print("\nError:", msg)
+        logger.exception(msg)
+        raise SystemExit(1)
 
     clear()
     print(
@@ -90,16 +111,24 @@ if __name__ == "__main__":
         "Setting up services:", sep="\n"
     )
 
-    connect(host=os.getenv("MONGODB_URL"))
+    db = connect(host=os.getenv("MONGODB_DB_URL"))
     print("- Connected to VisIBoT MongoDB database")
+
+    if drop_db:
+        db_name = os.getenv("MONGODB_DB_NAME")
+        confirm = input(f"- DROP {db_name}: This cannot be undone. Are you sure? (y/n): ")
+
+        if confirm == "y":
+            db.drop_database(db_name)
+            print(f"- MongoDB database {db_name} has been dropped.")
+            logger.info(f"User dropped {db_name} database")
+        else:
+            print("- You cancelled the database drop request.")
 
     bp_api.ping().raise_for_status()
     print("- Authenticated BadPackets token")
 
     threading.Thread(target=lisa_api.init_task_checker).start()
-
-    print("\nSetting up URL Classifier")
-    url_classifier = URLClassifier('datasets/urldata.csv')
 
     try:
         if first_run:
@@ -111,6 +140,9 @@ if __name__ == "__main__":
         init_processing_loop()
     except (KeyboardInterrupt):
         print("\n\nClosing processing script and waiting on threads to finish...\n")
-    finally:
-        executor.shutdown(wait=True, cancel_futures=True)
-        lisa_api.stop()
+        logger.info('KeyBoard Interrupt raised by user.')
+
+    logger.info('Shutting down main.py executor and cancelling futures.')
+    executor.shutdown(wait=True, cancel_futures=True)
+    lisa_api.stop()
+    logger.info('Exiting VisIBoT Processing Script.')

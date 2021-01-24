@@ -1,5 +1,8 @@
+import logging
 import geoip2.database
-import maxminddb
+from contextlib import suppress
+
+logger = logging.getLogger('maxminds-geodata')
 
 
 def geo_db_path(type):
@@ -35,9 +38,8 @@ def geoip_info(ip_address):
         [dict]: The resulting geolocation information for the given IP,
             including coordintes, ASN information, etc...
     """
-    try:
-        result = dict()
-
+    result = {}
+    with suppress(ValueError, geoip2.errors.AddressNotFoundError):
         with geoip2.database.Reader(geo_db_path('City')) as reader:
             response = reader.city(ip_address)
 
@@ -62,10 +64,6 @@ def geoip_info(ip_address):
             result["asn"] = {
                 "number": response.autonomous_system_number,
                 "organisation": response.autonomous_system_organization,
-
             }
-        return result
-    except (FileNotFoundError, maxminddb.InvalidDatabaseError) as e:
-        raise e
-    except (ValueError, geoip2.errors.AddressNotFoundError):
-        pass
+
+    return result

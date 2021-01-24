@@ -1,6 +1,9 @@
+import logging
 import mongoengine as mongo
 from mongoengine.errors import NotUniqueError
 from datetime import datetime
+
+logger = logging.getLogger('database')
 
 
 class IpGeoData(mongo.Document):
@@ -19,11 +22,10 @@ class IpGeoData(mongo.Document):
         choices=[
             "C2 Server",
             "P2P Node",
-            "Loader Server",
+            "Payload Server",
             "Report Server",
             "Malicious Bot",
             "Bot",
-            "Unknown"
         ]
     )
 
@@ -44,6 +46,7 @@ class MalwarePayload(mongo.Document):
     occurrences       = mongo.IntField(default=0)
     lisa              = mongo.ReferenceField('LisaAnalysis', required=False)
     ip_address        = mongo.ReferenceField(IpGeoData, required=True)
+    is_self_hosted    = mongo.BooleanField(required=True, default=False)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
     candidate_C2s     = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
     candidate_P2Ps    = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
@@ -102,6 +105,8 @@ class BadpacketsResult(mongo.Document):
 
 
 def payload_create_or_update(url, ip, lisa=None, candidate_C2s=[], candidate_P2Ps=[]):
+    payload = None
+
     try:
         payload = MalwarePayload(
             url=url,
@@ -120,23 +125,29 @@ def payload_create_or_update(url, ip, lisa=None, candidate_C2s=[], candidate_P2P
             add_to_set__candidate_P2Ps=candidate_P2Ps,
             inc__occurrences=1
         )
+
     return payload
 
 
-def result_create_or_update(event_id, result_data):
+def result_create_or_update(result_data):
+    result = None
+
     try:
         result = BadpacketsResult(**result_data)
         result.save()
     except NotUniqueError:
-        result = BadpacketsResult.objects(event_id=event_id).first()
+        result = BadpacketsResult.objects(event_id=result_data['event_id']).first()
         result.update(
             add_to_set__scanned_payloads=result_data['scanned_payloads'],
             set__updated_at=datetime.utcnow()
         )
+
     return result
 
 
 def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
+    geo = None
+
     flattened_tags = {
         'cves': set(),
         'categories': set(),
@@ -149,42 +160,42 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         flattened_tags['descriptions'].add(tag['description'])
 
     try:
-        geodata = IpGeoData(
+        geo = IpGeoData(
             ip_address=ip,
             hostname=hostname,
             server_type=server_type,
             data=geodata,
             tags=flattened_tags if tags else {}
         )
-        geodata.save()
+        geo.save()
     except NotUniqueError:
-        geodata = IpGeoData.objects(ip_address=ip).first()
+        geo = IpGeoData.objects(ip_address=ip).first()
 
         loader_to_c2_p2p = (
-            geodata.server_type == "Loader Server" and
+            geo.server_type == "Loader Server" and
             (server_type == "C2 Server" or server_type == "P2P Node")
         )
 
         report_to_loader = (
-            geodata.server_type in ["Report Server", "Malicious Bot"] and
+            geo.server_type in ["Report Server", "Malicious Bot"] and
             server_type == "Loader Server"
         )
 
         bot_to_report = (
-            geodata.server_type in ["Bot", "Unknown"] and
+            geo.server_type == "Bot" and
             server_type == "Report Server" or server_type == "Malicious Bot"
         )
 
         low_to_high = (
-            geodata.server_type in ["Report Server", "Malicious Bot", "Bot", "Unknown"] and
+            geo.server_type in ["Report Server", "Malicious Bot", "Bot"] and
             server_type in ["C2 Server", "P2P Node", "Loader Server"]
         )
 
         if not (loader_to_c2_p2p or report_to_loader or bot_to_report or low_to_high):
-            server_type = geodata.server_type
+            server_type = geo.server_type
 
-        if 'cves' in geodata.tags:
-            n_tags = geodata.tags.copy()
+        if 'cves' in geo.tags:
+            n_tags = geo.tags.copy()
 
             for k, v in n_tags.items():
                 n_tags[k] = set(v)
@@ -195,16 +206,19 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         else:
             n_tags = flattened_tags
 
-        geodata.update(
+        geo.update(
             set__tags=n_tags,
             set__updated_at=datetime.utcnow(),
             set__server_type=server_type,
             inc__occurrences=1
         )
-    return geodata
+
+    return geo
 
 
 def candidate_cnc_create_or_update(ip_address, payload_ids, heuristics):
+    c2 = None
+
     try:
         c2 = CandidateC2Server(
             ip_address=ip_address,
@@ -220,10 +234,13 @@ def candidate_cnc_create_or_update(ip_address, payload_ids, heuristics):
             inc__occurrences=1,
             set__updated_at=datetime.utcnow(),
         )
+
     return c2
 
 
 def candidate_p2p_create_or_update(ip_address, payload_ids, heuristics, nodes):
+    p2p = None
+
     try:
         p2p = CandidateP2pNode(
             ip_address=ip_address,
@@ -241,19 +258,25 @@ def candidate_p2p_create_or_update(ip_address, payload_ids, heuristics, nodes):
             inc__occurrences=1,
             set__updated_at=datetime.utcnow(),
         )
+
     return p2p
 
 
 def lisa_analysis_create_or_update(lisa_analysis):
+    lisa = None
+
     try:
         lisa = LisaAnalysis(**lisa_analysis)
         lisa.save()
     except NotUniqueError:
         lisa = LisaAnalysis.objects(task_id=lisa_analysis['task_id']).first()
+
     return lisa
 
 
 def geo_connections_create_or_update(source_ip, destination_ip):
+    conn = None
+
     try:
         conn = IpGeoConnection(
             source_ip=source_ip,
@@ -262,4 +285,5 @@ def geo_connections_create_or_update(source_ip, destination_ip):
         conn.save()
     except NotUniqueError:
         conn = IpGeoConnection.objects(source_ip=source_ip).first()
+
     return conn

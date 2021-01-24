@@ -320,13 +320,13 @@ export default {
       switch (marker.server_type) {
         case "Bot":
           return this.$t("Botnet Activity")
-        case "Loader Server":
-          return this.$t("Loader Server")
+        case "Payload Server":
+          return this.$t("Payload Server")
         case "Report Server":
           return this.$t("Report Server")
         case "C2 Server":
           return this.$t("C2 Server")
-        case "Unknown":
+        default:
           return this.$t("Unknown Activity")
       }
     },
@@ -350,7 +350,7 @@ export default {
           return "#51a1ba"
         case "Malicious Bot":
           return "#46b8a2"
-        case "Loader Server":
+        case "Payload Server":
           return "#ff9033"
         case "Report Server":
           return "#895dda"
@@ -418,7 +418,7 @@ export default {
           return `${baseSvgName}-c2.svg`
         case "P2P Node":
           return `${baseSvgName}-p2p.svg`
-        case "Loader Server":
+        case "Payload Server":
           return `${baseSvgName}-loader.svg`
         case "Report Server":
           return `${baseSvgName}-report.svg`

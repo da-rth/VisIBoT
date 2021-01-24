@@ -25,13 +25,19 @@ class URLClassifier:
     to classify URLs using a TF-IDF Vectorizer and Logistic Regression model.
     """
     def __init__(self, datapath=None, verbose=True):
-        nltk.download('stopwords', quiet=True)
-        self.stoplist = stopwords.words('english') + ['http', 'https']
-        print("- [URL Classifier] Loading malicious URL dataset")
-        self.url_df = pd.read_csv(datapath if datapath else DEFAULT_DATAPATH)
-        self.tfidf_vec = TfidfVectorizer(tokenizer=self.gen_tokens)
-        self.model = LogisticRegression()
-        self.setup()
+        try:
+            nltk.download('stopwords', quiet=True)
+            self.stoplist = stopwords.words('english') + ['http', 'https']
+            filepath = datapath if datapath else DEFAULT_DATAPATH
+            self.url_df = pd.read_csv(filepath)
+            print("[URL Classifier] Loading malicious URL dataset")
+
+            self.tfidf_vec = TfidfVectorizer(tokenizer=self.gen_tokens)
+            self.model = LogisticRegression()
+            self.setup()
+        except FileNotFoundError:
+            print("[URL Classifier] ERROR: Failed to load dataset at path:", filepath)
+            raise SystemExit(1)
 
     @ignore_warnings(category=ConvergenceWarning)
     def setup(self):
@@ -39,11 +45,11 @@ class URLClassifier:
         Fit and transform classification model using vectorized
         dataset and calculate accuracy score on testing dataset using trained model.
         """
-        print("- [URL Classifier] Generating tokens: this may take some time...")
+        print("[URL Classifier] Generating tokens: this may take some time...")
         url_df_vecs = self.tfidf_vec.fit_transform(self.url_df["url"])
         url_df_labels = self.url_df["label"]
 
-        print("- [URL Classifier] Training and testing on dataset.")
+        print("[URL Classifier] Training and testing on dataset.")
         x_train, x_test, y_train, y_test = train_test_split(
             url_df_vecs,
             url_df_labels,
@@ -53,7 +59,7 @@ class URLClassifier:
         self.model.fit(x_train, y_train)
         accuracy_score = self.model.score(x_test, y_test) * 100
 
-        print(f"- [URL Classifier] Classifier Accuracy: {accuracy_score:.2f}%")
+        print(f"[URL Classifier] Classifier Accuracy: {accuracy_score:.2f}%")
 
     def gen_tokens(self, url):
         """

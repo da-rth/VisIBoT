@@ -4,11 +4,10 @@ export const state = () => ({
   settingsLoaded: false,
   mapSidebarSettings: {
     selectedBotType: [
-      "Unknown",
       "Bot",
       "Malicious Bot",
       "Report Server",
-      "Loader Server",
+      "Payload Server",
       "C2 Server",
       "P2P Node",
     ],

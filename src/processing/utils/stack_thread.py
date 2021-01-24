@@ -1,6 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
 import sys
 import traceback
+import logging
+
+logger = logging.getLogger('thread-pool-executor')
 
 
 class ThreadPoolExecutorStackTraced(ThreadPoolExecutor):
@@ -22,4 +25,5 @@ class ThreadPoolExecutorStackTraced(ThreadPoolExecutor):
         try:
             return fn(*args, **kwargs)
         except Exception:
+            logger.exception("Error occurred in thread pool executor.")
             raise sys.exc_info()[0](traceback.format_exc())

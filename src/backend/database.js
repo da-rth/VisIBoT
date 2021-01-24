@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 const Database = {
   connectDB: async () => {
-    const uri = process.env.MONGODB_URL
+    const uri = process.env.MONGODB_DB_URL
 
     try {
       await mongoose.connect(uri, {

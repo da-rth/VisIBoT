@@ -1,4 +1,5 @@
 from badpackets.session import BadPacketsSession
+from ratelimit import limits, sleep_and_retry
 import urllib
 
 SUPPORTED_QUERY_PARAMS = [
@@ -43,9 +44,13 @@ class BadPacketsAPI():
         api_url = "https://api.badpackets.net/v1/" if not api_url else api_url
         self.session = BadPacketsSession(api_url, api_token)
 
+    @sleep_and_retry
+    @limits(calls=1, period=2)
     def ping(self):
         return self.session.get('ping')
 
+    @sleep_and_retry
+    @limits(calls=1, period=2)
     def query(self, params):
         for param in params:
             if param not in SUPPORTED_QUERY_PARAMS:
@@ -53,6 +58,8 @@ class BadPacketsAPI():
         url_params = urllib.parse.urlencode(params)
         return self.session.get(f'query?{url_params}')
 
+    @sleep_and_retry
+    @limits(calls=1, period=2)
     def get_url(self, url):
         url_params = url.split('/')[-1]
         return self.session.get(f'{url_params}')

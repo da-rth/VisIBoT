@@ -2,15 +2,17 @@
 import sys; sys.path.append("..")
 import database as db
 import requests
+import logging
 import time
 from .stack_thread import ThreadPoolExecutorStackTraced
+from ratelimit import limits, sleep_and_retry
 from IPy import IP
 from utils.misc import get_ip_hostname
 from utils.geodata import geoip_info
 from pydnsbl import DNSBLIpChecker
 from pydnsbl.providers import Provider, DNSBL_CATEGORY_CNC
 
-
+logger = logging.getLogger('lisa')
 providers = [
     Provider('b.barracudacentral.org'),
     Provider('combined.abuse.ch'),
@@ -28,6 +30,7 @@ class LiSaAPI:
         self.exec_time = exec_time
         self.blink = False
         self.running = True
+        self.offline = False
         self.processing = False
         self.api_url = api_url
         self.processing_task_ids = []
@@ -58,8 +61,8 @@ class LiSaAPI:
             r = requests.get(f"{self.api_url}/tasks?limit=1")
             r.raise_for_status()
         except Exception:
-            print("- Error: LiSa Server could not be reached. Is it running?")
-            self.running = False
+            logger.error(f"API server could not be reached: {self.api_url}")
+            self.stop()
 
     def __create_geo_entry(self, ip_address, geo_type):
         geodata = geoip_info(ip_address)
@@ -117,63 +120,66 @@ class LiSaAPI:
         """
         return False
 
+    @sleep_and_retry
+    @limits(calls=4, period=1)
     def __process_task_result(self, payload, task_id):
         ip_checker = DNSBLIpChecker(providers=providers)
 
         candidate_CNCs = []
         candidate_P2Ps = []
 
-        time.sleep(1)
-
         self.processing_task_ids.append(task_id)
+        try:
+            response = requests.get(f"{self.api_url}/report/{task_id}")
+            analysis = response.json() if response.json() else None
+            is_p2p = self.__is_p2p(analysis)
 
-        response = requests.get(f"{self.api_url}/report/{task_id}")
-        analysis = response.json() if response.json() else None
-        is_p2p = self.__is_p2p(analysis)
+            for endpoint in analysis['network_analysis']['endpoints']:
+                heuristics = []
+                ip_address = endpoint['ip']
 
-        for endpoint in analysis['network_analysis']['endpoints']:
-            heuristics = []
-            ip_address = endpoint['ip']
+                if self.__is_private_ip(ip_address) or self.__is_endpoint_spreading(ip_address, analysis):
+                    continue
 
-            if self.__is_private_ip(ip_address) or self.__is_endpoint_spreading(ip_address, analysis):
-                continue
+                heuristics = self.__identify_heuristics(
+                    endpoint,
+                    analysis['static_analysis']['strings'],
+                    ip_checker
+                )
 
-            heuristics = self.__identify_heuristics(
-                endpoint,
-                analysis['static_analysis']['strings'],
-                ip_checker
-            )
+                if heuristics:
+                    geo_type = "P2P Node" if is_p2p else "C2 Server"
+                    geo = self.__create_geo_entry(ip_address, geo_type)
 
-            if heuristics:
-                geo_type = "P2P Node" if is_p2p else "C2 Server"
-                geo = self.__create_geo_entry(ip_address, geo_type)
+                    if geo:
+                        if is_p2p:
+                            candidate_P2Ps.append((geo, heuristics))
+                            self.all_P2Ps.add(geo.id)
+                        else:
+                            candidate_CNCs.append((geo, heuristics))
+                            self.all_CNCs.add(geo.id)
 
-                if geo:
-                    if is_p2p:
-                        candidate_P2Ps.append((geo, heuristics))
-                        self.all_P2Ps.add(geo.id)
-                    else:
-                        candidate_CNCs.append((geo, heuristics))
-                        self.all_CNCs.add(geo.id)
+            for node_geo, heuristics in candidate_P2Ps:
+                nodes = list(set(n.id for n, _ in candidate_P2Ps if n.id != node_geo.id))
+                self.__create_p2p_entry(node_geo, payload, heuristics, nodes)
 
-        for node_geo, heuristics in candidate_P2Ps:
-            nodes = list(set(n.id for n, _ in candidate_P2Ps if n.id != node_geo.id))
-            self.__create_p2p_entry(node_geo, payload, heuristics, nodes)
+            for cnc_geo, heuristics in candidate_CNCs:
+                self.__create_cnc_entry(cnc_geo, payload, heuristics)
 
-        for cnc_geo, heuristics in candidate_CNCs:
-            self.__create_cnc_entry(cnc_geo, payload, heuristics)
+            analysis['task_id'] = task_id
+            analysis['payload'] = payload
+            analysis['binary_info'] = analysis['static_analysis']['binary_info'].copy()
 
-        analysis['task_id'] = task_id
-        analysis['payload'] = payload
-        analysis['binary_info'] = analysis['static_analysis']['binary_info'].copy()
+            del analysis['dynamic_analysis']
+            del analysis['static_analysis']
 
-        del analysis['dynamic_analysis']
-        del analysis['static_analysis']
+            self.__process_payload(payload, analysis, candidate_CNCs, candidate_P2Ps)
 
-        self.__process_payload(payload, analysis, candidate_CNCs, candidate_P2Ps)
-
-        self.complete_task_ids.append(task_id)
-        self.processing_task_ids.remove(task_id)
+            self.complete_task_ids.append(task_id)
+            self.processing_task_ids.remove(task_id)
+        except Exception as e:
+            logger.exception(f"Error processing task result for payload {payload.id} and task_id: {task_id}")
+            raise e
 
     def __identify_heuristics(self, endpoint, strings, ip_checker):
         heuristics = []
@@ -211,25 +217,35 @@ class LiSaAPI:
         for geo in all_geos:
             db.geo_connections_create_or_update(payload.ip_address, geo)
 
+    @sleep_and_retry
+    @limits(calls=1, period=5)
     def __check_tasks(self):
         tasks_to_remove = []
         complete_tasks_list = {}
         r = requests.get(f"{self.api_url}/tasks?limit=20")
         tasks_list = r.json() if r.json() else []
         tasks_list = [task for task in tasks_list if isinstance(task, dict)]
-        complete_tasks_list = {task['task_id']: task['status'] for task in tasks_list}
+        complete_tasks_list = {task['task_id']: task for task in tasks_list}
 
         for (payload, task_id) in self.pending_task_ids:
             if not self.running:
                 break
 
             if task_id in complete_tasks_list:
-                status = complete_tasks_list[task_id]
+                task = complete_tasks_list[task_id]
+                result = task.get('result', None)
+                status = task['status']
 
                 if status:
                     if status == 'SUCCESS':
                         # self.executor.submit(self.__process_task_result, payload, task_id)
                         self.__process_task_result(payload, task_id)
+                    elif status == 'FAILURE' and result:
+                        # If file is non-executable, a UnicodeDecodeError will occur.
+                        # The payload is likely a false-positive and can be removed.
+                        if result.get('exc_type', None) == 'UnicodeDecodeError':
+                            payload.delete()
+    
                     tasks_to_remove.append(task_id)
 
         self.pending_task_ids = [t for t in self.pending_task_ids if t[1] not in tasks_to_remove]
@@ -243,9 +259,13 @@ class LiSaAPI:
         self.processing_task_ids = []
 
     def init_task_checker(self):
-        print("- Initialized LiSa malware sandbox task loop")
+        if self.running:
+            print("- Initialized LiSa malware sandbox task loop")
+        else:
+            print("- Error: Connection to LiSa API Server could not be established. Note: malware analysis will be skipped.")
 
         while self.running:
+
             if (self.pending_task_ids or self.processing_task_ids) and not self.adding_tasks:
                 self.blink = not self.blink
                 print(
@@ -260,6 +280,7 @@ class LiSaAPI:
 
             if self.pending_task_ids:
                 self.__check_tasks()
+                time.sleep(5)
 
             elif (not self.adding_tasks) and (not self.processing_task_ids) and self.processing:
                 print(
@@ -270,10 +291,9 @@ class LiSaAPI:
                 )
                 self.__reset()
 
-            time.sleep(5)
+            time.sleep(1)
 
         self.executor.shutdown(wait=True, cancel_futures=True)
-        print("- LiSa API: Stopped task checker.", flush=True)
 
     def create_file_tasks(self, payloads):
         if self.running and payloads:
@@ -292,6 +312,7 @@ class LiSaAPI:
                         created_tasks += 1
                     else:
                         failed_tasks += 1
+
                 except Exception:
                     failed_tasks += 1
 
@@ -305,4 +326,5 @@ class LiSaAPI:
                 print("\n- [LiSa] No analysis tasks were created. All of the provided payload URLs are offline.")
 
     def stop(self):
+        logger.info('Stopping LiSa API Loop.')
         self.running = False

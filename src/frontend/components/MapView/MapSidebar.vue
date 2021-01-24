@@ -278,8 +278,8 @@ export default {
           icon: "markers/marker-report.svg",
         },
         {
-          text: this.$t("Loader Servers"),
-          value: "Loader Server",
+          text: this.$t("Payload Servers"),
+          value: "Payload Server",
           icon: "markers/marker-loader.svg",
         },
         {
