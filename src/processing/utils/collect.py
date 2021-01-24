@@ -126,7 +126,7 @@ def store_result_payload(url_info, source_ip_address):
             set__updated_at=datetime.utcnow()
         )
 
-        return existing_payload, existing_geo
+        return (existing_payload, existing_geo, True)
     else:
         is_self_hosted = source_ip_address == ip
         server_type = "Malicious Bot" if is_self_hosted else "Payload Server"
@@ -135,12 +135,12 @@ def store_result_payload(url_info, source_ip_address):
             geo = db.geodata_create_or_update(ip, hostname, server_type, geodata)
 
             if existing_payload:
-                return existing_payload, geo
+                return (existing_payload, geo, True)
             else:
                 payload = db.payload_create_or_update(url, ip)
-                return payload, geo
+                return (payload, geo, False)
         else:
-            return (None, None)
+            return (None, None, False)
 
 
 def store_result(result_data):
@@ -175,9 +175,9 @@ def store_result(result_data):
     malicious_urls = [url for url in url_parser(payload_data) if url and is_url_malicious(url[0])]
 
     for url_info in malicious_urls:
-        payload, geo = store_result_payload(url_info, result_data['source_ip_address'])
+        payload, geo, already_exists = store_result_payload(url_info, result_data['source_ip_address'])
 
-        if payload and geo:
+        if payload and geo and not already_exists:
             scanned_payloads.append(payload)
             connections.append(geo)
 

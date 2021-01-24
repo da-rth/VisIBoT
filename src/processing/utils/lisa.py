@@ -245,7 +245,7 @@ class LiSaAPI:
                         # The payload is likely a false-positive and can be removed.
                         if result.get('exc_type', None) == 'UnicodeDecodeError':
                             payload.delete()
-    
+
                     tasks_to_remove.append(task_id)
 
         self.pending_task_ids = [t for t in self.pending_task_ids if t[1] not in tasks_to_remove]
@@ -274,7 +274,7 @@ class LiSaAPI:
                     f"complete: {len(self.complete_task_ids)} | "
                     f"possible C2s: {len(self.all_CNCs)} | "
                     f"possible P2Ps: {len(self.all_P2Ps)} "
-                    f"{'...' if self.blink else '   '}",
+                    f"{'... ' if self.blink else '    '}",
                     end=""
                 )
 
@@ -284,7 +284,7 @@ class LiSaAPI:
 
             elif (not self.adding_tasks) and (not self.processing_task_ids) and self.processing:
                 print(
-                    f"- [LiSa] Finished Analysis: Identified {len(self.all_CNCs)} C2 Servers",
+                    f"\n- [LiSa] Analysis Complete! Identified {len(self.all_CNCs)} C2 Servers",
                     f"and {len(self.all_P2Ps)} P2P Nodes from {len(self.complete_task_ids)} analysis",
                     "tasks.",
                     flush=True

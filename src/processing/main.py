@@ -17,7 +17,7 @@ from requests.exceptions import ConnectionError
 from logging.handlers import RotatingFileHandler
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s %(name)-25s %(levelname)-8s %(message)s",
     datefmt="%d-%m-%y %H:%M:%S",
     handlers=[
