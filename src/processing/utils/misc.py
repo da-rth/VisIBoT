@@ -343,7 +343,7 @@ def scrape_binary_urls(url, visited_urls=[], stop=False):
     except Exception:
         return []
 
-# i am a dan and i always sit here and do dumb things 
+
 def url_parser(data):
     """
     The provided string is

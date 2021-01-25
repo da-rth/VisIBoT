@@ -10,6 +10,7 @@ const schema = new Schema(
     },
     payloads: [{ type: Schema.Types.String, ref: "MalwarePayload" }],
     heuristics: [String],
+    created_at: Date,
     updated_at: Date,
   },
   {}

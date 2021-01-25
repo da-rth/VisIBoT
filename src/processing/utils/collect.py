@@ -29,7 +29,7 @@ def query_badpackets(api, first_run=False):
     """
     page = 1
     all_results = []
-    after_dt = datetime.utcnow() - timedelta(hours=6 if first_run else 1)
+    after_dt = datetime.utcnow() - timedelta(hours=24 if first_run else 1)
     after_dt = after_dt.replace(minute=0, second=0, microsecond=0)
     time.sleep(2)
 

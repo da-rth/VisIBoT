@@ -11,6 +11,7 @@ const schema = new Schema(
     payloads: [{ type: Schema.Types.String, ref: "MalwarePayload" }],
     nodes: [{ type: Schema.Types.String, ref: "CandidateP2PNode" }],
     heuristics: [String],
+    created_at: Date,
     updated_at: Date,
   },
   {}

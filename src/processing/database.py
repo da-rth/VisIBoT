@@ -13,7 +13,6 @@ class IpGeoData(mongo.Document):
     """
     ip_address        = mongo.StringField(required=True, primary_key=True)
     occurrences       = mongo.IntField(default=0)
-    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
     data              = mongo.DictField(required=True)
     hostname          = mongo.StringField(required=False)
     tags              = mongo.DictField(required=False)
@@ -28,6 +27,8 @@ class IpGeoData(mongo.Document):
             "Bot",
         ]
     )
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
 class IpGeoConnection(mongo.Document):
@@ -36,6 +37,7 @@ class IpGeoConnection(mongo.Document):
     """
     source_ip         = mongo.ReferenceField(IpGeoData, required=True)
     destination_ip    = mongo.ReferenceField(IpGeoData, unique=True)
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
 class MalwarePayload(mongo.Document):
@@ -47,9 +49,10 @@ class MalwarePayload(mongo.Document):
     lisa              = mongo.ReferenceField('LisaAnalysis', required=False)
     ip_address        = mongo.ReferenceField(IpGeoData, required=True)
     is_self_hosted    = mongo.BooleanField(required=True, default=False)
-    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
     candidate_C2s     = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
     candidate_P2Ps    = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
 class LisaAnalysis(mongo.DynamicDocument):
@@ -58,6 +61,7 @@ class LisaAnalysis(mongo.DynamicDocument):
     """
     task_id           = mongo.StringField(required=True, primary_key=True)
     payload           = mongo.ReferenceField(MalwarePayload, required=True)
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
 class CandidateC2Server(mongo.Document):
@@ -68,6 +72,7 @@ class CandidateC2Server(mongo.Document):
     payloads          = mongo.ListField(mongo.ReferenceField(MalwarePayload, required=False), required=False)
     heuristics        = mongo.ListField(mongo.StringField())
     occurrences       = mongo.IntField(default=0)
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
@@ -80,6 +85,7 @@ class CandidateP2pNode(mongo.Document):
     nodes             = mongo.ListField(mongo.ReferenceField('self', required=False), required=False)
     heuristics        = mongo.ListField(mongo.StringField())
     occurrences       = mongo.IntField(default=0)
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
@@ -101,6 +107,7 @@ class BadpacketsResult(mongo.Document):
     tags              = mongo.ListField(mongo.DictField(required=True), required=True)
     scanned_urls      = mongo.ListField(mongo.ReferenceField(MalwarePayload, required=False), required=False)
     affiliated_ips    = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False)
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 

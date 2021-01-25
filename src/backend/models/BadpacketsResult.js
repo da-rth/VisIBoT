@@ -15,6 +15,7 @@ const schema = new Schema(
     tags: Array,
     scanned_urls: [{ type: Schema.Types.String, ref: "MalwarePayload" }],
     affiliated_ips: [{ type: Schema.Types.String, ref: "IpGeoData" }],
+    created_at: Date,
     updated_at: Date,
   },
   {}

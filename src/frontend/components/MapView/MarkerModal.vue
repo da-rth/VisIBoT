@@ -3,24 +3,29 @@
     ref="modal"
     centered
     scrollable
+    hide-footer
     size="lg"
     :title="activeMarker != null ? `${getCityAndCountry()}` : 'Loading...'"
     header-bg-variant="light"
     header-text-variant="dark"
     body-bg-variant="light"
-    body-text-variant="light"
+    body-text-variant="dark"
+    body-class="modalBody"
     footer-bg-variant="light"
-    footer-text-variant="light"
-    hide-footer
+    footer-text-variant="dark"
   >
     <div v-if="activeMarker">
       <b-container fluid>
         <div v-if="activeMarker">
-          <b-tabs content-class="mt-3">
-            <b-tab title="Information" active>
+          <b-tabs vertical nav-wrapper-class="w-25 sidebar">
+            <b-tab title="Object">
               <pre><code v-highlight class="javascript">{{ JSON.stringify(activeMarker, null, 2) }}</code></pre>
             </b-tab>
-            <b-tab title="IP History">
+            <b-tab title="Geo Information" active>
+              <h2>Geo Information</h2>
+            </b-tab>
+
+            <b-tab title="Recent Events">
               <b-table
                 striped
                 hover
@@ -31,6 +36,7 @@
                   { age: 38, first_name: 'Jami', last_name: 'Carney' },
                 ]"
               ></b-table>
+
             </b-tab>
             <b-tab title="Analytics">
               <h1>some graphs here?</h1>
@@ -117,3 +123,41 @@ export default {
   },
 }
 </script>
+<style>
+.modalBody {
+  padding: 0;
+}
+.sidebar {
+  color: var(--light);
+  background-color: #dddddd;
+  border-right: 1px solid rgba(0,0,0,0.5);
+  padding: 0px;
+}
+
+.sidebar ul {
+  min-height: 480px;
+  border: none;
+}
+
+.sidebar .nav-link {
+  color: #3e3e3e;
+  border: none;
+  border-radius: 0;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.sidebar .nav-link:hover {
+  color: #000;
+}
+
+.sidebar .nav-link.active {
+  background-color: #3e3e3e;
+  color: var(--light);
+  opacity: 0.75;
+}
+
+.sidebar .nav-link.disabled {
+  color:rgba(0, 0, 0, 0.2);
+}
+</style>
