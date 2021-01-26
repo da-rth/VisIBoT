@@ -1,6 +1,6 @@
 "use strict"
 const express = require("express")
-
+const { uniqWith, isEqual } = require("lodash")
 const IpGeoData = require("../../models/IpGeoData")
 const IpGeoConnection = require("../../models/IpGeoConnection")
 
@@ -26,11 +26,71 @@ router.route("/").get(async (req, res) => {
     })
 })
 
-router.route("/connections/:ip").get(async (req, res) => {
+function aggregateToConnection(aggConns) {
+  let connections = []
+
+  for (let conn of aggConns) {
+    connections = connections.concat(conn.connections)
+    delete conn.connections
+    connections = connections.concat([conn])
+  }
+
+  return connections
+}
+
+async function goUpTree(ipAddress) {
+  let connections = []
+
   let ipConns = await IpGeoConnection.aggregate([
     {
       $match: {
-        source_ip: req.params.ip,
+        destination_ip: ipAddress,
+      },
+    },
+    {
+      $graphLookup: {
+        from: "ip_geo_connection",
+        startWith: "$source_ip",
+        connectFromField: "source_ip",
+        connectToField: "source_ip",
+        as: "connections",
+      },
+    },
+  ])
+
+  connections = connections.concat(aggregateToConnection(ipConns))
+
+  ipConns = await IpGeoConnection.aggregate([
+    {
+      $match: {
+        destination_ip: ipAddress,
+      },
+    },
+    {
+      $graphLookup: {
+        from: "ip_geo_connection",
+        startWith: "$source_ip",
+        connectFromField: "source_ip",
+        connectToField: "destination_ip",
+        as: "connections",
+      },
+    },
+  ])
+
+  connections = connections.concat(aggregateToConnection(ipConns))
+
+  console.log("up", connections)
+
+  return connections
+}
+
+async function goDownTree(ipAddress) {
+  let connections = []
+
+  let ipConns = await IpGeoConnection.aggregate([
+    {
+      $match: {
+        source_ip: ipAddress,
       },
     },
     {
@@ -40,48 +100,43 @@ router.route("/connections/:ip").get(async (req, res) => {
         connectFromField: "destination_ip",
         connectToField: "source_ip",
         as: "connections",
-        restrictSearchWithMatch: {
-          destination_ip: {
-            $ne: req.params.ip,
-          },
-        },
       },
     },
   ])
 
-  if (!ipConns.length) {
-    ipConns = await IpGeoConnection.aggregate([
-      {
-        $match: {
-          destination_ip: req.params.ip,
-        },
-      },
-      {
-        $graphLookup: {
-          from: "ip_geo_connection",
-          startWith: "$source_ip",
-          connectFromField: "source_ip",
-          connectToField: "destination_ip",
-          as: "connections",
-          restrictSearchWithMatch: {
-            source_ip: {
-              $ne: req.params.ip,
-            },
-          },
-        },
-      },
-    ])
-  }
+  connections = connections.concat(aggregateToConnection(ipConns))
 
+  ipConns = await IpGeoConnection.aggregate([
+    {
+      $match: {
+        source_ip: ipAddress,
+      },
+    },
+    {
+      $graphLookup: {
+        from: "ip_geo_connection",
+        startWith: "$destination_ip",
+        connectFromField: "destination_ip",
+        connectToField: "source_ip",
+        as: "connections",
+      },
+    },
+  ])
+
+  connections = connections.concat(aggregateToConnection(ipConns))
+
+  return connections
+}
+
+router.route("/connections/:ip").get(async (req, res) => {
   let connections = []
+  let ipAddress = req.params.ip
 
-  for (let ipConn of ipConns) {
-    connections = connections.concat(ipConns[0].connections)
-    delete ipConn.connections
-    connections = connections.concat([ipConn])
-  }
+  connections = connections.concat(await goUpTree(ipAddress))
+  connections = connections.concat(await goDownTree(ipAddress))
 
-  return res.status(200).send(connections)
+  let uniqueConnections = uniqWith(connections, isEqual)
+  return res.status(200).send(uniqueConnections)
 })
 
 module.exports = router

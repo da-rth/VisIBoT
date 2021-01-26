@@ -231,8 +231,6 @@
 export default {
   data() {
     return {
-      sidebarSettings: this.$store.state.settings.mapSidebarSettings,
-
       selectedBotType: this.$store.state.settings.mapSidebarSettings
         .selectedBotType,
 
@@ -296,6 +294,14 @@ export default {
     }
   },
   computed: {
+    sidebarSettings: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings
+      },
+      set(value) {
+        this.$store.commit("settings/setMapSidebarSettings", value)
+      },
+    },
     lightThemeEnabled() {
       return this.$store.state.settings.lightThemeEnabled
     },
@@ -341,7 +347,7 @@ export default {
       this.search = ""
     },
     updateMap() {
-      this.$store.commit("settings/setMapSidebarSettings", {
+      this.sidebarSettings = {
         ...this.sidebarSettings,
         selectedCVEs: this.selectedCVEs,
         selectedCategories: this.selectedCategories,
@@ -350,7 +356,7 @@ export default {
         coverageOnHover: this.coverageOnHover,
         clusterRadius: this.clusterRadius,
         selectedBotType: this.selectedBotType,
-      })
+      }
     },
   },
 }

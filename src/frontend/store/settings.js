@@ -14,6 +14,7 @@ export const state = () => ({
     clusterRadius: 100,
     zoomOnClick: true,
     coverageOnHover: true,
+    hideNonConnections: true,
     searchDescription: "",
     selectedCategories: [],
     selectedCVEs: [],

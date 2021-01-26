@@ -96,27 +96,26 @@
           <template
             v-for="(conn, index) in markerConnections[selectedMarker._id]"
           >
+            <l-circle
+              :key="`${index}-point`"
+              :lat-lng="getCircleMarkerLatLng(conn)"
+              :fill="true"
+              :radius="1000"
+              :fillOpacity="0.5"
+              :fillColor="getCircleMarkerColor(conn)"
+              :color="getCircleMarkerColor(conn)"
+              class-name="circleMarker"
+              @click="selectCircleMarker(conn)"
+            />
             <l-polyline
               :key="index"
               :lat-lngs="[
                 conn.source_ip.coordinates,
                 conn.destination_ip.coordinates,
               ]"
-              :color="getCircleMarkerColor(conn)"
+              :color="getMarkerLineColor(conn)"
               :opacity="0.3"
             ></l-polyline>
-
-            <l-circle-marker
-              :key="`${index}-point`"
-              :lat-lng="getCircleMarkerLatLng(conn)"
-              :fill="true"
-              :radius="1"
-              :opaity="0.9"
-              :weight="10"
-              :color="getCircleMarkerColor(conn)"
-              class-name="circleMarker"
-              @click="selectCircleMarker(conn)"
-            />
           </template>
         </div>
       </l-map>
@@ -330,8 +329,8 @@ export default {
           return this.$t("Unknown Activity")
       }
     },
+
     getCircleMarkerColor: function (conn) {
-      console.log("conn", conn)
       let sourceIp = conn.source_ip
       let destIp = conn.destination_ip
       let endpointType = destIp.server_type
@@ -343,9 +342,14 @@ export default {
         endpointType = sourceIp.server_type
       }
 
-      console.log(endpointType)
-
-      switch (endpointType) {
+      return this.getServerTypeColor(endpointType)
+    },
+    getMarkerLineColor: function (conn) {
+      let destIp = conn.destination_ip
+      return this.getServerTypeColor(destIp.server_type)
+    },
+    getServerTypeColor(serverType) {
+      switch (serverType) {
         case "Bot":
           return "#51a1ba"
         case "Malicious Bot":
@@ -441,7 +445,7 @@ export default {
     },
     filterMarkers: function (markers) {
       let filteredMarkers = markers.filter((marker) => {
-        if (this.showConnections && this.isSelectedConnectionsLoaded) {
+        if (this.showConnections && this.isSelectedConnectionsLoaded && this.mapSidebarSettings.hideNonConnections) {
           return marker._id == this.selectedMarker._id
         }
 
@@ -641,12 +645,13 @@ export default {
   user-select: none;
   opacity: 0.9;
 }
-
 .circleMarker {
-  transition: stroke-width 0.25s ease;
+  stroke-opacity: 0.85;
+  stroke-width: 16px;
 }
 
 .circleMarker:hover {
-  stroke-width: 16px;
+  stroke-width: 20px;
+  stroke-opacity: 1;
 }
 </style>
