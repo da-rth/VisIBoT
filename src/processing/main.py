@@ -3,6 +3,7 @@ import time
 import logging
 import threading
 import utils.collect as collection_utils
+import utils.tor_session as tor_session
 from badpackets import BadPacketsAPI
 from utils.lisa import LiSaAPI
 from dotenv import load_dotenv
@@ -72,7 +73,8 @@ def init_processing_loop():
         dt_now = datetime.utcnow()
 
         if (dt_now.minute == hourly_min and dt_now.second == 0):
-            print("Hourly processing script triggered\n")
+            clear()
+            print("Hourly collection cycle triggered!\n")
             executor.submit(process_task)
 
         time.sleep(1)
@@ -80,6 +82,8 @@ def init_processing_loop():
 
 if __name__ == "__main__":
     load_dotenv(dotenv_path=Path('..') / '.env', verbose=True)
+
+    clear()
 
     options = check_options()
     first_run = options.firstrun
@@ -89,9 +93,15 @@ if __name__ == "__main__":
 
     executor = ThreadPoolExecutorStackTraced(max_workers=threads)
 
+    # Validate tor session
+    tor_session.check_session()
+
+    # Init and check LiSa
     lisa_api = LiSaAPI(
         api_url=os.getenv("LISA_API_URL")
     )
+
+    # Validate BadPackets API Token
     try:
         bp_api = BadPacketsAPI(
             api_url=os.getenv("BADPACKETS_API_URL"),
@@ -103,9 +113,8 @@ if __name__ == "__main__":
         logger.exception(msg)
         raise SystemExit(1)
 
-    clear()
     print(
-        "Initialized VisIBoT Processing Script 🤖",
+        "\nInitialized VisIBoT Processing Script 🤖",
         f"- Thread count {threads}",
         f"- Execute at {hourly_min} min\n",
         "Setting up services:", sep="\n"

@@ -4,16 +4,17 @@ import validators
 import socket
 import user_agents
 import tldextract
+import utils.tor_session as tor_session
 from tld import is_tld
 from datetime import datetime
 from urllib.parse import urlparse, unquote
 from urlextract import URLExtract
 from contextlib import suppress
-from utils.tor_session import session
+
 
 extractor = URLExtract()
 VALID_SCHEMAS = ["tftp", "ftp", "http", "https", "sftp"]
-IGNORE_TLDS = ["edu", "gov", "mil", "int", "arpa", "sh"]
+IGNORE_TLDS = ["edu", "gov", "org", "mil", "int", "arpa", "sh"]
 URL_REGEX = r'(ftp|https?):\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 IPv4_REGEX = r'[0-9]+(?:\.[0-9]+){3}'
 IPv6_REGEX = r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
@@ -314,6 +315,9 @@ def scrape_binary_urls(url, visited_urls=[], stop=False):
     visited_urls.append(url)
 
     try:
+        # Create a new tor proxy session
+        session = tor_session.get_session()
+
         r = session.get(url, timeout=3)
         content_type = r.headers.get('content-type', None)
 

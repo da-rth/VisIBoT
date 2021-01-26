@@ -29,6 +29,7 @@ export default {
     "@nuxtjs/dotenv",
     "@nuxtjs/auth",
     "@nuxtjs/device",
+    "@nuxtjs/moment",
   ],
   modules: [
     [
@@ -51,6 +52,10 @@ export default {
       },
     ],
   ],
+  moment: {
+    timezone: true,
+    defaultTimezone: "Etc/UTC",
+  },
   i18n: {
     lazy: true,
     langDir: "lang/",

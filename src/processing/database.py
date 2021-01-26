@@ -1,9 +1,19 @@
 import logging
 import mongoengine as mongo
+from utils.whois import get_asn_info, get_asn_origins
+from pymongo.errors import DuplicateKeyError
 from mongoengine.errors import NotUniqueError
 from datetime import datetime
 
 logger = logging.getLogger('database')
+
+
+class AutonomousSystem(mongo.DynamicDocument):
+    """
+    Document containing ASN info for ASNs associated with any ip address in IpGeoData
+    """
+    asn               = mongo.StringField(required=True, primary_key=True)
+    asn_date          = mongo.DateTimeField(required=False)
 
 
 class IpGeoData(mongo.Document):
@@ -12,6 +22,8 @@ class IpGeoData(mongo.Document):
     BadPackets results
     """
     ip_address        = mongo.StringField(required=True, primary_key=True)
+    asn               = mongo.ReferenceField(AutonomousSystem, required=True)
+    prev_asns         = mongo.ListField(mongo.DictField(required=False), default=[])
     occurrences       = mongo.IntField(default=0)
     data              = mongo.DictField(required=True)
     hostname          = mongo.StringField(required=False)
@@ -31,13 +43,32 @@ class IpGeoData(mongo.Document):
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 
+class CandidateC2AsnOrigin(mongo.DynamicDocument):
+    """
+    OneToMany Document containing all ASN info associated with IP Addresses stored in the IpGeoData table
+    """
+    ip_address        = mongo.ReferenceField(IpGeoData, required=True)
+    updated_time      = mongo.DateTimeField(required=True)
+    meta = {
+        'indexes': [
+            {'fields': ('ip_address', 'updated_time'), 'unique': True}
+        ]
+    }
+
+
 class IpGeoConnection(mongo.Document):
     """
-    OneToMany Document containing all connections between one IpGeoData Object and various others
+    Document containing all connections between one IpGeoData Object and various others
     """
     source_ip         = mongo.ReferenceField(IpGeoData, required=True)
-    destination_ip    = mongo.ReferenceField(IpGeoData, unique=True)
+    destination_ip    = mongo.ReferenceField(IpGeoData, required=True)
+    occurrences       = mongo.IntField(default=1)
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
+    meta = {
+        'indexes': [
+            {'fields': ('source_ip', 'destination_ip'), 'unique': True}
+        ]
+    }
 
 
 class MalwarePayload(mongo.Document):
@@ -45,12 +76,12 @@ class MalwarePayload(mongo.Document):
     Malware payload information retrieved from BadPackets results
     """
     url               = mongo.StringField(required=True, primary_key=True)
-    occurrences       = mongo.IntField(default=0)
+    occurrences       = mongo.IntField(default=1)
     lisa              = mongo.ReferenceField('LisaAnalysis', required=False)
     ip_address        = mongo.ReferenceField(IpGeoData, required=True)
     is_self_hosted    = mongo.BooleanField(required=True, default=False)
-    candidate_C2s     = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
-    candidate_P2Ps    = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), required=False, default=[])
+    candidate_C2s     = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), default=[])
+    candidate_P2Ps    = mongo.ListField(mongo.ReferenceField(IpGeoData, required=False), default=[])
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
@@ -71,7 +102,7 @@ class CandidateC2Server(mongo.Document):
     ip_address        = mongo.ReferenceField(IpGeoData, required=True)
     payloads          = mongo.ListField(mongo.ReferenceField(MalwarePayload, required=False), required=False)
     heuristics        = mongo.ListField(mongo.StringField())
-    occurrences       = mongo.IntField(default=0)
+    occurrences       = mongo.IntField(default=1)
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
@@ -142,7 +173,7 @@ def result_create_or_update(result_data):
     try:
         result = BadpacketsResult(**result_data)
         result.save()
-    except NotUniqueError:
+    except (NotUniqueError, DuplicateKeyError):
         result = BadpacketsResult.objects(event_id=result_data['event_id']).first()
         result.update(
             add_to_set__scanned_payloads=result_data['scanned_payloads'],
@@ -152,8 +183,29 @@ def result_create_or_update(result_data):
     return result
 
 
+def asn_get_or_create(asn_info):
+    try:
+        asn = AutonomousSystem(**asn_info)
+        asn.save()
+    except (NotUniqueError, DuplicateKeyError):
+        asn = AutonomousSystem.objects(asn=asn_info['asn']).first()
+
+    return asn
+
+
+def c2_asn_origins_create(ip_ref, asn_origins):
+    for origin in asn_origins:
+        try:
+            o = CandidateC2AsnOrigin(**origin, ip_address=ip_ref)
+            o.save()
+        except (NotUniqueError, DuplicateKeyError):
+            pass
+
+
 def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     geo = None
+    asn_info = get_asn_info(ip)
+    asn_ref = asn_get_or_create(asn_info)
 
     flattened_tags = {
         'cves': set(),
@@ -169,13 +221,14 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     try:
         geo = IpGeoData(
             ip_address=ip,
+            asn=asn_ref,
             hostname=hostname,
             server_type=server_type,
             data=geodata,
             tags=flattened_tags if tags else {}
         )
         geo.save()
-    except NotUniqueError:
+    except (NotUniqueError, DuplicateKeyError):
         geo = IpGeoData.objects(ip_address=ip).first()
 
         loader_to_c2_p2p = (
@@ -213,12 +266,26 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         else:
             n_tags = flattened_tags
 
+        if asn_ref != geo.asn:
+            geo.update(
+                set__asn=asn_ref,
+                add_to_set__prev_asns=[{
+                    'asn': geo.asn,
+                    'logged_at': datetime.utcnow()
+                }],
+            )
+
         geo.update(
             set__tags=n_tags,
+            add_to_set__prev_asns=asn_ref,
             set__updated_at=datetime.utcnow(),
             set__server_type=server_type,
             inc__occurrences=1
         )
+
+    if server_type == "C2 Server":
+        ip_asn_origins = get_asn_origins(ip)
+        c2_asn_origins_create(geo, ip_asn_origins)
 
     return geo
 
@@ -233,7 +300,7 @@ def candidate_cnc_create_or_update(ip_address, payload_ids, heuristics):
             heuristics=heuristics
         )
         c2.save()
-    except NotUniqueError:
+    except (NotUniqueError, DuplicateKeyError):
         c2 = CandidateC2Server(ip_address=ip_address).first()
         c2.update(
             add_to_set__payloads=payload_ids,
@@ -256,7 +323,7 @@ def candidate_p2p_create_or_update(ip_address, payload_ids, heuristics, nodes):
             nodes=nodes,
         )
         p2p.save()
-    except NotUniqueError:
+    except (NotUniqueError, DuplicateKeyError):
         p2p = CandidateP2pNode(ip_address=ip_address).first()
         p2p.update(
             add_to_set__payloads=payload_ids,
@@ -275,7 +342,7 @@ def lisa_analysis_create_or_update(lisa_analysis):
     try:
         lisa = LisaAnalysis(**lisa_analysis)
         lisa.save()
-    except NotUniqueError:
+    except  (NotUniqueError, DuplicateKeyError):
         lisa = LisaAnalysis.objects(task_id=lisa_analysis['task_id']).first()
 
     return lisa
@@ -290,7 +357,16 @@ def geo_connections_create_or_update(source_ip, destination_ip):
             destination_ip=destination_ip
         )
         conn.save()
-    except NotUniqueError:
-        conn = IpGeoConnection.objects(source_ip=source_ip).first()
+    except (NotUniqueError, DuplicateKeyError):
+        s_ip = source_ip.ip_address if source_ip.ip_address else source_ip
+        d_ip = destination_ip.ip_address if destination_ip.ip_address else destination_ip
+    
+        conn = IpGeoConnection.objects(
+            source_ip=s_ip,
+            destination_ip=d_ip
+        ).first()
 
+        conn.update(
+            inc__occurrences=1
+        )
     return conn

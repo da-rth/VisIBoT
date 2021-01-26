@@ -29,7 +29,7 @@ def query_badpackets(api, first_run=False):
     """
     page = 1
     all_results = []
-    after_dt = datetime.utcnow() - timedelta(hours=24 if first_run else 1)
+    after_dt = datetime.utcnow() - timedelta(hours=12 if first_run else 1)
     after_dt = after_dt.replace(minute=0, second=0, microsecond=0)
     time.sleep(2)
 
@@ -93,7 +93,8 @@ def store_result_geodata(result_data, scanned_payloads, connections):
     )
 
     for conn in connections:
-        db.geo_connections_create_or_update(geo, conn)
+        if geo.ip_address != conn.ip_address:
+            db.geo_connections_create_or_update(geo, conn)
 
     result_data['source_ip_address'] = geo.id
     result_data['user_agent'] = useragent_parser(result_data['user_agent'])

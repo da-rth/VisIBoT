@@ -141,18 +141,21 @@ class LiSaAPI:
                 if self.__is_private_ip(ip_address) or self.__is_endpoint_spreading(ip_address, analysis):
                     continue
 
+                blacklist_categories = ip_checker.check(endpoint['ip']).categories
+                is_blacklisted_c2 = DNSBL_CATEGORY_CNC in blacklist_categories
+
                 heuristics = self.__identify_heuristics(
                     endpoint,
                     analysis['static_analysis']['strings'],
-                    ip_checker
+                    is_blacklisted_c2,
                 )
 
                 if heuristics:
-                    geo_type = "P2P Node" if is_p2p else "C2 Server"
+                    geo_type = "P2P Node" if (is_p2p and not is_blacklisted_c2) else "C2 Server"
                     geo = self.__create_geo_entry(ip_address, geo_type)
 
                     if geo:
-                        if is_p2p:
+                        if is_p2p and not is_blacklisted_c2:
                             candidate_P2Ps.append((geo, heuristics))
                             self.all_P2Ps.add(geo.id)
                         else:
@@ -181,30 +184,25 @@ class LiSaAPI:
             logger.exception(f"Error processing task result for payload {payload.id} and task_id: {task_id}")
             raise e
 
-    def __identify_heuristics(self, endpoint, strings, ip_checker):
+    def __identify_heuristics(self, endpoint, strings, is_blacklisted_c2):
         heuristics = []
 
-        blacklist_categories = ip_checker.check(endpoint['ip']).categories
-
-        if (endpoint['data_in'] > 0) and (endpoint['data_out'] == 0):
-            heuristics.append("Data in-only from IP")
-
         if (endpoint['data_in'] > 0) and (endpoint['data_out'] > 0):
-            heuristics.append("Data in-out from IP")
+            heuristics.append("Data exchange from IP address")
 
         if any(endpoint['ip'] in s for s in strings):
-            heuristics.append("Blacklisted C2 IP")
+            heuristics.append("Connection to hardcoded IP address")
 
-        if DNSBL_CATEGORY_CNC in blacklist_categories:
-            heuristics.append("Connection to hard-coded IP")
+        if is_blacklisted_c2:
+            heuristics.append("Connection to blacklisted C2 IP address")
 
         return heuristics
 
     def __process_payload(self, payload, analysis, candidate_CNCs, candidate_P2Ps):
         lisa_analysis = db.lisa_analysis_create_or_update(analysis)
 
-        cnc_geos = [geo.id for geo, _ in candidate_CNCs]
-        p2p_geos = [geo.id for geo, _ in candidate_P2Ps]
+        cnc_geos = [geo for geo, _ in candidate_CNCs]
+        p2p_geos = [geo for geo, _ in candidate_P2Ps]
 
         payload.update(
             set__lisa=lisa_analysis,
@@ -215,7 +213,8 @@ class LiSaAPI:
         all_geos = cnc_geos + p2p_geos
 
         for geo in all_geos:
-            db.geo_connections_create_or_update(payload.ip_address, geo)
+            if payload.ip_address != geo:
+                db.geo_connections_create_or_update(payload.ip_address, geo)
 
     @sleep_and_retry
     @limits(calls=1, period=5)

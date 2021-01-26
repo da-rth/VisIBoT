@@ -61,6 +61,7 @@ def geoip_info(ip_address):
 
         with geoip2.database.Reader(geo_db_path('ASN')) as reader:
             response = reader.asn(ip_address)
+
             result["asn"] = {
                 "number": response.autonomous_system_number,
                 "organisation": response.autonomous_system_organization,

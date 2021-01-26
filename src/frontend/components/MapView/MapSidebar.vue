@@ -13,7 +13,7 @@
         lightBlur: lightThemeEnabled,
         darkBlur: !lightThemeEnabled,
       }"
-      :width="!$device.isMobile ? '480px' : '280px'"
+      width="460px"
     >
       <b-form style="padding: 20px" @submit.stop.prevent>
         <b-form-group :label="this.$t('Filter Results')" label-size="lg">
