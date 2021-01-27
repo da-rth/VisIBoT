@@ -1,11 +1,7 @@
 <template>
   <div>
-    <h1>info</h1>
+    <client-only>
+      <h1>Info</h1>
+    </client-only>
   </div>
 </template>
-
-<script>
-export default {}
-</script>
-
-<style lang="scss" scoped></style>

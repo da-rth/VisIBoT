@@ -57,8 +57,28 @@ export default {
       console.log(this.activeMarker)
       let ipAddress = this.activeMarker ? this.activeMarker.geoInfo._id : null
       return ipAddress != null
-        ? `<h6>Botnet Activity: <a href='https://www.virustotal.com/gui/ip-address/${ipAddress}'>${ipAddress}</a></h6>`
+        ? `<h6>Botnet Activity: <a style="color: ${this.getMarkerColor(
+            this.activeMarker.geoInfo.server_type
+          )}" href='https://www.virustotal.com/gui/ip-address/${ipAddress}'>${ipAddress}</a></h6>`
         : "<h6>Loading information...</h6>"
+    },
+    getMarkerColor(markerType) {
+      switch (markerType) {
+        case "Bot":
+          return "#51a1ba"
+        case "Malicious Bot":
+          return "#46b8a2"
+        case "Payload Server":
+          return "#ff9033"
+        case "Report Server":
+          return "#895dda"
+        case "C2 Server":
+          return "#da4e5b"
+        case "P2P Node":
+          return "#b18873"
+        default:
+          return "#919191"
+      }
     },
   },
 }
