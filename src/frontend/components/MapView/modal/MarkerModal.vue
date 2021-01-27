@@ -16,10 +16,7 @@
     footer-text-variant="dark"
   >
     <b-container v-if="activeMarker" fluid>
-      <b-tabs v-if="$device.isMobile">
-        <modal-body />
-      </b-tabs>
-      <b-tabs v-else vertical nav-wrapper-class="w-25 sidebar">
+      <b-tabs :small="true">
         <modal-body />
       </b-tabs>
     </b-container>
@@ -57,6 +54,7 @@ export default {
       this.$refs.modal.show()
     },
     getTitleHtml() {
+      console.log(this.activeMarker)
       let ipAddress = this.activeMarker ? this.activeMarker.geoInfo._id : null
       return ipAddress != null
         ? `<h6>Botnet Activity: <a href='https://www.virustotal.com/gui/ip-address/${ipAddress}'>${ipAddress}</a></h6>`
@@ -67,17 +65,52 @@ export default {
 </script>
 
 <style>
-.modal-content .container-fluid .tabs.row {
-  min-height: 480px !important;
-}
 .modalBody {
   padding: 0;
   line-height: 1.2;
 }
+.modalBody .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+.modalBody .nav-tabs {
+  background-color: #fff !important;
+}
+.modalBody .nav-link.active {
+  background-color: #f3f3f3 !important;
+  border-bottom-color: #f3f3f3;
+  color: #393939;
+}
+.modalBody .tab-content {
+  background-color: #f3f3f3;
+  min-height: 480px;
+  max-height: 620px;
+  overflow: scroll;
+}
+.modalBody .nav-link {
+  color: #6e6e6e;
+}
+.modalBody .nav-link:hover {
+  border-color: transparent;
+  color: #2c2c2c;
+}
+.modalBody .nav-link.active:hover {
+  border-color: #8d8d8d;
+  border-bottom-color: #f3f3f3;
+  color: #2c2c2c;
+}
+.modalBody .nav-link.disabled {
+  color: #bebebe;
+}
 .modalHeader {
-  padding: 15px 15px 7px 15px;
+  padding: 15px 15px 7px 15px !important;
+  border-bottom: none;
+  background-color: #fff !important;
 }
 .tab-content {
-  padding-top: 10px;
+  padding: 10px;
+}
+.modalBody .nav-tabs {
+  padding-left: 5px;
 }
 </style>

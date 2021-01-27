@@ -2,6 +2,7 @@
 const express = require("express")
 
 const IpGeoData = require("../../models/IpGeoData")
+const IpEvent = require("../../models/IpEvent")
 const BadpacketsResult = require("../../models/BadpacketsResult")
 const MalwarePayload = require("../../models/MalwarePayload")
 const CandidateC2Server = require("../../models/CandidateC2Server")
@@ -51,20 +52,22 @@ router.route("/search-tags").get(async (req, res) => {
 router.route("/summary/:ip").get(async (req, res) => {
   let ip = req.params.ip
   Promise.all([
-    IpGeoData.findOne({ _id: ip }),
+    IpGeoData.findOne({ _id: ip }).populate("asn"),
     BadpacketsResult.find({ source_ip_address: ip }),
     MalwarePayload.find({ ip_address: ip }),
     CandidateC2Server.findOne({ ip_address: ip }),
     CandidateP2PNode.findOne({ ip_address: ip }),
+    IpEvent.find({ ip_address: ip }),
   ])
     .then((all_results) => {
-      const [geoInfo, results, payloads, c2s, p2ps] = all_results
+      const [geoInfo, results, payloads, c2s, p2ps, events] = all_results
       return res.json({
         geoInfo,
         results,
         payloads,
         c2s,
         p2ps,
+        events,
       })
     })
     .catch((err) => {

@@ -101,8 +101,8 @@
               :lat-lng="getCircleMarkerLatLng(conn)"
               :fill="true"
               :radius="1000"
-              :fillOpacity="0.5"
-              :fillColor="getCircleMarkerColor(conn)"
+              :fill-opacity="0.5"
+              :fill-color="getCircleMarkerColor(conn)"
               :color="getCircleMarkerColor(conn)"
               class-name="circleMarker"
               @click="selectCircleMarker(conn)"
@@ -317,7 +317,7 @@ export default {
     },
     getTitleTranslation: function (marker) {
       switch (marker.server_type) {
-        case "Bot":
+        case "Malicious Bot":
           return this.$t("Botnet Activity")
         case "Payload Server":
           return this.$t("Payload Server")
@@ -325,8 +325,10 @@ export default {
           return this.$t("Report Server")
         case "C2 Server":
           return this.$t("C2 Server")
+        case "P2P Node":
+          return this.$t("P2P Node")
         default:
-          return this.$t("Unknown Activity")
+          return this.$t("Botnet Activity")
       }
     },
 
@@ -445,7 +447,11 @@ export default {
     },
     filterMarkers: function (markers) {
       let filteredMarkers = markers.filter((marker) => {
-        if (this.showConnections && this.isSelectedConnectionsLoaded && this.mapSidebarSettings.hideNonConnections) {
+        if (
+          this.showConnections &&
+          this.isSelectedConnectionsLoaded &&
+          this.mapSidebarSettings.hideNonConnections
+        ) {
           return marker._id == this.selectedMarker._id
         }
 

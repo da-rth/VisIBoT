@@ -8,6 +8,11 @@ const schema = new Schema({
   hostname: String,
   created_at: Date,
   updated_at: Date,
+  asn: {
+    type: Schema.Types.String,
+    ref: "AutonomousSystem",
+    required: false,
+  },
 })
 
 const IpGeoData = model("IpGeoData", schema, "ip_geo_data")

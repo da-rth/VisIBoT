@@ -1,12 +1,9 @@
 const { Schema, model } = require("mongoose")
 
 const schema = new Schema({
-  _id: {
-    type: Schema.Types.String,
-    ref: "IpGeoData",
-    required: true,
-  },
-  connections: [{ type: Schema.Types.String, ref: "GeoData" }],
+  source_ip: [{ type: Schema.Types.String, ref: "IpGeoData" }],
+  destination_ip: [{ type: Schema.Types.String, ref: "IpGeoData" }],
+  occurrences: Number,
   created_at: Date,
 })
 

@@ -247,11 +247,6 @@ export default {
       timeout: null,
       checkboxFields: [
         {
-          text: this.$t("Unknown Activity"),
-          value: "Unknown",
-          icon: "markers/marker-unknown.svg",
-        },
-        {
           text: this.$t("Botnet Activity"),
           value: "Bot",
           icon: "markers/marker-bot.svg",

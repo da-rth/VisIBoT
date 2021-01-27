@@ -46,8 +46,8 @@ def get_asn_info(ip):
         ip_asn['asn_date'] = datetime.strptime(ip_asn['asn_date'], '%Y-%m-%d')
     else:
         ip_asn['asn_date'] = None
-
-    return ip_asn
+    
+    return ip_asn if ip_asn['asn'] else None
 
 
 def get_asn_origins(ip):

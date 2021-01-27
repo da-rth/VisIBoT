@@ -12,6 +12,8 @@ connectDB()
 require("./models/CandidateC2Server")
 require("./models/BadpacketsResult")
 require("./models/MalwarePayload")
+require("./models/AutonomousSystem")
+require("./models/IpGeoConnection")
 require("./models/IpGeoData")
 
 if (process.env.NODE_ENV === "development") {

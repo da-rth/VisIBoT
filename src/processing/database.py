@@ -22,7 +22,7 @@ class IpGeoData(mongo.Document):
     BadPackets results
     """
     ip_address        = mongo.StringField(required=True, primary_key=True)
-    asn               = mongo.ReferenceField(AutonomousSystem, required=True)
+    asn               = mongo.ReferenceField(AutonomousSystem, required=False)
     prev_asns         = mongo.ListField(mongo.DictField(required=False), default=[])
     occurrences       = mongo.IntField(default=0)
     data              = mongo.DictField(required=True)
@@ -41,6 +41,26 @@ class IpGeoData(mongo.Document):
     )
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
+
+
+class IpEvent(mongo.Document):
+    """
+    Server/IP Address information pulled from payload data of
+    BadPackets results
+    """
+    ip_address        = mongo.ReferenceField(IpGeoData, required=True)
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
+    event_type        = mongo.StringField(
+        required=True,
+        choices=[
+            "C2 Server",
+            "P2P Node",
+            "Payload Server",
+            "Report Server",
+            "Malicious Bot",
+            "Bot",
+        ]
+    )
 
 
 class CandidateC2AsnOrigin(mongo.DynamicDocument):
@@ -205,7 +225,7 @@ def c2_asn_origins_create(ip_ref, asn_origins):
 def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     geo = None
     asn_info = get_asn_info(ip)
-    asn_ref = asn_get_or_create(asn_info)
+    asn_ref = asn_get_or_create(asn_info) if asn_info else None
 
     flattened_tags = {
         'cves': set(),
@@ -266,7 +286,7 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         else:
             n_tags = flattened_tags
 
-        if asn_ref != geo.asn:
+        if asn_ref and asn_ref != geo.asn:
             geo.update(
                 set__asn=asn_ref,
                 add_to_set__prev_asns=[{
@@ -277,7 +297,6 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
 
         geo.update(
             set__tags=n_tags,
-            add_to_set__prev_asns=asn_ref,
             set__updated_at=datetime.utcnow(),
             set__server_type=server_type,
             inc__occurrences=1
@@ -286,6 +305,12 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     if server_type == "C2 Server":
         ip_asn_origins = get_asn_origins(ip)
         c2_asn_origins_create(geo, ip_asn_origins)
+
+    evt = IpEvent(
+        ip_address=ip,
+        event_type=server_type,
+    )
+    evt.save()
 
     return geo
 
