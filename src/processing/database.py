@@ -13,7 +13,7 @@ class AutonomousSystem(mongo.DynamicDocument):
     Document containing ASN info for ASNs associated with any ip address in IpGeoData
     """
     asn               = mongo.StringField(required=True, primary_key=True)
-    asn_date          = mongo.DateTimeField(required=False)
+    asn_date          = mongo.DateTimeField(required=False, default=None)
 
 
 class IpGeoData(mongo.Document):
