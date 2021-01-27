@@ -27,6 +27,7 @@
         :max-bounds-viscosity="1.0"
         :edge-buffer-tiles="5"
         class="visibot-map"
+        @popupclose="popupClosed()"
       >
         <l-tile-layer
           :url="`https://tiles.stadiamaps.com/tiles/alidade_smooth${
@@ -95,6 +96,17 @@
           </l-popup>
         </l-feature-group>
 
+        <l-circle
+          v-if="hoverCircleMarker"
+          :lat-lng="hoverCircleMarker.data.coordinates"
+          :fill="true"
+          :radius="1000"
+          weight="7"
+          :fill-opacity="0.2"
+          :fill-color="getServerTypeColor(hoverCircleMarker.server_type)"
+          color="#818181"
+        />
+
         <div v-if="isSelectedConnectionsLoaded && showConnections">
           <template
             v-for="(conn, index) in markerConnections[selectedMarker._id]"
@@ -150,6 +162,7 @@ export default {
       ],
       currentClustered: [],
       markersReloading: false,
+      hoverCircleMarker: null,
       tags: null,
     }
   },
@@ -274,6 +287,9 @@ export default {
       this.mapMarkers = this.filterMarkers(this.markers)
       this.updateMapWithNewMarkers(this.mapMarkers)
     },
+    popupClosed() {
+      this.hoverCircleMarker = null
+    },
     updateMapWithNewMarkers: function (markers) {
       let markerList = []
       let markerCluster = L.markerClusterGroup({
@@ -294,7 +310,7 @@ export default {
           marker.data.coordinates.lng
         )
         let lMarker = L.marker(markerLatLng, {
-          title: this.getTitleTranslation(marker),
+          title: `${marker._id} | ${this.getTitleTranslation(marker)}`,
           icon: this.getIcon(marker),
         })
         lMarker
@@ -303,14 +319,18 @@ export default {
             this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
           })
           .on("mouseover", () => {
-            console.log("bing")
-            console.log(
-              this.markerConnections,
-              marker._id in this.markerConnections
-            )
-            if (!(marker._id in this.markerConnections)) {
+            this.hoverCircleMarker = marker
+
+            let isLoaded = this.markerConnectionsLoaded.includes(marker._id)
+            let isLoading = this.markerConnectionsLoading.includes(marker._id)
+            let isDisabled = this.markerConnectionsDisabled.includes(marker._id)
+
+            if (!(isLoaded || isLoading || isDisabled)) {
               this.$store.dispatch("map/fetchMarkerConnections", marker)
             }
+          })
+          .on("mouseout", () => {
+            this.hoverCircleMarker = null
           })
         markerList.push(lMarker)
       }
@@ -370,6 +390,10 @@ export default {
         default:
           return "#919191"
       }
+    },
+    selectHoverCircleMarker: function () {
+      this.activeMarker = this.hoverCircleMarker
+      this.showMarkerModal()
     },
     selectCircleMarker: function (conn) {
       let sourceIp = conn.source_ip
@@ -608,6 +632,7 @@ export default {
 }
 .popupBtn:focus {
   outline: none !important;
+  box-shadow: none !important;
 }
 .popupBtn--left {
   border-top-left-radius: 10px !important;
@@ -628,7 +653,7 @@ export default {
   display: none !important;
 }
 .connectionsActive {
-  background-color: #0078a8;
+  background-color: #3e889f;
   color: #fff;
 }
 .connectionsLoading {

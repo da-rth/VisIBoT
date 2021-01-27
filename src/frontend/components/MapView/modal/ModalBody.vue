@@ -30,7 +30,7 @@
       <connections-tab />
     </b-tab>
 
-    <b-tab disabled>
+    <b-tab :disabled="activeMarker.geoInfo.server_type != 'Payload Server'">
       <template #title>
         <div>
           <b-icon-shield-exclamation type="border" small />
@@ -42,6 +42,16 @@
     </b-tab>
   </div>
 </template>
+
+<script>
+export default {
+  computed: {
+    activeMarker() {
+      return this.$store.state.map.activeMarker
+    },
+  },
+}
+</script>
 
 <style>
 .emptyTableMessage {
