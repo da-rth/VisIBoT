@@ -76,12 +76,14 @@ export default {
     getGeneralInformationJSON() {
       return JSON.stringify(
         {
-          activity: this.activeMarker.geoInfo.server_type,
-          occurrences: this.activeMarker.geoInfo.occurrences,
+          "ip address": this.activeMarker.geoInfo._id,
+          hostname: this.activeMarker.geoInfo.hostname,
           "first seen": this.fmtDate(new Date()),
           "last seen": this.fmtDate(
             new Date(this.activeMarker.geoInfo.updated_at)
           ),
+          "notable activity": this.activeMarker.geoInfo.server_type,
+          occurrences: this.activeMarker.geoInfo.occurrences,
         },
         null,
         2
@@ -91,16 +93,17 @@ export default {
       console.log(this.asn)
       let asnData = {
         GeoIP2: {
-          ASN: this.geodata.asn.number,
+          asn: this.geodata.asn.number,
           organisation: this.geodata.asn.organisation,
         },
         IpWHOIS: this.asn
           ? {
+              asn: this.asn._id,
               cidr: this.asn.asn_cidr,
               "country code": this.asn.asn_country_code,
               date: this.asn.asn_date
                 ? this.fmtDate(new Date(this.asn.asn_date))
-                : null,
+                : undefined,
               description: this.asn.asn_description,
               registry: this.asn.asn_registry,
               "previous ASNs": this.activeMarker.geoInfo.prev_asns,

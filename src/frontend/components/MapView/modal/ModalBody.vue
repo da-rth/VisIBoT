@@ -17,7 +17,17 @@
           <span class="pl-1">Event Log</span>
         </div>
       </template>
-      <event-tab />
+      <events-tab />
+    </b-tab>
+
+    <b-tab>
+      <template #title>
+        <div>
+          <b-icon-diagram-3 type="border" small />
+          <span class="pl-1">Connections</span>
+        </div>
+      </template>
+      <connections-tab />
     </b-tab>
 
     <b-tab disabled>
@@ -32,3 +42,19 @@
     </b-tab>
   </div>
 </template>
+
+<style>
+.emptyTableMessage {
+  text-align: center;
+  background: #50505014;
+  border: 1px solid #bdbdbd;
+  padding: 20px;
+  border-radius: 5px;
+  margin: 30px;
+}
+.emptyTableMessage svg {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  color: #686868;
+}
+</style>

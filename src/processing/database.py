@@ -84,6 +84,7 @@ class IpGeoConnection(mongo.Document):
     destination_ip    = mongo.ReferenceField(IpGeoData, required=True)
     occurrences       = mongo.IntField(default=1)
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
     meta = {
         'indexes': [
             {'fields': ('source_ip', 'destination_ip'), 'unique': True}
@@ -392,6 +393,7 @@ def geo_connections_create_or_update(source_ip, destination_ip):
         ).first()
 
         conn.update(
-            inc__occurrences=1
+            inc__occurrences=1,
+            set__updated_at=datetime.utcnow(),
         )
     return conn

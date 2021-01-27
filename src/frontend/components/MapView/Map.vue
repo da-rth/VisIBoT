@@ -67,7 +67,10 @@
                   small
                   label="Loading..."
                 />
-                <b-icon-diagram-2 v-else />
+                <template v-else>
+                  <b-icon-diagram-3-fill v-if="showConnections" />
+                  <b-icon-diagram-3 v-else />
+                </template>
               </b-button>
               <b-button
                 class="popupBtn popupBtn--middle"
