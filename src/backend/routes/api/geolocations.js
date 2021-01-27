@@ -79,8 +79,6 @@ async function goUpTree(ipAddress) {
 
   connections = connections.concat(aggregateToConnection(ipConns))
 
-  console.log("up", connections)
-
   return connections
 }
 

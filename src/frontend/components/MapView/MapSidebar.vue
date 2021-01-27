@@ -188,6 +188,16 @@
             type="range"
             style="margin-bottom: 10px"
           />
+
+          <b-form-checkbox
+            v-model="hideNonConnections"
+            style="user-select: none"
+            size="lg"
+            switch
+          >
+            {{ $t("Hide when viewing connections.") }}
+          </b-form-checkbox>
+
           <b-form-checkbox
             v-model="zoomOnClick"
             size="lg"
@@ -231,25 +241,6 @@
 export default {
   data() {
     return {
-      selectedBotType: this.$store.state.settings.mapSidebarSettings
-        .selectedBotType,
-
-      clusterRadius: this.$store.state.settings.mapSidebarSettings
-        .clusterRadius,
-
-      coverageOnHover: this.$store.state.settings.mapSidebarSettings
-        .coverageOnHover,
-
-      zoomOnClick: this.$store.state.settings.mapSidebarSettings.zoomOnClick,
-
-      searchDescription: this.$store.state.settings.mapSidebarSettings
-        .searchDescription,
-
-      selectedCategories: this.$store.state.settings.mapSidebarSettings
-        .selectedCategories,
-
-      selectedCVEs: this.$store.state.settings.mapSidebarSettings.selectedCVEs,
-
       categorySearch: "",
       cveSearch: "",
       cveValues: [],
@@ -300,6 +291,70 @@ export default {
       },
       set(value) {
         this.$store.commit("settings/setMapSidebarSettings", value)
+      },
+    },
+    selectedBotType: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.selectedBotType
+      },
+      set(value) {
+        this.$store.commit("settings/setSelectedBotType", value)
+      },
+    },
+    hideNonConnections: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.hideNonConnections
+      },
+      set(value) {
+        this.$store.commit("settings/setHideNonConnections", value)
+      },
+    },
+    clusterRadius: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.clusterRadius
+      },
+      set(value) {
+        this.$store.commit("settings/setClusterRadius", value)
+      },
+    },
+    coverageOnHover: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.coverageOnHover
+      },
+      set(value) {
+        this.$store.commit("settings/setCoverageOnHover", value)
+      },
+    },
+    zoomOnClick: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.zoomOnClick
+      },
+      set(value) {
+        this.$store.commit("settings/setZoomOnClick", value)
+      },
+    },
+    searchDescription: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.searchDescription
+      },
+      set(value) {
+        this.$store.commit("settings/setSearchDescription", value)
+      },
+    },
+    selectedCategories: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.selectedCategories
+      },
+      set(value) {
+        this.$store.commit("settings/setSelectedCategories", value)
+      },
+    },
+    selectedCVEs: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.selectedCVEs
+      },
+      set(value) {
+        this.$store.commit("settings/setSelectedCVEs", value)
       },
     },
     lightThemeEnabled() {

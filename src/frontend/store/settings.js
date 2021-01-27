@@ -41,6 +41,30 @@ export const mutations = {
   setMapSidebarSettings(state, val) {
     state.mapSidebarSettings = val
   },
+  setSelectedBotType(state, val) {
+    state.mapSidebarSettings.selectedBotType = val
+  },
+  setClusterRadius(state, val) {
+    state.mapSidebarSettings.clusterRadius = val
+  },
+  setZoomOnClick(state, val) {
+    state.mapSidebarSettings.zoomOnClick = val
+  },
+  setCoverageOnHover(state, val) {
+    state.mapSidebarSettings.coverageOnHover = val
+  },
+  setHideNonConnections(state, val) {
+    state.mapSidebarSettings.hideNonConnections = val
+  },
+  setSearchDescription(state, val) {
+    state.mapSidebarSettings.searchDescription = val
+  },
+  setSelectedCategories(state, val) {
+    state.mapSidebarSettings.selectedCategories = val
+  },
+  setSelectedCVEs(state, val) {
+    state.mapSidebarSettings.selectedCVEs = val
+  },
 
   toggleLightThemeEnabled(state) {
     state.lightThemeEnabled = !state.lightThemeEnabled
