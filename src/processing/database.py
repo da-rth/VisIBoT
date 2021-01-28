@@ -1,4 +1,6 @@
+import os
 import logging
+import ipinfo
 import mongoengine as mongo
 from utils.whois import get_asn_info, get_asn_origins
 from pymongo.errors import DuplicateKeyError
@@ -6,7 +8,6 @@ from mongoengine.errors import NotUniqueError
 from datetime import datetime
 
 logger = logging.getLogger('database')
-
 
 class AutonomousSystem(mongo.DynamicDocument):
     """
@@ -22,6 +23,7 @@ class IpGeoData(mongo.Document):
     BadPackets results
     """
     ip_address        = mongo.StringField(required=True, primary_key=True)
+    ip_info           = mongo.ReferenceField('IpInfo', required=False)
     asn               = mongo.ReferenceField(AutonomousSystem, required=False)
     prev_asns         = mongo.ListField(mongo.DictField(required=False), default=[])
     occurrences       = mongo.IntField(default=0)
@@ -42,6 +44,14 @@ class IpGeoData(mongo.Document):
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
+
+class IpInfo(mongo.DynamicDocument):
+    """
+    API Query results from ipinfo.io
+    """
+    ip_address        = mongo.ReferenceField(IpGeoData, required=True)
+    created_at        = mongo.DateTimeField(default=datetime.utcnow)
+    updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
 class IpEvent(mongo.Document):
     """
@@ -223,8 +233,32 @@ def c2_asn_origins_create(ip_ref, asn_origins):
             pass
 
 
+def ipinfo_create(geo):
+    try:
+        handler = ipinfo.getHandler(os.getenv("IPINFO_API_KEY", ""))
+        ip_info = handler.getDetails(geo.ip_address)
+    except Exception as e:
+        print("\n", e, "\n")
+        ip_info = None
+
+    if ip_info and ip_info.all:
+        results = ip_info.all
+        del results['ip']
+
+        ip_info_obj = IpInfo(
+            ip_address=geo,
+            **results,
+        )
+        ip_info_obj.save()
+        return ip_info_obj
+    else:
+        return None
+
 def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     geo = None
+    ip_is_new = False
+    ip_asn_changed = False
+
     asn_info = get_asn_info(ip)
     asn_ref = asn_get_or_create(asn_info) if asn_info else None
 
@@ -240,6 +274,8 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         flattened_tags['descriptions'].add(tag['description'])
 
     try:
+        ip_is_new = True
+
         geo = IpGeoData(
             ip_address=ip,
             asn=asn_ref,
@@ -288,6 +324,7 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
             n_tags = flattened_tags
 
         if asn_ref and asn_ref != geo.asn:
+            ip_asn_changed = True
             geo.update(
                 set__asn=asn_ref,
                 add_to_set__prev_asns=[{
@@ -312,6 +349,16 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         event_type=server_type,
     )
     evt.save()
+
+    ipinfo_c2_only = os.getenv("IPINFO_C2_ONLY", 'no').lower()
+
+    if ((ipinfo_c2_only == "true" and server_type) == "C2 Server" or
+        ipinfo_c2_only == "false") and (ip_asn_changed or ip_is_new):
+
+        ip_info_obj = ipinfo_create(geo)
+
+        if ip_info_obj:
+            geo.update(set__ip_info=ip_info_obj)
 
     return geo
 

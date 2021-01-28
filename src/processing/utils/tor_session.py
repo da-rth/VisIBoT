@@ -11,7 +11,7 @@ def get_session():
     session = requests.session()
     session.proxies = {}
 
-    if proxy_url and use_tor == "True":
+    if proxy_url and use_tor.lower() == "true":
         session.proxies['http'] = proxy_url
         session.proxies['https'] = proxy_url
 

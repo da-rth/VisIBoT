@@ -1,7 +1,7 @@
 from ipwhois.net import Net
 from ipwhois.asn import IPASN, ASNOrigin
 from datetime import datetime
-
+from dateutil import parser
 
 def is_valid_origin(origin):
     return origin['updated'] and not origin['description'].startswith('Temporary holder')
@@ -16,25 +16,29 @@ def parse_origin_asn(origin):
     except ValueError:
         return
 
-    updated_time_fmt = None
+    updated_datetime = None
 
-    if ' # ' in updated_time:
-        updated_time_fmt = datetime.strptime(updated_time.split("# ")[1], '%Y-%m-%d %H:%M:%S %z')
+    if '#' in updated_time:
+        datestr, datetimestr = updated_time.split("#")
+        datestr = datestr.strip()
+        datetimestr = datetimestr.lstrip().rstrip()
 
-    elif updated_time.split(' ', 1)[0].isdigit():
-        if '#' in updated_time:
-            updated_time_fmt = datetime.strptime(updated_time, '%Y%m%d  #%H:%M:%S%z')
+        if '-' in datetimestr and ':' in datetimestr:
+            updated_datetime = parser.parse(datetimestr)
         else:
-            updated_time_fmt = datetime.strptime(updated_time, '%Y%m%d')
+            updated_datetime = parser.parse(f'{datestr} {datetimestr}')
 
-    if updated_time_fmt:
+    elif updated_time.isdigit():
+        updated_datetime = datetime.strptime(updated_time, '%Y%m%d')
+
+    if updated_datetime:
         return {
             'cidr': origin['cidr'],
             'description': origin['description'],
             'maintainer': origin['maintainer'],
             'source': origin['source'],
             'updated_by': updated_by,
-            'updated_time': updated_time_fmt,
+            'updated_time': updated_datetime,
         }
 
 

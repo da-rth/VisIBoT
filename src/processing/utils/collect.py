@@ -4,6 +4,7 @@ import database as db
 import logging
 import time
 import validators
+import os
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from utils.misc import url_parser, useragent_parser, get_ip_hostname
@@ -29,7 +30,7 @@ def query_badpackets(api, first_run=False):
     """
     page = 1
     all_results = []
-    after_dt = datetime.utcnow() - timedelta(hours=12 if first_run else 1)
+    after_dt = datetime.utcnow() - timedelta(hours=int(os.getenv("FIRST_RUN_HOURS")) if first_run else 1)
     after_dt = after_dt.replace(minute=0, second=0, microsecond=0)
     time.sleep(2)
 

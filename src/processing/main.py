@@ -98,7 +98,8 @@ if __name__ == "__main__":
 
     # Init and check LiSa
     lisa_api = LiSaAPI(
-        api_url=os.getenv("LISA_API_URL")
+        api_url=os.getenv("LISA_API_URL"),
+        exec_time=int(os.getenv("LISA_EXEC_TIME_SEC"))
     )
 
     # Validate BadPackets API Token
