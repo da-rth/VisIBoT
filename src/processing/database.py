@@ -9,6 +9,16 @@ from datetime import datetime
 
 logger = logging.getLogger('database')
 
+geo_hierarchy = {
+    "C2 Server": 5,
+    "P2P Node": 4,
+    "Loader Server": 3,
+    "Report Server": 2,
+    "Malicious Bot": 1,
+    "Bot": 0
+}
+
+
 class AutonomousSystem(mongo.DynamicDocument):
     """
     Document containing ASN info for ASNs associated with any ip address in IpGeoData
@@ -30,17 +40,7 @@ class IpGeoData(mongo.Document):
     data              = mongo.DictField(required=True)
     hostname          = mongo.StringField(required=False)
     tags              = mongo.DictField(required=False)
-    server_type       = mongo.StringField(
-        required=True,
-        choices=[
-            "C2 Server",
-            "P2P Node",
-            "Payload Server",
-            "Report Server",
-            "Malicious Bot",
-            "Bot",
-        ]
-    )
+    server_type       = mongo.StringField(required=True, choices=list(geo_hierarchy.keys()))
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
@@ -53,6 +53,7 @@ class IpInfo(mongo.DynamicDocument):
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
+
 class IpEvent(mongo.Document):
     """
     Server/IP Address information pulled from payload data of
@@ -60,17 +61,7 @@ class IpEvent(mongo.Document):
     """
     ip_address        = mongo.ReferenceField(IpGeoData, required=True)
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
-    event_type        = mongo.StringField(
-        required=True,
-        choices=[
-            "C2 Server",
-            "P2P Node",
-            "Payload Server",
-            "Report Server",
-            "Malicious Bot",
-            "Bot",
-        ]
-    )
+    event_type        = mongo.StringField(required=True, choices=list(geo_hierarchy.keys()))
 
 
 class CandidateC2AsnOrigin(mongo.DynamicDocument):
@@ -194,6 +185,7 @@ def payload_create_or_update(url, ip, lisa=None, candidate_C2s=[], candidate_P2P
             add_to_set__candidate_P2Ps=candidate_P2Ps,
             inc__occurrences=1
         )
+        payload.reload()
 
     return payload
 
@@ -210,6 +202,7 @@ def result_create_or_update(result_data):
             add_to_set__scanned_payloads=result_data['scanned_payloads'],
             set__updated_at=datetime.utcnow()
         )
+        result.reload()
 
     return result
 
@@ -233,26 +226,38 @@ def c2_asn_origins_create(ip_ref, asn_origins):
             pass
 
 
-def ipinfo_create(geo):
-    try:
-        handler = ipinfo.getHandler(os.getenv("IPINFO_API_KEY", ""))
-        ip_info = handler.getDetails(geo.ip_address)
-    except Exception as e:
-        print("\n", e, "\n")
-        ip_info = None
+def ipinfo_create(geo, ip_is_new, ip_asn_changed):
+    ipinfo_c2_only = os.getenv("IPINFO_C2_ONLY", False).lower() == "true"
+    ipinfo_proceed = (ipinfo_c2_only and geo.server_type == "C2 Server") or not ipinfo_c2_only
 
-    if ip_info and ip_info.all:
-        results = ip_info.all
-        del results['ip']
+    if ipinfo_proceed and (ip_asn_changed or ip_is_new):
+        try:
+            handler = ipinfo.getHandler(os.getenv("IPINFO_API_KEY", ""))
+            ip_info = handler.getDetails(geo.ip_address)
+        except Exception:
+            ip_info = None
 
-        ip_info_obj = IpInfo(
-            ip_address=geo,
-            **results,
-        )
-        ip_info_obj.save()
-        return ip_info_obj
+        if ip_info and ip_info.all:
+            results = ip_info.all
+            del results['ip']
+
+            ip_info_obj = IpInfo(
+                ip_address=geo,
+                **results,
+            )
+            ip_info_obj.save()
+
+            geo.update(
+                set__ip_info=ip_info_obj
+            )
+
+
+def get_server_type(current_server_type, new_server_type):
+    if geo_hierarchy[new_server_type] > geo_hierarchy[current_server_type]:
+        return new_server_type
     else:
-        return None
+        return current_server_type
+
 
 def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     geo = None
@@ -287,29 +292,7 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
         geo.save()
     except (NotUniqueError, DuplicateKeyError):
         geo = IpGeoData.objects(ip_address=ip).first()
-
-        loader_to_c2_p2p = (
-            geo.server_type == "Loader Server" and
-            (server_type == "C2 Server" or server_type == "P2P Node")
-        )
-
-        report_to_loader = (
-            geo.server_type in ["Report Server", "Malicious Bot"] and
-            server_type == "Loader Server"
-        )
-
-        bot_to_report = (
-            geo.server_type == "Bot" and
-            server_type == "Report Server" or server_type == "Malicious Bot"
-        )
-
-        low_to_high = (
-            geo.server_type in ["Report Server", "Malicious Bot", "Bot"] and
-            server_type in ["C2 Server", "P2P Node", "Loader Server"]
-        )
-
-        if not (loader_to_c2_p2p or report_to_loader or bot_to_report or low_to_high):
-            server_type = geo.server_type
+        server_type = get_server_type(geo.server_type, server_type)
 
         if 'cves' in geo.tags:
             n_tags = geo.tags.copy()
@@ -339,6 +322,7 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
             set__server_type=server_type,
             inc__occurrences=1
         )
+        geo.reload()
 
     if server_type == "C2 Server":
         ip_asn_origins = get_asn_origins(ip)
@@ -350,15 +334,7 @@ def geodata_create_or_update(ip, hostname, server_type, geodata, tags=[]):
     )
     evt.save()
 
-    ipinfo_c2_only = os.getenv("IPINFO_C2_ONLY", 'no').lower()
-
-    if ((ipinfo_c2_only == "true" and server_type) == "C2 Server" or
-        ipinfo_c2_only == "false") and (ip_asn_changed or ip_is_new):
-
-        ip_info_obj = ipinfo_create(geo)
-
-        if ip_info_obj:
-            geo.update(set__ip_info=ip_info_obj)
+    ipinfo_create(geo, ip_is_new, ip_asn_changed)
 
     return geo
 
@@ -381,6 +357,7 @@ def candidate_cnc_create_or_update(ip_address, payload_ids, heuristics):
             inc__occurrences=1,
             set__updated_at=datetime.utcnow(),
         )
+        c2.reload()
 
     return c2
 
@@ -405,6 +382,7 @@ def candidate_p2p_create_or_update(ip_address, payload_ids, heuristics, nodes):
             inc__occurrences=1,
             set__updated_at=datetime.utcnow(),
         )
+        p2p.reload()
 
     return p2p
 
@@ -415,7 +393,7 @@ def lisa_analysis_create_or_update(lisa_analysis):
     try:
         lisa = LisaAnalysis(**lisa_analysis)
         lisa.save()
-    except  (NotUniqueError, DuplicateKeyError):
+    except (NotUniqueError, DuplicateKeyError):
         lisa = LisaAnalysis.objects(task_id=lisa_analysis['task_id']).first()
 
     return lisa
@@ -433,7 +411,7 @@ def geo_connections_create_or_update(source_ip, destination_ip):
     except (NotUniqueError, DuplicateKeyError):
         s_ip = source_ip.ip_address if source_ip.ip_address else source_ip
         d_ip = destination_ip.ip_address if destination_ip.ip_address else destination_ip
-    
+
         conn = IpGeoConnection.objects(
             source_ip=s_ip,
             destination_ip=d_ip
@@ -443,4 +421,5 @@ def geo_connections_create_or_update(source_ip, destination_ip):
             inc__occurrences=1,
             set__updated_at=datetime.utcnow(),
         )
+        conn.reload()
     return conn

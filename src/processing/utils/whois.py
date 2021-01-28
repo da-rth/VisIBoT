@@ -3,6 +3,7 @@ from ipwhois.asn import IPASN, ASNOrigin
 from datetime import datetime
 from dateutil import parser
 
+
 def is_valid_origin(origin):
     return origin['updated'] and not origin['description'].startswith('Temporary holder')
 
@@ -50,7 +51,7 @@ def get_asn_info(ip):
         ip_asn['asn_date'] = datetime.strptime(ip_asn['asn_date'], '%Y-%m-%d')
     else:
         ip_asn['asn_date'] = None
-    
+
     return ip_asn if ip_asn['asn'] else None
 
 

@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger('tor-session')
 
+
 def get_session():
     use_tor = os.getenv("TOR_SESSION_ENABLE", None)
     proxy_url = os.getenv("TOR_PROXY_URL", None)
@@ -16,6 +17,7 @@ def get_session():
         session.proxies['https'] = proxy_url
 
     return session
+
 
 def check_session():
     try:
