@@ -60,7 +60,6 @@ services:
       - MONGO_URL=${MONGO_URL:?Env var MONGO_URL is not set.}
       - IP_INFO_C2_ONLY=${IP_INFO_C2_ONLY}
       - IP_INFO_API_KEY=${IP_INFO_API_KEY}
-      - TOR_SESSION_ENABLE=${TOR_SESSION_ENABLE}
     depends_on:
       - tor
       - redis
