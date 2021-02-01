@@ -18,11 +18,3 @@ matrix:
         - npm install
       script:
         - npm run eslint
-
-    - language: generic
-      services: docker
-      sudo: required
-      script:
-        - cd src/processing
-        - docker-compose up -d --build
-        - docker-compose stop
