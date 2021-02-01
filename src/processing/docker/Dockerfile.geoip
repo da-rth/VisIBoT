@@ -1,0 +1,24 @@
+FROM python:3.9-slim
+
+ARG GEO_ACCOUNT_ID
+ARG GEO_LICENSE_KEY
+
+RUN echo "AccountID $GEO_ACCOUNT_ID\nLicenseKey $GEO_LICENSE_KEY\nEditionIDs GeoLite2-ASN GeoLite2-City GeoLite2-Country\n" > /usr/local/etc/GeoIP.conf
+
+RUN mkdir -p /usr/local/share/GeoIP
+
+RUN apt-get update && apt-get install -y bash gcc g++ wget cron \
+    && wget https://github.com/maxmind/geoipupdate/releases/download/v4.6.0/geoipupdate_4.6.0_linux_amd64.tar.gz \
+    && tar zxvf geoipupdate_4.6.0_linux_amd64.tar.gz \
+    && cd geoipupdate_4.6.0_linux_amd64 \
+    && mv geoipupdate /usr/local/bin/geoipupdate \
+    && cd .. \
+    && rm -rf ./geoipupdate_4.6.0_linux_amd64 \
+    && rm -rf /var/cache/apk/*
+
+RUN geoipupdate && touch /var/log/cron.log
+RUN (crontab -l ; echo "46 17 * * 3 /usr/local/bin/geoipupdate >> /var/log/cron.log") | crontab
+
+VOLUME /usr/local/share/GeoIP
+
+ENTRYPOINT cron start && tail -f /var/log/cron.log

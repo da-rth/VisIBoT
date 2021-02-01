@@ -8,7 +8,7 @@ matrix:
       script:
         - python -m pylama
         - python -m unittest discover
-    
+
     - language: node_js
       node_js: 14
       before_script:

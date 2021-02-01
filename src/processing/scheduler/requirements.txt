@@ -1,0 +1,5 @@
+apscheduler==3.7.0
+celery==4.4.7
+ratelimit==2.2.1
+redis==3.5.3
+requests==2.25.1

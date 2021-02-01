@@ -1,0 +1,88 @@
+version: "3.7"
+
+volumes:
+  geo_data:
+
+services:
+  tor:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.tor
+    restart: always
+    expose:
+      - 9050
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.scheduler
+    restart: always
+    environment:
+      - FIRST_RUN=${FIRST_RUN}
+      - FIRST_RUN_HOURS=${FIRST_RUN_HOURS}
+      - FLOWER_URL=${FLOWER_URL}
+      - EVENT_MINUTE=${EVENT_MINUTE}
+      - BAD_PACKETS_API_KEY=${BAD_PACKETS_API_KEY:?Env var BAD_PACKETS_API_KEY is not set.}
+    depends_on:
+      - redis
+      - worker
+    volumes: ['./scheduler:/scheduler']
+
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.api
+    restart: always
+    ports:
+     - "5001:5001"
+    depends_on:
+      - redis
+      - worker
+    volumes: ['./api:/api']
+
+  geoip:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.geoip
+      args:
+        - GEO_ACCOUNT_ID=${GEO_ACCOUNT_ID:?Env var GEO_ACCOUNT_ID is not set.}
+        - GEO_LICENSE_KEY=${GEO_LICENSE_KEY:?Env var GEO_LICENSE_KEY is not set.}
+    volumes:
+      - geo_data:/usr/local/share/GeoIP
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.worker
+    environment:
+      - LISA_API_URL=${LISA_API_URL:?Env var LISA_API_URL is not set.}
+      - LISA_EXEC_TIME_SEC=${LISA_EXEC_TIME_SEC:?Env var LISA_EXEC_TIME_SEC is not set.}
+      - MONGO_URL=${MONGO_URL:?Env var MONGO_URL is not set.}
+      - IP_INFO_C2_ONLY=${IP_INFO_C2_ONLY}
+      - IP_INFO_API_KEY=${IP_INFO_API_KEY}
+      - TOR_SESSION_ENABLE=${TOR_SESSION_ENABLE}
+    depends_on:
+      - tor
+      - redis
+      - geoip
+    volumes:
+      - ./worker:/queue
+      - geo_data:/usr/local/share/GeoIP
+
+  monitor:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.worker
+    ports:
+     - "5555:5555"
+    entrypoint: flower
+    command:  -A tasks --port=5555 --broker=redis://redis:6379/0 --basic_auth=${FLOWER_USER}:${FLOWER_PASS}
+    depends_on:
+      - redis
+    volumes: ['./worker:/queue']
+
+  redis:
+    image: redis
+    command: redis-server --loglevel warning
+    ports:
+     - "6379:6379"

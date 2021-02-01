@@ -1,0 +1,15 @@
+FROM python:3.9-slim
+
+ENV PYTHONUNBUFFERED 1
+ENV CELERY_BROKER_URL redis://redis:6379/0
+ENV CELERY_RESULT_BACKEND redis://redis:6379/0
+ENV C_FORCE_ROOT true
+
+COPY ./worker /queue
+WORKDIR /queue
+
+RUN apt-get update && apt-get install -y gcc g++ && \
+    pip install -r requirements.txt && \
+    mkdir -p /queue/tld-cache/
+
+ENTRYPOINT celery -A tasks worker --loglevel=warning -c 1  -n visibot-worker@%h
