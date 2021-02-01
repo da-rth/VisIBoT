@@ -1,12 +1,12 @@
-import celery.states as states
 from flask import Flask, request
-from flask import url_for, jsonify
+from flask import jsonify
 from worker import celery
 
 dev_mode = True
 app = Flask(__name__)
 
-@app.route('/api/lisa-analysis/success/<string:task_id>', methods = ['POST'])
+
+@app.route('/api/lisa-analysis/success/<string:task_id>', methods=['POST'])
 def analysis_complete(task_id: str) -> str:
     analysis_data = request.json
 
@@ -17,7 +17,7 @@ def analysis_complete(task_id: str) -> str:
         return jsonify("No analysis data provided"), 400
 
 
-@app.route('/api/lisa-analysis/failure/<string:task_id>', methods = ['POST'])
+@app.route('/api/lisa-analysis/failure/<string:task_id>', methods=['POST'])
 def analysis_failed(task_id: str) -> str:
     failure_data = request.json
 

@@ -1,8 +1,5 @@
 import os
-import time
 import lisa
-import logging
-import requests
 import utils.tor_session as tor_session
 from processing import store_result
 from mongoengine import connect
@@ -13,7 +10,6 @@ MONGO_URL = os.getenv("MONGO_URL", None)
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379'),
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
 
-logger = logging.getLogger('celery')
 celery = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 celery.config_from_object('config')
 
@@ -42,6 +38,7 @@ def lisa_analysis_failed(task_id: str, failure_data: dict):
     connect(host=MONGO_URL)
     lisa.process_failure(task_id, failure_data)
     return f"lisa task {task_id} processed"
+
 
 # Check if tor proxy is working
 tor_session.check_session()

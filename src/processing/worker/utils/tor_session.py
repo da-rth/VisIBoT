@@ -1,6 +1,5 @@
 import os
 import requests
-import time
 
 USE_TOR = os.getenv("TOR_SESSION_ENABLE", False) == "True"
 TOR_URL = "socks5h://tor:9050"
@@ -31,4 +30,3 @@ def check_session():
             raise SystemExit("[Tor Session] Could not reach test website using tor session. Is tor running?")
     else:
         print("[Tor Session] Proxy session disabled. Using a proxyless (unprotected) session instead.")
-

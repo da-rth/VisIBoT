@@ -1,16 +1,7 @@
-# pylama:ignore=E402:ignore=E702
-import sys; sys.path.append("..")
 import database as db
-import logging
-import time
-import validators
-import os
-from datetime import datetime, timedelta
-from urllib.parse import urlparse
+from datetime import datetime
 from utils.misc import url_parser, useragent_parser, get_ip_hostname
 from utils.geodata import geoip_info
-
-logger = logging.getLogger('collection')
 
 
 def store_result_geodata(result_data, scanned_payloads, connections):

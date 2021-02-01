@@ -1,14 +1,10 @@
 import os
 import time
-import logging
-import asyncio
 from utils import time_until
 from worker import celery_worker
 from badpackets import BadPacketsAPI
 from datetime import datetime, timedelta
-from logging.handlers import RotatingFileHandler
 from apscheduler.schedulers.blocking import BlockingScheduler
-from requests.exceptions import ConnectionError
 
 # Some Constants
 FIRST_RUN = os.getenv("FIRST_RUN", False) == "True"
@@ -21,9 +17,7 @@ BP_API_KEY = os.getenv("BAD_PACKETS_API_KEY", None)
 bp_api = BadPacketsAPI(api_token=BP_API_KEY)
 bp_api.ping().raise_for_status()
 
-# Setup Logging and scheduler
-logging.getLogger("filelock").setLevel(logging.ERROR)
-logger = logging.getLogger('main')
+# Setup scheduler
 scheduler = BlockingScheduler()
 
 
@@ -55,7 +49,7 @@ def get_badpackets_results(first_run: bool = False):
         print("Error! Failed to obtain BadPackets results for last query.")
 
     if results:
-        print(f"Adding analysis tasks to worker queue...")
+        print("Adding analysis tasks to worker queue...")
 
     for result in results:
         celery_worker.send_task('tasks.process_result', args=[result], kwargs={})
@@ -73,5 +67,5 @@ if __name__ == "__main__":
         print(f"Executing first run. Obtaining BadPackets results from the last {FIRST_RUN_HOURS} hours.")
         get_badpackets_results(first_run=True)
 
-    print(f"Started hourly scheduler. The next event will execute at: {time_until(EVENT_MIN)} (UTC.")
+    print(f"Started hourly scheduler. The next event will execute at: {time_until(EVENT_MIN)} (UTC).")
     scheduler.start()

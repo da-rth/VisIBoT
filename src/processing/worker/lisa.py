@@ -4,11 +4,8 @@ import database as db
 import utils.misc as misc
 import requests
 import logging
-import time
 import os
 import validators
-from contextlib import suppress
-from ratelimit import limits, sleep_and_retry
 
 from utils.geodata import geoip_info
 from pydnsbl import DNSBLIpChecker
@@ -159,6 +156,7 @@ def update_payload_and_connections(payload, analysis, cnc_geos, p2p_geos):
         if payload.ip_address != geo:
             db.geo_connections_create_or_update(payload.ip_address, geo)
 
+
 def process_strings(strings):
     results = {
         "ipv4_addresses": [],
@@ -185,6 +183,7 @@ def process_strings(strings):
                 results['domains'].append(url)
 
     return results
+
 
 def process_analysis(task_id, analysis):
     proc_payload = db.ProcessingPayloads.objects(task_id=task_id).first()
@@ -241,6 +240,7 @@ def process_analysis(task_id, analysis):
     )
 
     proc_payload.delete()
+
 
 def process_failure(task_id, failure_data):
     exec_type = failure_data.get('exc_type', None)

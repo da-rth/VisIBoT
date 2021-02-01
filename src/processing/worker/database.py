@@ -177,6 +177,7 @@ class BadpacketsResult(mongo.Document):
     created_at        = mongo.DateTimeField(default=datetime.utcnow)
     updated_at        = mongo.DateTimeField(default=datetime.utcnow)
 
+
 def create_processing_payload_entry(payload, task_id):
     with suppress(NotUniqueError):
         proc_payload = ProcessingPayloads(
@@ -184,7 +185,8 @@ def create_processing_payload_entry(payload, task_id):
             task_id=task_id,
         )
         proc_payload.save()
-        
+
+
 def payload_create_or_update(url, ip, lisa=None, candidate_C2s=[], candidate_P2Ps=[]):
     payload = None
 
