@@ -1,4 +1,3 @@
-import os
 import requests
 
 TOR_URL = "socks5h://tor:9050"
@@ -7,11 +6,8 @@ TOR_URL = "socks5h://tor:9050"
 def get_session():
     session = requests.session()
     session.proxies = {}
-
-    if USE_TOR:
-        session.proxies['http'] = TOR_URL
-        session.proxies['https'] = TOR_URL
-
+    session.proxies['http'] = TOR_URL
+    session.proxies['https'] = TOR_URL
     return session
 
 
