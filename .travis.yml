@@ -14,7 +14,7 @@ matrix:
     - language: node_js
       node_js: 14
       before_script:
-        - cd src
+        - cd src/webapp
         - npm install
       script:
         - npm run eslint
