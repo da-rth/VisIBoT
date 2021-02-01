@@ -71,9 +71,6 @@ The VisIBoT web-application is a browser-based visualisation tool that maps geol
 4. Configure the VirusTotal Analyzer to use your VirusTotal API KEY in `lisa/config.py`
     - Uncomment `'lisa.analysis.virustotal.VirusTotalAnalyzer'`
     - Assign variable `virus_total_key` to your VirusTotal API Key
-    ```python
-    virus_total_key = 'my_api_key`
-    ```
 5. Build docker images. This will take a while. You might need to use `sudo` too.
     ```bash
     ➜  ~ docker-compose build
