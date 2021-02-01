@@ -10,8 +10,8 @@
     "exp-start": "node backend/server.js",
     "exp-dev": "nodemon backend/server.js",
     "test": "jest",
-    "eslint": "eslint frontend backend --ext .js,.vue --ignore-path .gitignore .",
-    "eslintfix": "eslint frontend backend --fix --ext .js,.vue --ignore-path .gitignore ."
+    "eslint": "eslint frontend backend --ext .js,.vue --ignore-path ../../.gitignore .",
+    "eslintfix": "eslint frontend backend --fix --ext .js,.vue --ignore-path ../../.gitignore ."
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^2.0.0",

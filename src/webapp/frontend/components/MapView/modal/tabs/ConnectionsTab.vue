@@ -17,7 +17,8 @@
           class="connectionLink"
           :href="`https://www.virustotal.com/gui/ip-address/${data.value.str}`"
         >
-          {{ data.value.str }}</a>
+          {{ data.value.str }}
+        </a>
       </template>
 
       <template #cell(destination_ip)="data">
@@ -26,7 +27,8 @@
           class="connectionLink"
           :href="`https://www.virustotal.com/gui/ip-address/${data.value.str}`"
         >
-          {{ data.value.str }}</a>
+          {{ data.value.str }}
+        </a>
       </template>
     </b-table>
 
