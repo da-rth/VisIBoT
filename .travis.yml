@@ -7,8 +7,9 @@ matrix:
         - cd src/processing/scheduler
         - pip install -r requirements.txt
       script:
-        - python -m pylama
         - python -m unittest discover
+        - cd ..
+        - python -m pylama
 
     - language: node_js
       node_js: 14
