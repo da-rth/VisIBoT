@@ -53,7 +53,7 @@ router.route("/summary/:ip").get(async (req, res) => {
   Promise.all([
     IpGeoData.findOne({ _id: ip }).populate("asn"),
     BadpacketsResult.find({ source_ip_address: ip }),
-    MalwarePayload.find({ ip_address: ip }).populate("lisa"),
+    MalwarePayload.find({ ip_address: ip }).populate({ path: "lisa", select: "-network_analysis.http_requests -network_analysis.endpoints -virustotal.scans" }),
     IpEvent.find({ ip_address: ip }),
     IpGeoConnection.find({
       $or: [{ source_ip: ip }, { destination_ip: ip }],

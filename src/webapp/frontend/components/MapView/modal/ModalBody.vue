@@ -30,7 +30,7 @@
       <connections-tab />
     </b-tab>
 
-    <b-tab :disabled="activeMarker.geoInfo.server_type != 'Payload Server'">
+    <b-tab :disabled="activeMarker.payloads.length == 0">
       <template #title>
         <div>
           <b-icon-shield-exclamation type="border" small />
