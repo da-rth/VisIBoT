@@ -1,5 +1,6 @@
 from badpackets.session import BadPacketsSession
 from ratelimit import limits, sleep_and_retry
+from requests import Response
 import urllib
 
 SUPPORTED_QUERY_PARAMS = [
@@ -46,12 +47,31 @@ class BadPacketsAPI():
 
     @sleep_and_retry
     @limits(calls=1, period=2)
-    def ping(self):
+    def ping(self) -> Response:
+        """
+        Checks if the BadPackets API service is online.
+        Calling response.raise_for_status() will raise an exception if the request was
+        unsuccessful or the provided API key could not be authenticated.
+
+        Returns:
+            Response: The response object for the given GET request indicating success of ping.
+        """
         return self.session.get('ping')
 
     @sleep_and_retry
     @limits(calls=1, period=2)
-    def query(self, params):
+    def query(self, params: dict) -> Response:
+        """ Queries the BadPackets API using the given parameters (if supported).
+
+        Args:
+            params (dict): A dictionary of query parameter keys and values.
+
+        Raises:
+            ValueError: An un-supported query-parameter has been provided.
+
+        Returns:
+            Response: The response object for the given GET request containing BadPackets result data.
+        """
         for param in params:
             if param not in SUPPORTED_QUERY_PARAMS:
                 raise ValueError(f'Unsupported query parameter: {param}')
@@ -60,6 +80,16 @@ class BadPacketsAPI():
 
     @sleep_and_retry
     @limits(calls=1, period=2)
-    def get_url(self, url):
+    def get_url(self, url: str) -> Response:
+        """
+        Queries the next page of BadPackets results to be queried given the URL
+        from the current response data.
+
+        Args:
+            url (str): The [next] API URL to query for additional BadPackets results.
+
+        Returns:
+            Response: The response object for the given GET request containing BadPackets result data.
+        """
         url_params = url.split('/')[-1]
         return self.session.get(f'{url_params}')
