@@ -192,7 +192,7 @@ def process_analysis(task_id, analysis):
     if not payload or 'network_analysis' not in analysis:
         return
 
-    vt_scans = analysis['virustotal'].get('scans', None)
+    vt_scans = analysis['virustotal'].get('scans', None) if 'virustotal' in analysis else None
     analysis['keyword'] = misc.get_top_malware_keyword(vt_scans) if vt_scans else None
     analysis['static_strings'] = process_strings(analysis['static_analysis']['strings'])
     analysis['task_id'] = task_id
