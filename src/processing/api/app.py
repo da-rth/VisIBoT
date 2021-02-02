@@ -8,9 +8,9 @@ app = Flask(__name__)
 
 @app.route('/api/lisa-analysis/success/<string:task_id>', methods=['POST'])
 def analysis_complete(task_id: str) -> str:
-    """ 
+    """
     On POST, a lisa task_id is parsed form the route URL and response.data is checked for analysis results.
-    If analysis data is present, a celery task is created to handle the processing of the LiSa analysis 
+    If analysis data is present, a celery task is created to handle the processing of the LiSa analysis
     result data for the corresponding MalwarePayload.
 
     Args:
@@ -30,9 +30,9 @@ def analysis_complete(task_id: str) -> str:
 
 @app.route('/api/lisa-analysis/failure/<string:task_id>', methods=['POST'])
 def analysis_failed(task_id: str) -> str:
-    """ 
+    """
     On POST, a lisa task_id is parsed form the route URL and response.data is checked for failure data.
-    If failure data is present, a celery task is created to handle the failed LiSa analysis attempt 
+    If failure data is present, a celery task is created to handle the failed LiSa analysis attempt
     for the corresponding MalwarePayload.
 
     Args:
