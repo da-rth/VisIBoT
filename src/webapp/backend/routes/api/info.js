@@ -55,7 +55,7 @@ router.route("/summary/:ip").get(async (req, res) => {
   Promise.all([
     IpGeoData.findOne({ _id: ip }).populate("asn"),
     BadpacketsResult.find({ source_ip_address: ip }),
-    MalwarePayload.find({ ip_address: ip }),
+    MalwarePayload.find({ ip_address: ip }).populate('lisa'),
     CandidateC2Server.findOne({ ip_address: ip }),
     CandidateP2PNode.findOne({ ip_address: ip }),
     IpEvent.find({ ip_address: ip }),

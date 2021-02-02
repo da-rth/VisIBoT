@@ -37,14 +37,15 @@
           <span class="pl-1">Malware Analysis</span>
         </div>
       </template>
-
-      <p>I'm a disabled tab!</p>
+      <malware-tab />
     </b-tab>
   </div>
 </template>
 
 <script>
+import MalwareTab from './tabs/MalwareTab.vue'
 export default {
+  components: { MalwareTab },
   computed: {
     activeMarker() {
       return this.$store.state.map.activeMarker
