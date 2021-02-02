@@ -1,5 +1,6 @@
 import socks
 import urllib
+from utils.tz_info import WHOIS_TZ_INFO
 from ipwhois.net import Net
 from ipwhois.asn import IPASN, ASNOrigin
 from datetime import datetime
@@ -29,9 +30,9 @@ def parse_origin_asn(origin):
             datetimestr = datetimestr.lstrip().rstrip()
 
             if '-' in datetimestr and ':' in datetimestr:
-                updated_datetime = parser.parse(datetimestr)
+                updated_datetime = parser.parse(datetimestr, tzinfos=WHOIS_TZ_INFO)
             else:
-                updated_datetime = parser.parse(f'{datestr} {datetimestr}')
+                updated_datetime = parser.parse(f'{datestr} {datetimestr}', tzinfos=WHOIS_TZ_INFO)
 
         elif updated_time.isdigit():
             updated_datetime = datetime.strptime(updated_time, '%Y%m%d')
