@@ -298,12 +298,12 @@ def validate_url(url):
         None: False is returned if URL is invalid
         tuple: (url, ip, hostname) is returned if URL is valid
     """
-    # ignore if URL has no path (e.g. http://website.com(/))
-    if url.count('/') < 3 or (url.count('/') == 3 and url.endswith('/')):
+    # ignore if URL has no path or leads to directory (e.g. http://website.com(/))
+    if url.count('/') < 3 or url.count('/') <= 3 or url.endswith('/'):
         return None
 
-    # ignore common xml schema urls
-    if "schema" in url.lower():
+    # ignore common xml schema or php urls
+    if "schema" in url.lower() or ".php" in url.lower():
         return None
 
     host = urlparse(url).hostname
