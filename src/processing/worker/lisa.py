@@ -48,11 +48,11 @@ SPREADING_KEYWORDS = [
     "/tmp",
     "http",
 ]
-P2P_ROUTERS = [
-    "router.utorrent.com",
-    "dht.transmissionbt.com",
-    "router.bittorrent.com",
-    "bttracker.debian.org",
+P2P_DOMAINS = [
+    ".utorrent.com",
+    ".transmissionbt.com",
+    ".bittorrent.com",
+    ".debian.org",
 ]
 
 
@@ -116,8 +116,22 @@ def is_endpoint_spreading(ip_address, analysis):
 
 def is_p2p(analysis):
     for dns_q in analysis['network_analysis']['dns_questions']:
-        if dns_q.get('name', None) in P2P_ROUTERS:
+        if dns_q.get('name', None) in P2P_DOMAINS:
             return True
+
+    return False
+
+
+def check_hostname_p2p(ip_address):
+    hostname = misc.get_ip_hostname(ip_address)
+
+    if not hostname:
+        return False
+
+    for p2p_domain in P2P_DOMAINS:
+        if p2p_domain in hostname:
+            return True
+
     return False
 
 
@@ -166,20 +180,30 @@ def process_strings(strings):
     }
 
     for string in strings:
-        urls = misc.extractor.find_urls(string)
         ipv4 = misc.ip_parser(string)
         ipv6 = misc.ipv6_parser(string)
 
         if ipv4 and validators.ip_address.ipv4(ipv4) and misc.is_public_ip(ipv4):
+            # Ignores IPs like 1.1.1.1 and 8.8.8.8
+            if len(ipv4) == 8:
+                continue
+
             results['ipv4_addresses'].append(ipv4)
 
         if ipv6 and validators.ip_address.ipv6(ipv6) and misc.is_public_ip(ipv6):
             results['ipv4_addresses'].append(ipv6)
 
-        for url in urls:
-            if ':' in url:
+        for url in misc.extractor.find_urls(string):
+            url = url.replace(")", "")
+            url = url.split(":")[0] if url.count(":") == 1 else url
+            ignore_url = "HNAP1" in url or "schema" in url
+
+            if ignore_url or ipv4 in url and not misc.is_public_ip(ipv4):
+                continue
+
+            if validators.url(url):
                 results['urls'].append(url)
-            else:
+            elif validators.domain(url) and ".sh" not in url:
                 results['domains'].append(url)
 
     return results
@@ -206,6 +230,9 @@ def process_analysis(task_id, analysis):
 
     for endpoint in analysis['network_analysis']['endpoints']:
         ip_address = endpoint['ip']
+
+        if not is_p2p_botnet:
+            is_p2p_botnet = check_hostname_p2p(ip_address)
 
         if not misc.is_public_ip(ip_address) or is_endpoint_spreading(ip_address, analysis):
             continue
