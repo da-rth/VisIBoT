@@ -23,6 +23,16 @@ scheduler = BlockingScheduler()
 
 @scheduler.scheduled_job('cron', hour='*', minute=EVENT_MIN)
 def get_badpackets_results(first_run: bool = False):
+    """
+    Executed on an hourly basis, this function queries the BadPackets API for honeypot
+    information and creates a celery task for each result obtained. This task will analyse,
+    process and store all valid information for each result.
+
+    Args:
+        first_run (bool, optional): Specifies if a first run should be executed.
+            A first run will gather and process N hours worth of BadPackets results prior
+            to the hourly scheduler starting. Defaults to False.
+    """
     print("VisIBot collection event activated. Collecting data from BadPackets API.")
 
     after_dt = datetime.utcnow() - timedelta(hours=FIRST_RUN_HOURS if first_run else 1)
@@ -37,19 +47,16 @@ def get_badpackets_results(first_run: bool = False):
         results += results_json['results']
         total_results = results_json['count']
 
-        print(f" -> Queried {len(results)}/{total_results} results")
+        print(f"Queried {len(results)}/{total_results} results")
 
         while results_json.get('next', False):
             results_json = bp_api.get_url(results_json['next']).json()
             results += results_json['results']
 
-            print(f" -> Queried {len(results)}/{total_results} results")
+            print(f"Queried {len(results)}/{total_results} results")
 
     except Exception:
         print("Error! Failed to obtain BadPackets results for last query.")
-
-    if results:
-        print("Adding analysis tasks to worker queue...")
 
     for result in results:
         celery_worker.send_task('tasks.process_result', args=[result], kwargs={})
