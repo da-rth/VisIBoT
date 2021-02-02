@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask import jsonify
-from worker import celery
+from worker import celery_worker
 
 dev_mode = True
 app = Flask(__name__)
@@ -22,14 +22,14 @@ def analysis_complete(task_id: str) -> str:
     analysis_data = request.json
 
     if analysis_data:
-        celery.send_task('tasks.lisa_analysis_success', args=[task_id, analysis_data], kwargs={})
+        celery_worker.send_task('tasks.lisa_analysis_success', args=[task_id, analysis_data], kwargs={})
         return jsonify("Status update received"), 200
     else:
         return jsonify("No analysis data provided"), 400
 
 
 @app.route('/api/lisa-analysis/failure/<string:task_id>', methods=['POST'])
-def analysis_failed(task_id: str) -> BaseResponse:
+def analysis_failed(task_id: str) -> str:
     """ 
     On POST, a lisa task_id is parsed form the route URL and response.data is checked for failure data.
     If failure data is present, a celery task is created to handle the failed LiSa analysis attempt 
@@ -44,7 +44,7 @@ def analysis_failed(task_id: str) -> BaseResponse:
     failure_data = request.json
 
     if failure_data:
-        celery.send_task('tasks.lisa_analysis_failed', args=[task_id, failure_data], kwargs={})
+        celery_worker.send_task('tasks.lisa_analysis_failed', args=[task_id, failure_data], kwargs={})
         return jsonify("Status update received"), 200
     else:
         return jsonify("No failure data provided")
