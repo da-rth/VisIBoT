@@ -18,10 +18,18 @@
       <b-form style="padding: 20px" @submit.stop.prevent>
         <b-form-group :label="this.$t('Filter Results')" label-size="lg">
           <v-autocomplete
+            v-model="searchIpAddress"
+            :min-matching-chars="0"
+            :data="this.$store.state.map.searchIpAddresses"
+            :placeholder="this.$t('Search IP address')"
+            aria-describedby="IP address marker search"
+            class="mb-2"
+          />
+          <v-autocomplete
             v-model="searchDescription"
             :min-matching-chars="0"
             :data="this.$store.state.map.searchTagDescriptions"
-            :placeholder="this.$t('Search by description')"
+            :placeholder="this.$t('Search description')"
             aria-describedby="bot marker search"
             class="mb-2"
           />
@@ -336,6 +344,14 @@ export default {
         this.$store.commit("settings/setSearchDescription", value)
       },
     },
+    searchIpAddress: {
+      get() {
+        return this.$store.state.settings.mapSidebarSettings.searchIpAddress
+      },
+      set(value) {
+        this.$store.commit("settings/setSearchIpAddress", value)
+      },
+    },
     selectedCategories: {
       get() {
         return this.$store.state.settings.mapSidebarSettings.selectedCategories
@@ -402,6 +418,7 @@ export default {
         selectedCVEs: this.selectedCVEs,
         selectedCategories: this.selectedCategories,
         searchDescription: this.searchDescription,
+        searchIpAddress: this.searchIpAddress,
         zoomOnClick: this.zoomOnClick,
         coverageOnHover: this.coverageOnHover,
         clusterRadius: this.clusterRadius,

@@ -16,8 +16,10 @@ export const state = () => ({
     coverageOnHover: true,
     hideNonConnections: true,
     searchDescription: "",
+    searchIpAddress: "",
     selectedCategories: [],
     selectedCVEs: [],
+    selectedIpAddresses: [],
   },
 })
 
@@ -58,6 +60,9 @@ export const mutations = {
   },
   setSearchDescription(state, val) {
     state.mapSidebarSettings.searchDescription = val
+  },
+  setSearchIpAddress(state, val) {
+    state.mapSidebarSettings.searchIpAddress = val
   },
   setSelectedCategories(state, val) {
     state.mapSidebarSettings.selectedCategories = val

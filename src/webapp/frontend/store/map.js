@@ -20,11 +20,13 @@ export const state = () => ({
   searchTagDescriptions: [],
   searchTagCategories: [],
   searchTagCVEs: [],
+  searchIpAddresses: [],
 })
 
 export const mutations = {
   ["MARKERS_STORE"](state, markers) {
     state.markers = markers
+    state.searchIpAddresses = markers.map((m) => m._id)
   },
   ["MARKERS_LOADING"](state) {
     state.markersError = false

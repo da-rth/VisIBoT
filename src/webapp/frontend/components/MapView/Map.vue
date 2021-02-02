@@ -473,7 +473,18 @@ export default {
       })
     },
     filterMarkers: function (markers) {
+      let searchIpAddress = this.mapSidebarSettings.searchIpAddress
+      let searchDescription = this.mapSidebarSettings.searchDescription
+      let selectedCVEs = Array.from(this.mapSidebarSettings.selectedCVEs)
+      let selectedCategories = Array.from(
+        this.mapSidebarSettings.selectedCategories
+      )
+      console.log(searchIpAddress)
       let filteredMarkers = markers.filter((marker) => {
+        if (searchIpAddress.length) {
+          return new RegExp(searchIpAddress).test(marker._id)
+        }
+
         if (
           this.showConnections &&
           this.isSelectedConnectionsLoaded &&
@@ -482,11 +493,6 @@ export default {
           return marker._id == this.selectedMarker._id
         }
 
-        let searchDescription = this.mapSidebarSettings.searchDescription
-        let selectedCategories = Array.from(
-          this.mapSidebarSettings.selectedCategories
-        )
-        let selectedCVEs = Array.from(this.mapSidebarSettings.selectedCVEs)
         let includesCVEs = true
         let includesCategories = true
         let includesDescription = true

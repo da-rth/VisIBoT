@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import MalwareTab from './tabs/MalwareTab.vue'
+import MalwareTab from "./tabs/MalwareTab.vue"
 export default {
   components: { MalwareTab },
   computed: {

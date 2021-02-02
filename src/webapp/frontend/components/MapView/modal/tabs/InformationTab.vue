@@ -20,7 +20,9 @@
     </p>
     <pre><code v-highlight class="javascript codeblock">{{ getASInfoJSON() }}</code></pre>
 
-    <h6 v-if="getTags().size == 0" class="pt-2 font-weight-bold">BadPackets Tags:</h6>
+    <h6 v-if="getTags().size == 0" class="pt-2 font-weight-bold">
+      BadPackets Tags:
+    </h6>
     <template v-for="(tag, index) in getTags()">
       <b-tag v-if="tag" :key="index" variant="primary" class="mr-1">
         {{ tag }}
