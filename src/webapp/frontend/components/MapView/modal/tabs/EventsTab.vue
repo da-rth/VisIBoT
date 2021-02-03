@@ -11,7 +11,7 @@
       ]"
     >
       <template #cell(type)="data">
-        <b-tag :style="{ backgroundColor: data.value.color }" :no-remove="true">
+        <b-tag small="sm" :style="{ backgroundColor: data.value.color }" :no-remove="true">
           {{ data.value.str }}
         </b-tag>
       </template>
@@ -69,7 +69,7 @@ export default {
       }
     },
     fmtDate(date) {
-      return this.$moment(date).format("DD-MM-YYYY H:m:s z")
+      return this.$moment(date).format("DD-MM-YYYY H:mm:ss z")
     },
     getEventDesc(event_type) {
       switch (event_type) {

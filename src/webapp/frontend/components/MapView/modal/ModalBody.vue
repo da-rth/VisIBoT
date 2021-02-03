@@ -30,14 +30,14 @@
       <connections-tab />
     </b-tab>
 
-    <b-tab :disabled="activeMarker.payloads.length == 0">
+    <b-tab :disabled="!hasMalwareAnalysis()">
       <template #title>
         <div>
           <b-icon-shield-exclamation type="border" small />
           <span class="pl-1">Malware Analysis</span>
         </div>
       </template>
-      <malware-tab />
+      <malware-tab v-if="hasMalwareAnalysis()" />
     </b-tab>
   </div>
 </template>
@@ -51,6 +51,14 @@ export default {
       return this.$store.state.map.activeMarker
     },
   },
+  methods: {
+    hasMalwareAnalysis() {
+      if (!this.activeMarker.payloads.length) {
+        return false
+      }
+      return this.activeMarker.payloads.some((p) => 'lisa' in p)
+    }
+  }
 }
 </script>
 

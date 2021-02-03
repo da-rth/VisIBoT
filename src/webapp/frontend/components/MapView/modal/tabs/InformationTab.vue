@@ -18,7 +18,7 @@
         Autonomous System information sourced from MaxMinds Geo2IP and IpWHOIS.
       </small>
     </p>
-    <pre><code v-highlight class="javascript codeblock">{{ getASInfoJSON() }}</code></pre>
+    <code-block :content="getASInfoJSON()" />
 
     <h6 v-if="getTags().size == 0" class="pt-2 font-weight-bold">
       BadPackets Tags:
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     fmtDate(date) {
-      return this.$moment(date).format("DD-MM-YYYY H:m:s z")
+      return this.$moment(date).format("DD-MM-YYYY H:mm:ss z")
     },
     getTags() {
       let tags = new Set()
@@ -78,21 +78,18 @@ export default {
     getGeneralInformationJSON() {
       return JSON.stringify(
         {
-          "ip address": this.activeMarker.geoInfo._id,
           hostname: this.activeMarker.geoInfo.hostname,
           "first seen": this.fmtDate(new Date()),
           "last seen": this.fmtDate(
             new Date(this.activeMarker.geoInfo.updated_at)
           ),
-          "notable activity": this.activeMarker.geoInfo.server_type,
-          occurrences: this.activeMarker.geoInfo.occurrences,
+          "total occurrences": this.activeMarker.geoInfo.occurrences,
         },
         null,
         2
       )
     },
     getASInfoJSON() {
-      console.log(this.asn)
       let asnData = {
         GeoIP2: {
           asn: this.geodata.asn.number,

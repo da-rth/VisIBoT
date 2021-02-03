@@ -5,7 +5,7 @@
     scrollable
     hide-footer
     size="lg"
-    :title-html="getTitleHtml()"
+    :title-html="`<h6>${getTitleHtml()}</h6>`"
     header-bg-variant="light"
     header-text-variant="dark"
     header-class="modalHeader"
@@ -15,29 +15,36 @@
     footer-bg-variant="light"
     footer-text-variant="dark"
   >
-    <b-container v-if="activeMarker" fluid>
-      <b-tabs :small="true">
-        <modal-body />
-      </b-tabs>
-    </b-container>
-
-    <div v-else-if="activeMarkerError">
-      <h1>Error</h1>
-    </div>
-    <div v-else>
-      <b-skeleton-wrapper :loading="activeMarkerLoading">
+    <div class="p-3" v-if="activeMarkerLoading || !activeMarker">
+      <b-skeleton-wrapper>
         <b-skeleton
-          v-for="width in [85, 50, 75, 90, 40, 60, 92, 70, 80]"
-          :key="width"
+          v-for="(width, index) in skeletonWidths"
+          :key="index"
           :width="`${width}%`"
         ></b-skeleton>
       </b-skeleton-wrapper>
     </div>
+        
+    <div v-else-if="activeMarkerError">
+      <h1>Error</h1>
+    </div>
+
+    <b-container v-else fluid>
+      <b-tabs :small="true">
+        <modal-body v-if="activeMarker" />
+      </b-tabs>
+    </b-container>
   </b-modal>
 </template>
 
 <script>
 export default {
+  data: function () {
+    return {
+      skeletonWidths: [85, 50, 75, 90, 40, 60, 92, 70, 80, 40, 45, 20, 70, 80, 50, 60, 30, 90],
+      ipAddress: null,
+    }
+  },
   computed: {
     activeMarker() {
       return this.$store.state.map.activeMarker
@@ -49,18 +56,47 @@ export default {
       return this.$store.state.map.activeMarkerError
     },
   },
+
+  watch: {
+    activeMarkerError(err) {
+      if (err) {
+        this.$refs.modal.hide()
+      }
+    }
+  },
+  created() {
+    this.$nuxt.$on('ipAddrPushState', ipAddress => {
+      this.$store.dispatch("map/fetchActiveMarker", ipAddress)
+    })
+  },
+  beforeDestroy() {
+    this.$nuxt.$off('ipAddrPushState')
+  },
   methods: {
-    show: function () {
+    show: function (ipAddress) {
+      this.ipAddress = ipAddress
       this.$refs.modal.show()
+      this.$store.dispatch("map/fetchActiveMarker", ipAddress)
+      history.pushState(
+        {},
+        null,
+        `/info/${this.ipAddress}`
+      )
     },
     getTitleHtml() {
-      console.log(this.activeMarker)
-      let ipAddress = this.activeMarker ? this.activeMarker.geoInfo._id : null
-      return ipAddress != null
-        ? `<h6>Botnet Activity: <a style="color: ${this.getMarkerColor(
-            this.activeMarker.geoInfo.server_type
-          )}" href='https://www.virustotal.com/gui/ip-address/${ipAddress}'>${ipAddress}</a></h6>`
-        : "<h6>Loading information...</h6>"
+      if (this.activeMarkerLoading || !this.activeMarker) {
+        return `Loading: <a style="color: #919191" href='https://www.virustotal.com/gui/ip-address/${this.ipAddress}'>${this.ipAddress}</a>`
+      } else if (this.activeMarkerError) {
+        return "Whoops, an error occurred!"
+      } else {
+        return (
+          `Activity: 
+          <a
+            style="color: ${this.getMarkerColor(this.activeMarker.geoInfo.server_type)}" 
+            href='https://www.virustotal.com/gui/ip-address/${this.ipAddress}'
+          >${this.ipAddress}</a>`
+        )
+      }
     },
     getMarkerColor(markerType) {
       switch (markerType) {
@@ -81,6 +117,16 @@ export default {
       }
     },
   },
+  mounted() {
+    this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
+      this.ipAddress = null
+      history.pushState(
+        {},
+        null,
+        '/'
+      )
+    })
+  }
 }
 </script>
 

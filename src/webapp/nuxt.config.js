@@ -2,6 +2,11 @@ require("dotenv").config()
 
 export default {
   srcDir: "frontend/",
+  router: {
+    extendRoutes (routes) {
+      routes.push({name: 'ip-address', path: '/ip-address', component: '~/pages/index.vue'})
+    }
+  },
   generate: {
     dir: "backend/dist",
   },
@@ -42,7 +47,7 @@ export default {
     [
       "nuxt-i18n",
       {
-        strategy: "prefix_except_default",
+        strategy: "no_prefix",
       },
     ],
     [

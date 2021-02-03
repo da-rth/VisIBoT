@@ -15,7 +15,7 @@
         <b-icon-hexagon-fill :style="{ color: data.value.color }" />
         <a
           class="connectionLink"
-          :href="`https://www.virustotal.com/gui/ip-address/${data.value.str}`"
+          @click="openConnectionPopup(data.value.str)"
         >
           {{ data.value.str }}
         </a>
@@ -25,7 +25,7 @@
         <b-icon-hexagon-fill :style="{ color: data.value.color }" />
         <a
           class="connectionLink"
-          :href="`https://www.virustotal.com/gui/ip-address/${data.value.str}`"
+          @click="openConnectionPopup(data.value.str)"
         >
           {{ data.value.str }}
         </a>
@@ -87,8 +87,16 @@ export default {
           return "#919191"
       }
     },
+    openConnectionPopup(ipAddress) {
+      history.pushState(
+        {},
+        null,
+        `/info/${ipAddress}`
+      )
+      this.$nuxt.$emit('ipAddrPushState', ipAddress)
+    },
     fmtDate(date) {
-      return this.$moment(date).format("DD-MM-YYYY H:m:s z")
+      return this.$moment(date).format("DD-MM-YYYY H:mm:ss z")
     },
     getEventDesc(event_type) {
       switch (event_type) {
@@ -129,5 +137,6 @@ export default {
 }
 .modalBody .table .connectionLink {
   color: #282828;
+  cursor: pointer;
 }
 </style>

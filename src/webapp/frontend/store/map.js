@@ -7,7 +7,7 @@ export const state = () => ({
   markersError: false,
 
   activeMarker: null,
-  activeMarkerLoading: false,
+  activeMarkerLoading: true,
   activeMarkerError: false,
 
   connectionsError: [],
@@ -41,19 +41,15 @@ export const mutations = {
 
   ["ACTIVE_MARKER_STORE"](state, marker) {
     state.activeMarker = marker
-  },
-  ["ACTIVE_MARKER_RESET"](state) {
-    state.activeMarker = null
+    state.activeMarkerLoading = false
   },
   ["ACTIVE_MARKER_LOADING"](state) {
     state.activeMarkerError = false
     state.activeMarkerLoading = true
   },
-  ["ACTIVE_MARKER_LOADED"](state) {
-    state.activeMarkerLoading = false
-  },
   ["ACTIVE_MARKER_ERROR"](state) {
     state.activeMarkerError = true
+    state.activeMarkerLoading = false
   },
 
   ["MARKER_CONNECTIONS_LOADING"](state, marker) {
@@ -131,16 +127,20 @@ export const actions = {
       })
     context.commit("MARKERS_LOADED")
   },
-  async fetchActiveMarker(context, marker) {
+  async fetchActiveMarker(context, ipAddress) {
+    context.commit("ACTIVE_MARKER_LOADING")
     await axios
-      .get(`http://localhost:8080/api/info/summary/${marker._id}`)
+      .get(`http://localhost:8080/api/info/summary/${ipAddress}`)
       .then(async (response) => {
-        context.commit("ACTIVE_MARKER_STORE", response.data)
+        if (!response.data.geoInfo) {
+          context.commit("ACTIVE_MARKER_ERROR", response.data)
+        } else {
+          context.commit("ACTIVE_MARKER_STORE", response.data)
+        }
       })
       .catch(() => {
         context.commit("ACTIVE_MARKER_ERROR")
       })
-    context.commit("ACTIVE_MARKER_LOADED")
   },
   async fetchSearchTags(context) {
     await axios
@@ -149,7 +149,7 @@ export const actions = {
         context.commit("SEARCH_TAGS_STORE", response.data)
       })
       .catch((e) => {
-        console.log("Failed to retrieve search tags", e)
+        console.log("Failed to retrieve search tags")
       })
   },
   async fetchMarkerConnections(context, marker) {

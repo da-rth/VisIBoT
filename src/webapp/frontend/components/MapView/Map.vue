@@ -1,5 +1,6 @@
 <template>
   <div>
+    <marker-modal ref="markerModal" class="modal"></marker-modal>
     <b-overlay
       :show="markersLoading || markersReloading"
       bg-color="#181818"
@@ -101,7 +102,6 @@
           :lat-lng="hoverCircleMarker.data.coordinates"
           :fill="true"
           :radius="1000"
-          weight="7"
           :fill-opacity="0.2"
           :fill-color="getServerTypeColor(hoverCircleMarker.server_type)"
           color="#818181"
@@ -135,7 +135,7 @@
         </div>
       </l-map>
     </b-overlay>
-    <marker-modal ref="markerModal" class="modal"></marker-modal>
+
     <div v-if="!markersLoading" class="resultsCounter">
       Markers:
       {{
@@ -197,6 +197,11 @@ export default {
       activeMarkerError: (state) => state.map.activeMarkerError,
       lightThemeEnabled: (state) => state.settings.lightThemeEnabled,
       mapSidebarSettings: (state) => state.settings.mapSidebarSettings,
+      searchDescription: (state) => state.settings.searchDescription,
+      searchIpAddress: (state) => state.settings.searchIpAddress,
+      selectedCategories: (state) => state.settings.selectedCategories,
+      selectedCVEs: (state) => state.settings.selectedCVEs,
+      sidebarEnabled: (state) => state.settings.sidebarEnabled,
     }),
     isSelectedConnectionsLoaded: function () {
       return (
@@ -221,6 +226,11 @@ export default {
     markers(markers) {
       this.mapMarkers = this.filterMarkers([...markers])
       this.updateMapWithNewMarkers(this.mapMarkers)
+    },
+    markersLoading(curLoading, prevLoading) {
+      if (curLoading == false && prevLoading == true && this.sidebarEnabled) {
+        this.$root.$emit("bv::toggle::collapse", "map-sidebar")
+      }
     },
     markersError(newError) {
       if (newError) {
@@ -260,15 +270,8 @@ export default {
         this.updateMapWithNewMarkers(this.mapMarkers)
       }
     },
-    activeMarker(newMarker) {
-      if (newMarker) {
-        this.$refs.markerModal.show()
-      }
-    },
     activeMarkerError(isError) {
-      console.log("error")
       if (isError) {
-        console.log("error")
         this.showToast(
           "Sorry, we're having some trouble.",
           "We couldn't get some information for the marker.",
@@ -276,6 +279,13 @@ export default {
         )
       }
     },
+  },
+  mounted () {
+    this.$nextTick(() => {
+      if (this.$route.name == "info-ipAddr" && this.$route.params.ipAddr) {
+        this.$refs.markerModal.show(this.$route.params.ipAddr)
+      }
+    })
   },
   async beforeMount() {
     this.$store.dispatch("map/fetchMarkers")
@@ -304,13 +314,21 @@ export default {
         this.$refs.map.mapObject.removeLayer(this.currentClustered)
       }
 
+      if (markers.length == 0) {
+        this.showToast(
+          "No markers match your current settings.",
+          "Try changing your settings in the map sidebar to view more markers.",
+          "warning"
+        )
+      }
+
       for (let marker of markers) {
         let markerLatLng = L.latLng(
           marker.data.coordinates.lat,
           marker.data.coordinates.lng
         )
         let lMarker = L.marker(markerLatLng, {
-          title: `${marker._id} | ${this.getTitleTranslation(marker)}`,
+          title: `${marker._id}`,
           icon: this.getIcon(marker),
         })
         lMarker
@@ -392,8 +410,7 @@ export default {
       }
     },
     selectHoverCircleMarker: function () {
-      this.activeMarker = this.hoverCircleMarker
-      this.showMarkerModal()
+      this.showMarkerModal(this.hoverCircleMarker._id)
     },
     selectCircleMarker: function (conn) {
       let sourceIp = conn.source_ip
@@ -435,17 +452,12 @@ export default {
         toaster: "b-toaster-bottom-right",
       })
     },
-    showMarkerModal: async function () {
-      if (
-        this.activeMarker &&
-        this.selectedMarker._id !== this.activeMarker._id
-      ) {
-        this.$store.commit("map/ACTIVE_MARKER_RESET")
-      }
-      this.$store.dispatch("map/fetchActiveMarker", this.selectedMarker)
+    showMarkerModal: async function (ipAddr = null) {
+      let ipAddress = ipAddr ? ipAddr : this.selectedMarker._id
+      this.$refs.markerModal.show(ipAddress)
     },
     getMarkerSvg: function (markerType) {
-      let baseSvgName = "markers/marker"
+      let baseSvgName = "/markers/marker"
       switch (markerType) {
         case "C2 Server":
           return `${baseSvgName}-c2.svg`
@@ -473,16 +485,9 @@ export default {
       })
     },
     filterMarkers: function (markers) {
-      let searchIpAddress = this.mapSidebarSettings.searchIpAddress
-      let searchDescription = this.mapSidebarSettings.searchDescription
-      let selectedCVEs = Array.from(this.mapSidebarSettings.selectedCVEs)
-      let selectedCategories = Array.from(
-        this.mapSidebarSettings.selectedCategories
-      )
-      console.log(searchIpAddress)
       let filteredMarkers = markers.filter((marker) => {
-        if (searchIpAddress.length) {
-          return new RegExp(searchIpAddress).test(marker._id)
+        if (this.searchIpAddress.length) {
+          return new RegExp(this.searchIpAddress).test(marker._id)
         }
 
         if (
@@ -505,30 +510,30 @@ export default {
           let cves = marker.tags.cves
           let descriptions = marker.tags.descriptions
 
-          if (selectedCategories && categories) {
-            includesCategories = selectedCategories.some((element) =>
+          if (this.selectedCategories && categories) {
+            includesCategories = this.selectedCategories.some((element) =>
               categories.includes(element)
             )
           }
 
-          if (selectedCVEs && cves) {
-            includesCVEs = selectedCVEs.some((element) =>
+          if (this.selectedCVEs && cves) {
+            includesCVEs = this.selectedCVEs.some((element) =>
               cves.includes(element)
             )
           }
 
-          if (searchDescription && descriptions) {
+          if (this.searchDescription && descriptions) {
             includesDescription = new RegExp(descriptions.join("|")).test(
-              searchDescription
+              this.searchDescription
             )
           }
         }
 
         return (
           includesServerType &&
-          (includesCategories || selectedCategories.length == 0) &&
-          (includesCVEs || selectedCVEs.length == 0) &&
-          (includesDescription || searchDescription.length == 0)
+          (includesCategories || this.selectedCategories.length == 0) &&
+          (includesCVEs || this.selectedCVEs.length == 0) &&
+          (includesDescription || this.searchDescription.length == 0)
         )
       })
 

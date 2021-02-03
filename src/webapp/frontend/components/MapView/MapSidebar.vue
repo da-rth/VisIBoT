@@ -2,6 +2,7 @@
   <div>
     <b-sidebar
       id="map-sidebar"
+      ref="sidebar"
       title="Sidebar"
       shadow
       right
@@ -169,6 +170,12 @@
           </b-form-tags>
         </b-form-group>
 
+        <div class="border-top my-3"></div>
+
+        <h4 style="display: flex; justify-content: space-between">
+          Map Settings
+        </h4>
+
         <b-form-group :label="this.$t('Toggle marker types')" label-size="lg">
           <b-form-checkbox
             v-for="field in checkboxFields"
@@ -182,7 +189,7 @@
             switch
           >
             <span style="user-select: none">{{ field.text }}</span>
-            <img class="marker-legend-icon" :src="field.icon" height="28" />
+            <img class="marker-legend-icon" :src="`/markers/${field.icon}`" height="28" />
           </b-form-checkbox>
         </b-form-group>
 
@@ -212,7 +219,7 @@
             style="user-select: none"
             switch
           >
-            {{ $t("Zoom map on cluster click") }}
+            {{ $t("Zoom map on click") }}
           </b-form-checkbox>
 
           <b-form-checkbox
@@ -225,17 +232,17 @@
           </b-form-checkbox>
         </b-form-group>
 
-        <br />
-
-        <b-button class="w-100" @click="updateMap">{{
-          $t("Update map")
-        }}</b-button>
-
+        <b-button
+          class="w-100 mt-2"
+          variant="primary"
+          @click="saveSettings"
+        >
+          {{ $t("Apply settings") }}
+        </b-button>
         <b-button
           v-if="$store.state.map.showConnections"
-          variant="info"
-          style="margin-top: 20px"
-          class="w-100"
+          variant="secondary"
+          class="w-100 mt-2"
           @click="$store.commit('map/SET_SHOW_CONNECTIONS', false)"
         >
           {{ $t("Hide connections") }}
@@ -246,43 +253,46 @@
 </template>
 
 <script>
+const { isEqual, cloneDeep } = require("lodash")
+
 export default {
   data() {
     return {
       categorySearch: "",
       cveSearch: "",
       cveValues: [],
+      defaultSettings: this.$store.state.settings.defaultSettings,
       timeout: null,
       checkboxFields: [
         {
           text: this.$t("Botnet Activity"),
           value: "Bot",
-          icon: "markers/marker-bot.svg",
+          icon: "marker-bot.svg",
         },
         {
           text: this.$t("Malicious Bots"),
           value: "Malicious Bot",
-          icon: "markers/marker-malicious-bot.svg",
+          icon: "marker-malicious-bot.svg",
         },
         {
           text: this.$t("Report Servers"),
           value: "Report Server",
-          icon: "markers/marker-report.svg",
+          icon: "marker-report.svg",
         },
         {
           text: this.$t("Payload Servers"),
           value: "Payload Server",
-          icon: "markers/marker-loader.svg",
+          icon: "marker-loader.svg",
         },
         {
           text: `${this.$t("Command & Control (C2) Servers")}`,
           value: "C2 Server",
-          icon: "markers/marker-c2.svg",
+          icon: "marker-c2.svg",
         },
         {
           text: `${this.$t("Peer-to-Peer Nodes")}`,
           value: "P2P Node",
-          icon: "markers/marker-p2p.svg",
+          icon: "marker-p2p.svg",
         },
       ],
     }
@@ -338,7 +348,7 @@ export default {
     },
     searchDescription: {
       get() {
-        return this.$store.state.settings.mapSidebarSettings.searchDescription
+        return this.$store.state.settings.searchDescription
       },
       set(value) {
         this.$store.commit("settings/setSearchDescription", value)
@@ -346,7 +356,7 @@ export default {
     },
     searchIpAddress: {
       get() {
-        return this.$store.state.settings.mapSidebarSettings.searchIpAddress
+        return this.$store.state.settings.searchIpAddress
       },
       set(value) {
         this.$store.commit("settings/setSearchIpAddress", value)
@@ -354,7 +364,7 @@ export default {
     },
     selectedCategories: {
       get() {
-        return this.$store.state.settings.mapSidebarSettings.selectedCategories
+        return this.$store.state.settings.selectedCategories
       },
       set(value) {
         this.$store.commit("settings/setSelectedCategories", value)
@@ -362,7 +372,7 @@ export default {
     },
     selectedCVEs: {
       get() {
-        return this.$store.state.settings.mapSidebarSettings.selectedCVEs
+        return this.$store.state.settings.selectedCVEs
       },
       set(value) {
         this.$store.commit("settings/setSelectedCVEs", value)
@@ -402,29 +412,31 @@ export default {
       return ""
     },
   },
-  created() {
-    this.$nuxt.$on("toggle-map-sidebar", () => {
-      console.log("toggling sidebar")
-    })
-  },
   methods: {
     onCategoryTagClick({ option, addTag }) {
       addTag(option)
       this.search = ""
     },
-    updateMap() {
-      this.sidebarSettings = {
-        ...this.sidebarSettings,
-        selectedCVEs: this.selectedCVEs,
-        selectedCategories: this.selectedCategories,
-        searchDescription: this.searchDescription,
-        searchIpAddress: this.searchIpAddress,
-        zoomOnClick: this.zoomOnClick,
-        coverageOnHover: this.coverageOnHover,
-        clusterRadius: this.clusterRadius,
-        selectedBotType: this.selectedBotType,
-      }
-    },
+    saveSettings() {
+      this.$bvToast.toast("Your settings have been saved.", {
+        title: "Save successful!",
+        autoHideDelay: 3000,
+        appendToast: true,
+        variant: "success",
+        solid: true,
+        toaster: "b-toaster-bottom-right",
+      })
+      this.$store.commit(
+        "settings/saveMapSidebarSettings",
+        {
+          ...this.sidebarSettings,
+          zoomOnClick: this.zoomOnClick,
+          coverageOnHover: this.coverageOnHover,
+          clusterRadius: this.clusterRadius,
+          selectedBotType: this.selectedBotType,
+        }
+      )
+    }
   },
 }
 </script>
