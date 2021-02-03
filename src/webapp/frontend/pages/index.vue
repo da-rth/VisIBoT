@@ -15,6 +15,6 @@ export default {
         return import("@/components/MapView/Map.vue")
       }
     },
-  }
+  },
 }
 </script>

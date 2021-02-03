@@ -13,20 +13,14 @@
     >
       <template #cell(source_ip)="data">
         <b-icon-hexagon-fill :style="{ color: data.value.color }" />
-        <a
-          class="connectionLink"
-          @click="openConnectionPopup(data.value.str)"
-        >
+        <a class="connectionLink" @click="openConnectionPopup(data.value.str)">
           {{ data.value.str }}
         </a>
       </template>
 
       <template #cell(destination_ip)="data">
         <b-icon-hexagon-fill :style="{ color: data.value.color }" />
-        <a
-          class="connectionLink"
-          @click="openConnectionPopup(data.value.str)"
-        >
+        <a class="connectionLink" @click="openConnectionPopup(data.value.str)">
           {{ data.value.str }}
         </a>
       </template>
@@ -40,6 +34,8 @@
 </template>
 
 <script>
+import { formatDate, serverColor } from "~/utilities/utils"
+
 export default {
   computed: {
     activeMarker() {
@@ -56,47 +52,22 @@ export default {
         return {
           source_ip: {
             str: conn.source_ip._id,
-            color: this.getTagColor(conn.source_ip.server_type),
+            color: serverColor(conn.source_ip.server_type),
           },
           destination_ip: {
             str: conn.destination_ip._id,
-            color: this.getTagColor(conn.destination_ip.server_type),
+            color: serverColor(conn.destination_ip.server_type),
           },
-          last_updated: this.fmtDate(conn.updated_at),
+          last_updated: formatDate(this, conn.updated_at),
           occurrences: conn.occurrences,
         }
       })
     },
   },
   methods: {
-    getTagColor(eventType) {
-      switch (eventType) {
-        case "Bot":
-          return "#51a1ba"
-        case "Malicious Bot":
-          return "#46b8a2"
-        case "Payload Server":
-          return "#ff9033"
-        case "Report Server":
-          return "#895dda"
-        case "C2 Server":
-          return "#da4e5b"
-        case "P2P Node":
-          return "#b18873"
-        default:
-          return "#919191"
-      }
-    },
     openConnectionPopup(ipAddress) {
-      history.pushState(
-        {},
-        null,
-        `/info/${ipAddress}`
-      )
-      this.$nuxt.$emit('ipAddrPushState', ipAddress)
-    },
-    fmtDate(date) {
-      return this.$moment(date).format("DD-MM-YYYY H:mm:ss z")
+      history.pushState({}, null, `/info/${ipAddress}`)
+      this.$nuxt.$emit("info-ip-push-state", ipAddress)
     },
     getEventDesc(event_type) {
       switch (event_type) {

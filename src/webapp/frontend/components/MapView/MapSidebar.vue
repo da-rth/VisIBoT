@@ -189,7 +189,11 @@
             switch
           >
             <span style="user-select: none">{{ field.text }}</span>
-            <img class="marker-legend-icon" :src="`/markers/${field.icon}`" height="28" />
+            <img
+              class="marker-legend-icon"
+              :src="`/markers/${field.icon}`"
+              height="28"
+            />
           </b-form-checkbox>
         </b-form-group>
 
@@ -232,11 +236,7 @@
           </b-form-checkbox>
         </b-form-group>
 
-        <b-button
-          class="w-100 mt-2"
-          variant="primary"
-          @click="saveSettings"
-        >
+        <b-button class="w-100 mt-2" variant="primary" @click="saveSettings">
           {{ $t("Apply settings") }}
         </b-button>
         <b-button
@@ -253,8 +253,6 @@
 </template>
 
 <script>
-const { isEqual, cloneDeep } = require("lodash")
-
 export default {
   data() {
     return {
@@ -426,17 +424,14 @@ export default {
         solid: true,
         toaster: "b-toaster-bottom-right",
       })
-      this.$store.commit(
-        "settings/saveMapSidebarSettings",
-        {
-          ...this.sidebarSettings,
-          zoomOnClick: this.zoomOnClick,
-          coverageOnHover: this.coverageOnHover,
-          clusterRadius: this.clusterRadius,
-          selectedBotType: this.selectedBotType,
-        }
-      )
-    }
+      this.$store.commit("settings/saveMapSidebarSettings", {
+        ...this.sidebarSettings,
+        zoomOnClick: this.zoomOnClick,
+        coverageOnHover: this.coverageOnHover,
+        clusterRadius: this.clusterRadius,
+        selectedBotType: this.selectedBotType,
+      })
+    },
   },
 }
 </script>

@@ -103,7 +103,7 @@
           :fill="true"
           :radius="1000"
           :fill-opacity="0.2"
-          :fill-color="getServerTypeColor(hoverCircleMarker.server_type)"
+          :fill-color="serverColor(hoverCircleMarker.server_type)"
           color="#818181"
         />
 
@@ -148,6 +148,7 @@
 </template>
 
 <script>
+import { serverColor } from "~/utilities/utils"
 import { mapState } from "vuex"
 import L from "leaflet"
 
@@ -229,6 +230,7 @@ export default {
     },
     markersLoading(curLoading, prevLoading) {
       if (curLoading == false && prevLoading == true && this.sidebarEnabled) {
+        // eslint-disable-next-line vue/custom-event-name-casing
         this.$root.$emit("bv::toggle::collapse", "map-sidebar")
       }
     },
@@ -280,7 +282,7 @@ export default {
       }
     },
   },
-  mounted () {
+  mounted() {
     this.$nextTick(() => {
       if (this.$route.name == "info-ipAddr" && this.$route.params.ipAddr) {
         this.$refs.markerModal.show(this.$route.params.ipAddr)
@@ -384,30 +386,11 @@ export default {
       ) {
         endpointType = sourceIp.server_type
       }
-
-      return this.getServerTypeColor(endpointType)
+      return serverColor(endpointType)
     },
     getMarkerLineColor: function (conn) {
       let destIp = conn.destination_ip
-      return this.getServerTypeColor(destIp.server_type)
-    },
-    getServerTypeColor(serverType) {
-      switch (serverType) {
-        case "Bot":
-          return "#51a1ba"
-        case "Malicious Bot":
-          return "#46b8a2"
-        case "Payload Server":
-          return "#ff9033"
-        case "Report Server":
-          return "#895dda"
-        case "C2 Server":
-          return "#da4e5b"
-        case "P2P Node":
-          return "#b18873"
-        default:
-          return "#919191"
-      }
+      return serverColor(destIp.server_type)
     },
     selectHoverCircleMarker: function () {
       this.showMarkerModal(this.hoverCircleMarker._id)

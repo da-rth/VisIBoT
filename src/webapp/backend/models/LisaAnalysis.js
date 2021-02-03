@@ -9,7 +9,8 @@ const schema = new Schema(
       required: true,
     },
     created_at: Date,
-  }, { strict: false }
+  },
+  { strict: false }
 )
 
 const LisaAnalysis = model("LisaAnalysis", schema, "lisa_analysis")

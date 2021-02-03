@@ -11,7 +11,11 @@
       ]"
     >
       <template #cell(type)="data">
-        <b-tag small="sm" :style="{ backgroundColor: data.value.color }" :no-remove="true">
+        <b-tag
+          small="sm"
+          :style="{ backgroundColor: data.value.color }"
+          :no-remove="true"
+        >
           {{ data.value.str }}
         </b-tag>
       </template>
@@ -25,6 +29,8 @@
 </template>
 
 <script>
+import { formatDate, serverColor } from "~/utilities/utils"
+
 export default {
   computed: {
     activeMarker() {
@@ -41,36 +47,15 @@ export default {
         return {
           type: {
             str: event.event_type,
-            color: this.getTagColor(event.event_type),
+            color: serverColor(event.event_type),
           },
-          timestamp: this.fmtDate(event.created_at),
+          timestamp: formatDate(this, event.created_at),
           description: this.getEventDesc(event.event_type),
         }
       })
     },
   },
   methods: {
-    getTagColor(eventType) {
-      switch (eventType) {
-        case "Bot":
-          return "#51a1ba"
-        case "Malicious Bot":
-          return "#46b8a2"
-        case "Payload Server":
-          return "#ff9033"
-        case "Report Server":
-          return "#895dda"
-        case "C2 Server":
-          return "#da4e5b"
-        case "P2P Node":
-          return "#b18873"
-        default:
-          return "#919191"
-      }
-    },
-    fmtDate(date) {
-      return this.$moment(date).format("DD-MM-YYYY H:mm:ss z")
-    },
     getEventDesc(event_type) {
       switch (event_type) {
         case "Malicious Bot":

@@ -3,9 +3,13 @@ require("dotenv").config()
 export default {
   srcDir: "frontend/",
   router: {
-    extendRoutes (routes) {
-      routes.push({name: 'ip-address', path: '/ip-address', component: '~/pages/index.vue'})
-    }
+    extendRoutes(routes) {
+      routes.push({
+        name: "ip-address",
+        path: "/ip-address",
+        component: "~/pages/index.vue",
+      })
+    },
   },
   generate: {
     dir: "backend/dist",

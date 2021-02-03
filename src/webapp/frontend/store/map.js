@@ -148,7 +148,7 @@ export const actions = {
       .then(async (response) => {
         context.commit("SEARCH_TAGS_STORE", response.data)
       })
-      .catch((e) => {
+      .catch(() => {
         console.log("Failed to retrieve search tags")
       })
   },

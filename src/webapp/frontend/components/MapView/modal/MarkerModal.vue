@@ -15,7 +15,7 @@
     footer-bg-variant="light"
     footer-text-variant="dark"
   >
-    <div class="p-3" v-if="activeMarkerLoading || !activeMarker">
+    <div v-if="activeMarkerLoading || !activeMarker" class="p-3">
       <b-skeleton-wrapper>
         <b-skeleton
           v-for="(width, index) in skeletonWidths"
@@ -24,7 +24,7 @@
         ></b-skeleton>
       </b-skeleton-wrapper>
     </div>
-        
+
     <div v-else-if="activeMarkerError">
       <h1>Error</h1>
     </div>
@@ -38,10 +38,31 @@
 </template>
 
 <script>
+import { serverColor } from "~/utilities/utils"
+
 export default {
   data: function () {
     return {
-      skeletonWidths: [85, 50, 75, 90, 40, 60, 92, 70, 80, 40, 45, 20, 70, 80, 50, 60, 30, 90],
+      skeletonWidths: [
+        85,
+        50,
+        75,
+        90,
+        40,
+        60,
+        92,
+        70,
+        80,
+        40,
+        45,
+        20,
+        70,
+        80,
+        50,
+        60,
+        30,
+        90,
+      ],
       ipAddress: null,
     }
   },
@@ -62,26 +83,28 @@ export default {
       if (err) {
         this.$refs.modal.hide()
       }
-    }
+    },
   },
   created() {
-    this.$nuxt.$on('ipAddrPushState', ipAddress => {
+    this.$nuxt.$on("info-ip-push-state", (ipAddress) => {
       this.$store.dispatch("map/fetchActiveMarker", ipAddress)
     })
   },
   beforeDestroy() {
-    this.$nuxt.$off('ipAddrPushState')
+    this.$nuxt.$off("info-ip-push-state")
+  },
+  mounted() {
+    this.$root.$on("bv::modal::hide", () => {
+      this.ipAddress = null
+      history.pushState({}, null, "/")
+    })
   },
   methods: {
     show: function (ipAddress) {
       this.ipAddress = ipAddress
       this.$refs.modal.show()
       this.$store.dispatch("map/fetchActiveMarker", ipAddress)
-      history.pushState(
-        {},
-        null,
-        `/info/${this.ipAddress}`
-      )
+      history.pushState({}, null, `/info/${this.ipAddress}`)
     },
     getTitleHtml() {
       if (this.activeMarkerLoading || !this.activeMarker) {
@@ -89,44 +112,16 @@ export default {
       } else if (this.activeMarkerError) {
         return "Whoops, an error occurred!"
       } else {
-        return (
-          `Activity: 
+        return `Activity: 
           <a
-            style="color: ${this.getMarkerColor(this.activeMarker.geoInfo.server_type)}" 
+            style="color: ${serverColor(
+              this.activeMarker.geoInfo.server_type
+            )}" 
             href='https://www.virustotal.com/gui/ip-address/${this.ipAddress}'
           >${this.ipAddress}</a>`
-        )
-      }
-    },
-    getMarkerColor(markerType) {
-      switch (markerType) {
-        case "Bot":
-          return "#51a1ba"
-        case "Malicious Bot":
-          return "#46b8a2"
-        case "Payload Server":
-          return "#ff9033"
-        case "Report Server":
-          return "#895dda"
-        case "C2 Server":
-          return "#da4e5b"
-        case "P2P Node":
-          return "#b18873"
-        default:
-          return "#919191"
       }
     },
   },
-  mounted() {
-    this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
-      this.ipAddress = null
-      history.pushState(
-        {},
-        null,
-        '/'
-      )
-    })
-  }
 }
 </script>
 

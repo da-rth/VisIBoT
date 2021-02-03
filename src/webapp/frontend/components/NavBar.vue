@@ -39,7 +39,12 @@
         <b-icon-brightness-high v-if="lightThemeEnabled" />
         <b-icon-brightness-high-fill v-else />
       </b-nav-item>
-      <b-nav-item v-if="$nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')" @click="toggleSidebar()">
+      <b-nav-item
+        v-if="
+          $nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')
+        "
+        @click="toggleSidebar()"
+      >
         <b-icon-layout-sidebar-inset-reverse v-if="sidebarEnabled" />
         <b-icon-layout-sidebar-reverse v-else />
       </b-nav-item>
@@ -92,7 +97,9 @@
           </b-nav-item>
 
           <b-nav-item
-            v-if="$nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')"
+            v-if="
+              $nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')
+            "
             id="tooltip-sidebar-target"
             @click="toggleSidebar()"
           >

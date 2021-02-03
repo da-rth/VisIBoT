@@ -19,7 +19,7 @@ def parse_origin_asn(origin):
     updated = origin['updated']
     updated = updated.split('@')[1] if '@' in updated else updated
 
-    with suppress(ValueError, parser._parser.ParserError):
+    try:
         updated_by, updated_time = updated.split(' ', 1)
         updated_time = updated_time.replace("(", "").replace(")", "")
         updated_datetime = None
@@ -46,6 +46,8 @@ def parse_origin_asn(origin):
                 'updated_by': updated_by,
                 'updated_time': updated_datetime,
             }
+    except Exception as e:
+        print(e)
 
 
 def get_asn_info(ip):

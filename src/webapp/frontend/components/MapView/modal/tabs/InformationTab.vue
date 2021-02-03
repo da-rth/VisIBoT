@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { formatDate } from "~/utilities/utils"
+
 export default {
   computed: {
     activeMarker() {
@@ -51,9 +53,6 @@ export default {
     },
   },
   methods: {
-    fmtDate(date) {
-      return this.$moment(date).format("DD-MM-YYYY H:mm:ss z")
-    },
     getTags() {
       let tags = new Set()
       if (this.activeMarker.geoInfo.tags) {
@@ -79,8 +78,9 @@ export default {
       return JSON.stringify(
         {
           hostname: this.activeMarker.geoInfo.hostname,
-          "first seen": this.fmtDate(new Date()),
-          "last seen": this.fmtDate(
+          "first seen": formatDate(this, new Date()),
+          "last seen": formatDate(
+            this,
             new Date(this.activeMarker.geoInfo.updated_at)
           ),
           "total occurrences": this.activeMarker.geoInfo.occurrences,
@@ -101,7 +101,7 @@ export default {
               cidr: this.asn.asn_cidr,
               "country code": this.asn.asn_country_code,
               date: this.asn.asn_date
-                ? this.fmtDate(new Date(this.asn.asn_date))
+                ? formatDate(this, new Date(this.asn.asn_date))
                 : undefined,
               description: this.asn.asn_description,
               registry: this.asn.asn_registry,

@@ -48,11 +48,11 @@ export const mutations = {
     state.mapSidebarSettings = val
     localStorage.setItem("mapSidebarSettings", JSON.stringify(val))
   },
-  setMapSidebarSettings(state, val, save=false) {
+  setMapSidebarSettings(state, val) {
     state.mapSidebarSettings = val
   },
   setSelectedBotType(state, val) {
-    state.mapSidebarSettings.selectedBotType = [...val ].sort()
+    state.mapSidebarSettings.selectedBotType = [...val].sort()
   },
   setClusterRadius(state, val) {
     state.mapSidebarSettings.clusterRadius = val
@@ -92,12 +92,14 @@ export const mutations = {
 export const actions = {
   initSettings(context) {
     const mapSidebarSettings = localStorage.getItem("mapSidebarSettings", null)
-    const lightThemeEnabled = localStorage.getItem("lightThemeEnabled", false) == "true"
-    const sidebarEnabled = localStorage.getItem("sidebarEnabled", false) == "true"
+    const lightThemeEnabled =
+      localStorage.getItem("lightThemeEnabled", false) == "true"
+    const sidebarEnabled =
+      localStorage.getItem("sidebarEnabled", false) == "true"
 
     let local = {
       lightThemeEnabled,
-      sidebarEnabled
+      sidebarEnabled,
     }
 
     if (mapSidebarSettings) {

@@ -56,9 +56,9 @@ export default {
       if (!this.activeMarker.payloads.length) {
         return false
       }
-      return this.activeMarker.payloads.some((p) => 'lisa' in p)
-    }
-  }
+      return this.activeMarker.payloads.some((p) => "lisa" in p)
+    },
+  },
 }
 </script>
 
