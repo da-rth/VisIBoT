@@ -198,7 +198,7 @@ def process_strings(strings):
             url = url.split(":")[0] if url.count(":") == 1 else url
             ignore_url = "HNAP1" in url or "schema" in url
 
-            if ignore_url or ipv4 in url and not misc.is_public_ip(ipv4):
+            if ignore_url or (ipv4 and ipv4 in url and not misc.is_public_ip(ipv4)):
                 continue
 
             if validators.url(url):
