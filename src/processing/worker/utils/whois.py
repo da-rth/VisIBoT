@@ -5,7 +5,6 @@ from ipwhois.net import Net
 from ipwhois.asn import IPASN, ASNOrigin
 from datetime import datetime
 from dateutil import parser
-from contextlib import suppress
 from sockshandler import SocksiPyHandler
 
 opener = urllib.request.build_opener(SocksiPyHandler(socks.SOCKS5, "tor", 9050))

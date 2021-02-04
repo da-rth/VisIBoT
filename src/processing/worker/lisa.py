@@ -1,5 +1,4 @@
-# pylama:ignore=E402:ignore=E702
-import sys; sys.path.append("..")
+# pylama:ignore=E402:ignore=E702:ignore=C901
 import database as db
 import utils.misc as misc
 import requests
