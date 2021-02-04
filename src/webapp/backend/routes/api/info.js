@@ -6,6 +6,8 @@ const IpEvent = require("../../models/IpEvent")
 const BadpacketsResult = require("../../models/BadpacketsResult")
 const MalwarePayload = require("../../models/MalwarePayload")
 const IpGeoConnection = require("../../models/IpGeoConnection")
+const CandidateC2Server = require("../../models/CandidateC2Server")
+const CandidateP2PNode = require("../../models/CandidateP2PNode")
 
 let router = express.Router()
 
@@ -65,15 +67,27 @@ router.route("/summary/:ip").get(async (req, res) => {
       { path: "source_ip", select: "server_type" },
       { path: "destination_ip", select: "server_type" },
     ]),
+    CandidateC2Server.findOne({ ip_address: ip }),
+    CandidateP2PNode.findOne({ ip_address: ip }),
   ])
     .then((all_results) => {
-      const [geoInfo, results, payloads, events, connections] = all_results
+      const [
+        geoInfo,
+        results,
+        payloads,
+        events,
+        connections,
+        c2,
+        p2p,
+      ] = all_results
       return res.json({
         geoInfo,
         results,
         payloads,
         events,
         connections,
+        c2,
+        p2p,
       })
     })
     .catch((err) => {

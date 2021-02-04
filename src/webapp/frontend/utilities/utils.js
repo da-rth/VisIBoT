@@ -11,7 +11,7 @@ export function serverColor(serverType) {
     case "C2 Server":
       return "#da4e5b"
     case "P2P Node":
-      return "#b18873"
+      return "#7488c3"
     default:
       return "#919191"
   }

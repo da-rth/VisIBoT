@@ -45,6 +45,16 @@
           position="bottomright"
         ></l-control-zoom>
 
+        <l-feature-group ref="hoverPopup">
+          <l-popup :max-width="280">
+            <b-row align-h="center" align-v="center">
+              <span class="text-center" v-if="hoverCircleMarker">
+                {{ $t(hoverCircleMarker.server_type) }}
+              </span>
+            </b-row>
+          </l-popup>
+        </l-feature-group>
+
         <l-feature-group ref="clickPopup">
           <l-popup style="width: 200px">
             <b-row class="text-center" align-h="center">
@@ -103,7 +113,7 @@
           :fill="true"
           :radius="1000"
           :fill-opacity="0.2"
-          :fill-color="serverColor(hoverCircleMarker.server_type)"
+          :fill-color="getServerColor(hoverCircleMarker.server_type)"
           color="#818181"
         />
 
@@ -111,12 +121,12 @@
           <template
             v-for="(conn, index) in markerConnections[selectedMarker._id]"
           >
-            <l-circle
+            <l-circle-marker
               :key="`${index}-point`"
               :lat-lng="getCircleMarkerLatLng(conn)"
               :fill="true"
-              :radius="1000"
-              :fill-opacity="0.5"
+              :radius="2"
+              :fill-opacity="0.8"
               :fill-color="getCircleMarkerColor(conn)"
               :color="getCircleMarkerColor(conn)"
               class-name="circleMarker"
@@ -129,7 +139,8 @@
                 conn.destination_ip.coordinates,
               ]"
               :color="getMarkerLineColor(conn)"
-              :opacity="0.3"
+              :opacity="0.25"
+              :interactive="false"
             ></l-polyline>
           </template>
         </div>
@@ -158,8 +169,8 @@ export default {
       mapMarkers: [],
       selectedMarker: Object.create(null),
       bounds: [
-        [-88, -250],
-        [90, 250],
+        [-90, -300],
+        [90, 300],
       ],
       currentClustered: [],
       markersReloading: false,
@@ -294,6 +305,9 @@ export default {
     this.$store.dispatch("map/fetchSearchTags")
   },
   methods: {
+    getServerColor: function (type) {
+      return serverColor(type)
+    },
     showConnectedMarkers: function () {
       this.$store.commit("map/TOGGLE_SHOW_CONNECTIONS")
       this.mapMarkers = this.filterMarkers(this.markers)
@@ -336,9 +350,12 @@ export default {
         lMarker
           .on("click", () => {
             this.selectedMarker = marker
+            this.hoverCircleMarker = marker
+            this.$refs.map.mapObject.flyTo(markerLatLng)
             this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
           })
           .on("mouseover", () => {
+            this.$refs.hoverPopup.mapObject.openPopup(markerLatLng)
             this.hoverCircleMarker = marker
 
             let isLoaded = this.markerConnectionsLoaded.includes(marker._id)
@@ -350,7 +367,10 @@ export default {
             }
           })
           .on("mouseout", () => {
-            this.hoverCircleMarker = null
+            this.$refs.hoverPopup.mapObject.closePopup()
+            if (!this.selectedMarker) {
+              this.hoverCircleMarker = null
+            }
           })
         markerList.push(lMarker)
       }
@@ -407,10 +427,7 @@ export default {
         ipAddress = sourceIp.ip_address
       }
 
-      let marker = this.markers.find((m) => m._id == ipAddress)
-      if (marker) {
-        this.$store.dispatch("map/fetchActiveMarker", marker)
-      }
+      this.showMarkerModal(ipAddress)
     },
     getCircleMarkerLatLng: function (conn) {
       let sourceIp = conn.source_ip

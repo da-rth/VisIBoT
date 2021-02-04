@@ -95,7 +95,6 @@ export default {
   },
   mounted() {
     this.$root.$on("bv::modal::hide", () => {
-      this.ipAddress = null
       history.pushState({}, null, "/")
     })
   },
@@ -112,6 +111,7 @@ export default {
       } else if (this.activeMarkerError) {
         return "Whoops, an error occurred!"
       } else {
+        console.log(this.activeMarker)
         return `Activity: 
           <a
             style="color: ${serverColor(

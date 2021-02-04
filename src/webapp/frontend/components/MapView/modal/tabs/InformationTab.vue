@@ -75,19 +75,41 @@ export default {
       )
     },
     getGeneralInformationJSON() {
-      return JSON.stringify(
-        {
-          hostname: this.activeMarker.geoInfo.hostname,
-          "first seen": formatDate(this, new Date()),
-          "last seen": formatDate(
-            this,
-            new Date(this.activeMarker.geoInfo.updated_at)
-          ),
-          "total occurrences": this.activeMarker.geoInfo.occurrences,
-        },
-        null,
-        2
-      )
+      let info = {
+        hostname: this.activeMarker.geoInfo.hostname,
+        "first seen": formatDate(this, new Date()),
+        "last seen": formatDate(
+          this,
+          new Date(this.activeMarker.geoInfo.updated_at)
+        ),
+        "total occurrences": this.activeMarker.geoInfo.occurrences,
+      }
+      if (this.activeMarker.c2 || this.activeMarker.p2p) {
+        info["identification"] = {}
+        info["identified in"] = []
+
+        if (this.activeMarker.c2) {
+          info["identified in"] = info["identified in"].concat(
+            this.activeMarker.c2.payloads.map((p) => this.safeURL(p))
+          )
+          info["identification"] = {
+            C2: this.activeMarker.c2.heuristics,
+          }
+        }
+        if (this.activeMarker.p2p) {
+          info["identified in"] = info["identified in"].concat(
+            this.activeMarker.p2p.payloads.map((p) => this.safeURL(p))
+          )
+          info["identification"] = {
+            P2P: this.activeMarker.p2p.heuristics,
+          }
+        }
+      }
+
+      return JSON.stringify(info, null, 2)
+    },
+    safeURL(url) {
+      return url.replace(".", "[.]")
     },
     getASInfoJSON() {
       let asnData = {

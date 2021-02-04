@@ -243,6 +243,9 @@ def process_analysis(task_id, analysis):
         heuristics = identify_heuristics(endpoint, analysis['static_strings'], is_blacklisted_c2)
 
         if heuristics:
+            if is_p2p_botnet:
+                heuristics.append("Malware binary invokes P2P DNS Query")
+
             geo_type = "P2P Node" if (is_p2p_botnet and not is_blacklisted_c2) else "C2 Server"
             geo = create_geo_entry(ip_address, geo_type)
 

@@ -11,7 +11,7 @@ export const state = () => ({
       "C2 Server",
       "P2P Node",
     ],
-    clusterRadius: 100,
+    clusterRadius: 120,
     zoomOnClick: true,
     coverageOnHover: true,
     hideNonConnections: true,

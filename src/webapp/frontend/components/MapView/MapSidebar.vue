@@ -283,14 +283,14 @@ export default {
           icon: "marker-loader.svg",
         },
         {
-          text: `${this.$t("Command & Control (C2) Servers")}`,
-          value: "C2 Server",
-          icon: "marker-c2.svg",
-        },
-        {
           text: `${this.$t("Peer-to-Peer Nodes")}`,
           value: "P2P Node",
           icon: "marker-p2p.svg",
+        },
+        {
+          text: `${this.$t("Command & Control (C2) Servers")}`,
+          value: "C2 Server",
+          icon: "marker-c2.svg",
         },
       ],
     }
