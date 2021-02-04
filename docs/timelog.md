@@ -189,7 +189,9 @@
 * *1.0 hours* Added blacklist checking using pydnsbl to shortlist candidate C2 servers
 * *3.0 hours* Implemented geodata creation for candidate C2 servers and fixed various bugs
 
+
 ## Week 13
+
 ### 22 Dec 2020
 * *8.0 hours* Front-end nuxt.js development - working on map sidebar features and new express.js backend api endpoint
 
@@ -197,12 +199,16 @@
 * *5.0 hours* Finished implementing map sidebar settings functionality
 * *3.0 hours* Updating frontend language translation for sidebar and navbar text-content
 
+
 ## Week 16
+
 ### 8 Jan 2020
 * *3.0 hours* Refactoring some modifications to LiSa codebase
 * *5.0 hours* Researching and experimenting with URL phising detection via Machine Learning and Data Science techniques
 
+
 ## Week 17
+
 ### 12 Jan 2020
 * *3.0 hours* Refactoring pre-processing script
 * *3.0 hours* Initial implementation of marker connections API endpoint via express.js
@@ -225,10 +231,95 @@
 ### 17 Jan 2020
 * *9.0 hours* Re-writing and improving malware analysis stage of processing script.
 
+
 ## Week 18
+
 ### 18 Jan 2020
 * *1.0 hours* Modifying LiSa source-code to account for API throttling caused by processing script
 * *7.0 hours* Re-writing LiSa API integration to work around API throttling and inconsistent API response formats
 
 ### 19 Jan 2020
 * *3.0 hours* Testing and refactoring LiSa C2 heuristics stage of processing script
+* *3.0 hours* Working on frontend web application features, including showing IP connections and marker color scheme changes
+
+### 20 Jan 2020
+* *2.0 hours* Various improvements to the web application endpoint /api/info/<ip>
+* *1.0 hours* Fixing various linting errors highlighted by pylama/eslint
+* *4.0 hours* Refactpromg backend lisa.py module. Fixed various database related bugs when updating records.
+
+### 21 Jan 2020
+* *6.0 hours* Re-writing and improving lisa.py module integration with external LiSa API
+* *1.0 hours* Restructured database schema such that LiSa analysis results are stored in a separate table
+
+### 23 Jan 2020
+* *1.5 hours* Renaming several MongoDB documents/models in database.py
+* *2.0 hours* Updating and cleaning up web application back-end server following databse document name changees
+
+### 24 Jan 2020
+* *1.0 hours* Researched the use of tor as a python requests proxy
+* *3.0 hours* Added tor proxy integration into visibot processing script
+* *2.5 hours* Various improvements to payload URL scraping utility functions in utils.py
+
+
+## Week 19
+
+### 25 Jan 2020
+* *1.0 hours* Updated various mongodb documents to include a created_at timestamp (UTC format)
+* *4.0 hours* Improvements to frontend web application modal popup when interacting with points on the map
+
+### 26 Jan 2020
+* *3.0 hours* Implemented ipwhois python module into processing script geolocation creation stage. Allows for collection of various ASN data for given IP addresses.
+* *3.0 hours* Changes to frontend pop up modal, including creation/styling of code-blocks and tab-based menus
+* *2.0 hours* Re-write web app backend endpont /api/geolocations/connections/<ip> to use more efficient MongoDB graphLookup to obtain an array of all connection geocoordinates for a given IP address.
+
+### 27 Jan 2020
+* *4.0 hours* Fixed a bug in ipwhois.py. Had to re-write datestring parsing method using the dateutil python module
+* *2.0 hours* Created a new tab for "events" in frontend popup modal page. Some additional minor features and styling.
+* *1.0 hours* Added new radiobutton to map sidebar that allows for clusters to be toggled on/off when viewing connections.
+
+### 28 Jan 2020
+* *1.5 hours* Added ipinfo.io API integration into processing script. Added some environment variables allowing users to toggle to usage of APi for C2 candidates only.
+* *0.5 hours* Fixed various pylama and eslint errors caught by linting tools
+* *3.0 hours* Researching potential implementations for dockerizing processing script into various docker containers
+
+### 29 Jan 2020
+* *2.0 hours* Additional research gathering information on flask, celery and redis for possible concurrent task queueing in processing script setup
+* *4.0 hours* Created a new base project using docker-compose and installed celery, redis and flask for experimentation.
+
+### 30 Jan 2020
+* *3.0 hours* Initial transition from processing scripts previous use of threadpooling to a celery task queue. Several blockers encountered.
+* *3.0 hours* Created new processing directory structure and a scheduler python image which interacts with various celery workers on an hourly basis
+* *2.0 hours* Updated LiSa instance to contact processing flask server when analysis tasks have failed/succeeded
+
+### 31 Jan 2020
+* *3.0 hours* Additional transitions from previous code to new dockerized version.
+* *2.0 hours* Created a mew docker image responsible for hosting and updating geoip2 databases on a weekly basis using cron.
+* *3.0 hours* Created a new docker image for hosting tor proxy used for proxy-ing various VisIBoT processor HTTP requests
+
+
+## Week 20
+
+### 01 Feb 2020
+* *4.0 hours* Refactoring various parts old processing code to work with new dockerized celery workers and task scheduler.
+* *0.5 hours* Fixed various pylama errors raised during transition to a new dockerized environment
+* *1.0 hours* Updated README.md with new documentation explaining docker installation procedure
+* *0.5 hours* Updated .env.example to include new environment variable placeholders for API keys
+* *1.0 hours* Updaating travis-ci.yml with new directory structure of processing code
+
+### 02 Feb 2020
+* *1.0 hours* Added documentation for various methods in scheduler, api and badpackets modules
+* *0.5 hours* Attempts to resolve a warning raised due to TLDExtract PermissionError
+* *1.0 hours* Fixed an error that occurs due to VirusTotal KeyError when storing lisa analysis in lisa.py
+* *3.0 hours* Modifications and new features added to front-end web application, including IP address search bar
+* *1.0 hours* Updated models in express.js backend and added LiSa analysis to /info endpoint results
+* *2.0 hours* Forked new LiSa API repo and moved modifications to public fork.
+
+###  03 Feb 2020
+* *4.0 hours* New route created for frontend web app: /info/<ip>. This allows users to copy URL and re-visit map with IP address popup modal immediately activated.
+* *2.0 hours* Fixed bug in validate_urls.py causing several extracted URLs to be ignored.
+* *1.0 hours* Updated web app directory to use various utility functions in utilities/utils.js
+
+### 04 Feb 2020
+* *2.0 hours* Fixed various pylama and eslint errors
+* *2.0 hours* Updated frontend popup modal to include information about candidate C2/P2P nodes
+* *0.5 hours* Updating README.md with link to new (modified) LiSa fork

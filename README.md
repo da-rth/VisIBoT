@@ -17,13 +17,13 @@ The VisIBoT web-application is a browser-based visualisation tool that maps geol
 - A [BadPackets API Key](https://badpackets.net/)
 - A [VirusTotal API Key](https://virustotal.com/)
 - A [ipinfo.io API Key](https://ipinfo.io)
-- A modified version of the [LiSa Sandbox Server](https://github.com/denBot/LiSa-modified)
+- A modified fork of the [LiSa Sandbox Server](https://github.com/denBot/LiSa)
     - (optional) An active VPN service connectable through a OpenVPN .ovpn file
 
 --- 
 
 # Setting up modified LiSa server
-[LiSa](https://github.com/danieluhricek/LiSa) is a Linux Sandbox project created by [Daniel Uhříček](https://github.com/danieluhricek) which provides automated Linux malware analysis on various CPU architectures. I have modified this project (available [here](https://github.com/denBot/LiSa-modified)) to allow for the following additional features:
+[LiSa](https://github.com/danieluhricek/LiSa) is a Linux Sandbox project created by [Daniel Uhříček](https://github.com/danieluhricek) which provides automated Linux malware analysis on various CPU architectures. I have modified this project ([AVAILABLE HERE](https://github.com/denBot/LiSa)) to allow for the following additional features:
 - Ability to create analysis tasks by submitting a malware URL instead of uploading a file
 - Added binary unpacking for any binaries packed using the UPX packer software
 - Added ability to provide external service API endpoints. POST requests are made to these endpoints when a given task fails/succeeds.
