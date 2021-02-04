@@ -48,7 +48,7 @@
         <l-feature-group ref="hoverPopup">
           <l-popup :max-width="280">
             <b-row align-h="center" align-v="center">
-              <span class="text-center" v-if="hoverCircleMarker">
+              <span v-if="hoverCircleMarker" class="text-center">
                 {{ $t(hoverCircleMarker.server_type) }}
               </span>
             </b-row>
