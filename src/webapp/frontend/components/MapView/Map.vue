@@ -45,16 +45,6 @@
           position="bottomright"
         ></l-control-zoom>
 
-        <l-feature-group ref="hoverPopup">
-          <l-popup :max-width="280">
-            <b-row align-h="center" align-v="center">
-              <span v-if="hoverCircleMarker" class="text-center">
-                {{ $t(hoverCircleMarker.server_type) }}
-              </span>
-            </b-row>
-          </l-popup>
-        </l-feature-group>
-
         <l-feature-group ref="clickPopup">
           <l-popup style="width: 200px">
             <b-row class="text-center" align-h="center">
@@ -346,6 +336,8 @@ export default {
         let lMarker = L.marker(markerLatLng, {
           title: `${marker._id}`,
           icon: this.getIcon(marker),
+        }).bindTooltip(this.getTitleTranslation(marker), {
+          direction: "bottom",
         })
         lMarker
           .on("click", () => {
@@ -355,8 +347,10 @@ export default {
             this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
           })
           .on("mouseover", () => {
-            this.$refs.hoverPopup.mapObject.openPopup(markerLatLng)
-            this.hoverCircleMarker = marker
+            if (!this.selectedMarker) {
+              lMarker.openTooltip()
+            }
+            // this.hoverCircleMarker = marker
 
             let isLoaded = this.markerConnectionsLoaded.includes(marker._id)
             let isLoading = this.markerConnectionsLoading.includes(marker._id)
@@ -367,7 +361,7 @@ export default {
             }
           })
           .on("mouseout", () => {
-            this.$refs.hoverPopup.mapObject.closePopup()
+            lMarker.closeTooltip()
             if (!this.selectedMarker) {
               this.hoverCircleMarker = null
             }
@@ -379,20 +373,7 @@ export default {
       this.currentClustered = markerCluster
     },
     getTitleTranslation: function (marker) {
-      switch (marker.server_type) {
-        case "Malicious Bot":
-          return this.$t("Botnet Activity")
-        case "Payload Server":
-          return this.$t("Payload Server")
-        case "Report Server":
-          return this.$t("Report Server")
-        case "C2 Server":
-          return this.$t("C2 Server")
-        case "P2P Node":
-          return this.$t("P2P Node")
-        default:
-          return this.$t("Botnet Activity")
-      }
+      return this.$t(marker.server_type)
     },
 
     getCircleMarkerColor: function (conn) {
@@ -480,8 +461,8 @@ export default {
 
       return L.icon({
         iconUrl: markerSvg,
-        iconSize: [47, 47],
-        iconAnchor: [23, 42],
+        iconSize: [48, 48],
+        iconAnchor: [24, 42],
       })
     },
     filterMarkers: function (markers) {

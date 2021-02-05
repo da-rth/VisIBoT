@@ -138,13 +138,13 @@ def identify_heuristics(endpoint, strings, is_blacklisted_c2):
     heuristics = []
 
     if (endpoint['data_in'] > 0) and (endpoint['data_out'] > 0):
-        heuristics.append("Data exchange from IP address")
+        heuristics.append("Data exchange between malware binary and IP address")
 
     if endpoint['ip'] in strings['ipv4_addresses']:
-        heuristics.append("Connection to hardcoded IP address")
+        heuristics.append("Malware binary connection to hardcoded IP address")
 
     if is_blacklisted_c2:
-        heuristics.append("Connection to blacklisted C2 IP address")
+        heuristics.append("Malware binary connection to blacklisted C2 IP address")
 
     return heuristics
 
@@ -184,7 +184,7 @@ def process_strings(strings):
 
         if ipv4 and validators.ip_address.ipv4(ipv4) and misc.is_public_ip(ipv4):
             # Ignores IPs like 1.1.1.1 and 8.8.8.8
-            if len(ipv4) == 8:
+            if len(ipv4) == 7:
                 continue
 
             results['ipv4_addresses'].append(ipv4)
@@ -243,7 +243,7 @@ def process_analysis(task_id, analysis):
 
         if heuristics:
             if is_p2p_botnet:
-                heuristics.append("Malware binary invokes P2P DNS Query")
+                heuristics.append("Malware binary invokes Peer-to-peer DNS Query")
 
             geo_type = "P2P Node" if (is_p2p_botnet and not is_blacklisted_c2) else "C2 Server"
             geo = create_geo_entry(ip_address, geo_type)

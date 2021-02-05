@@ -92,7 +92,7 @@ export default {
           info["identified in"] = info["identified in"].concat(
             this.activeMarker.c2.payloads.map((p) => this.safeURL(p))
           )
-          info["identification"] = {
+          info["analysis heuristics"] = {
             C2: this.activeMarker.c2.heuristics,
           }
         }
@@ -100,7 +100,7 @@ export default {
           info["identified in"] = info["identified in"].concat(
             this.activeMarker.p2p.payloads.map((p) => this.safeURL(p))
           )
-          info["identification"] = {
+          info["analysis heuristics"] = {
             P2P: this.activeMarker.p2p.heuristics,
           }
         }
