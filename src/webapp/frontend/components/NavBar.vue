@@ -18,8 +18,8 @@
     <b-tooltip target="tooltip-theme-target" triggers="hover">
       {{
         lightThemeEnabled
-          ? $t("Change to dark theme")
-          : $t("Change to light theme")
+          ? $t("Switch to dark theme")
+          : $t("Switch to light theme")
       }}
     </b-tooltip>
     <b-navbar-brand href="/">

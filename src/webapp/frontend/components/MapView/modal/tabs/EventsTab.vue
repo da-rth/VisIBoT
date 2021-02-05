@@ -5,9 +5,9 @@
       hover
       :items="eventRows"
       :fields="[
-        { key: 'type', sortable: true },
-        { key: 'description', sortable: false },
-        { key: 'timestamp', sortable: true },
+        { key: 'type', label: $t('Type'), sortable: true },
+        { key: 'description', label: $t('Description'), sortable: false },
+        { key: 'timestamp', label: $t('Timestamp'), sortable: true },
       ]"
     >
       <template #cell(type)="data">
@@ -16,7 +16,7 @@
           :style="{ backgroundColor: data.value.color }"
           :no-remove="true"
         >
-          {{ data.value.str }}
+          {{ $t(data.value.str) }}
         </b-tag>
       </template>
     </b-table>
@@ -63,7 +63,7 @@ export default {
             "Attempted infection of vulnerable devices using self-hosted malware."
           )
         case "Payload Server":
-          return this.$t("Identified as a malware host (payload server).")
+          return this.$t("Identified malware host used for botnet growth.")
         case "Report Server":
           return this.$t(
             "Attempted infection of vulnerable devices using remotely hosted malware."

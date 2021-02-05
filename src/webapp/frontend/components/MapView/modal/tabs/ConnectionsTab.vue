@@ -5,24 +5,48 @@
       hover
       :items="eventRows"
       :fields="[
-        { key: 'source_ip', label: 'Source IP', sortable: true },
-        { key: 'destination_ip', label: 'Destination IP', sortable: false },
-        { key: 'occurrences', label: 'Connections', sortable: true },
-        { key: 'last_updated', label: 'Last Connection', sortable: true },
+        { key: 'source_ip', label: $t('Source IP'), sortable: true },
+        { key: 'destination_ip', label: $t('Destination IP'), sortable: false },
+        { key: 'occurrences', label: $t('Connections'), sortable: true },
+        { key: 'last_updated', label: $t('Last Connection'), sortable: true },
       ]"
     >
       <template #cell(source_ip)="data">
-        <b-icon-hexagon-fill :style="{ color: data.value.color }" />
-        <a class="connectionLink" @click="openConnectionPopup(data.value.str)">
+        <a
+          id="tooltip-target-1"
+          v-b-tooltip.hover
+          class="connectionLink"
+          @click="openConnectionPopup(data.value.str)"
+        >
+          <b-icon-hexagon-fill :style="{ color: data.value.color }" />
           {{ data.value.str }}
         </a>
+        <b-tooltip
+          target="tooltip-target-1"
+          triggers="hover"
+          placement="bottom"
+        >
+          {{ $t(data.value.desc) }}
+        </b-tooltip>
       </template>
 
       <template #cell(destination_ip)="data">
-        <b-icon-hexagon-fill :style="{ color: data.value.color }" />
-        <a class="connectionLink" @click="openConnectionPopup(data.value.str)">
+        <a
+          id="tooltip-target-2"
+          v-b-tooltip.hover
+          class="connectionLink"
+          @click="openConnectionPopup(data.value.str)"
+        >
+          <b-icon-hexagon-fill :style="{ color: data.value.color }" />
           {{ data.value.str }}
         </a>
+        <b-tooltip
+          target="tooltip-target-2"
+          triggers="hover"
+          placement="bottom"
+        >
+          {{ $t(data.value.desc) }}
+        </b-tooltip>
       </template>
     </b-table>
 
@@ -52,10 +76,12 @@ export default {
         return {
           source_ip: {
             str: conn.source_ip._id,
+            desc: conn.source_ip.server_type,
             color: serverColor(conn.source_ip.server_type),
           },
           destination_ip: {
             str: conn.destination_ip._id,
+            desc: conn.destination_ip.server_type,
             color: serverColor(conn.destination_ip.server_type),
           },
           last_updated: formatDate(this, conn.updated_at),
@@ -76,7 +102,7 @@ export default {
             "Attempted infection of vulnerable devices using self-hosted malware."
           )
         case "Payload Server":
-          return this.$t("Identified as a malware host (payload server).")
+          return this.$t("Identified malware host used for botnet growth.")
         case "Report Server":
           return this.$t(
             "Attempted infection of vulnerable devices using remotely hosted malware."

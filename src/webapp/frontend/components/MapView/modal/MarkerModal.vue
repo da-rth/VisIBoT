@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { serverColor } from "~/utilities/utils"
+import { serverColor, serverActivity } from "~/utilities/utils"
 
 export default {
   data: function () {
@@ -111,12 +111,10 @@ export default {
       } else if (this.activeMarkerError) {
         return "Whoops, an error occurred!"
       } else {
-        console.log(this.activeMarker)
-        return `Activity: 
+        let serverType = this.activeMarker.geoInfo.server_type
+        return `${this.$t(serverActivity(serverType))} 
           <a
-            style="color: ${serverColor(
-              this.activeMarker.geoInfo.server_type
-            )}" 
+            style="color: ${serverColor(serverType)}" 
             href='https://www.virustotal.com/gui/ip-address/${this.ipAddress}'
           >${this.ipAddress}</a>`
       }

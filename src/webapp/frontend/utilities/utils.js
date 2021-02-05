@@ -17,6 +17,23 @@ export function serverColor(serverType) {
   }
 }
 
+export function serverActivity(serverType) {
+  switch (serverType) {
+    case "Malicious Bot":
+      return "Malicious Botnet Activity"
+    case "Payload Server":
+      return "Payload Server Activity"
+    case "Report Server":
+      return "Report Server Activity"
+    case "C2 Server":
+      return "Command and Control Activity"
+    case "P2P Node":
+      return "Peer-to-peer Activity"
+    default:
+      return "Bot-like Activity"
+  }
+}
+
 export function formatDate(vm, date) {
   return vm.$moment(date).format("DD-MM-YYYY H:mm:ss z")
 }

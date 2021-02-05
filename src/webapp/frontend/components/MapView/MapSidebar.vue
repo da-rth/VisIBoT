@@ -23,7 +23,7 @@
             :min-matching-chars="0"
             :data="this.$store.state.map.searchIpAddresses"
             :placeholder="this.$t('Search IP address')"
-            aria-describedby="IP address marker search"
+            aria-describedby="Search by IP address"
             class="mb-2"
           />
           <v-autocomplete
@@ -31,7 +31,7 @@
             :min-matching-chars="0"
             :data="this.$store.state.map.searchTagDescriptions"
             :placeholder="this.$t('Search description')"
-            aria-describedby="bot marker search"
+            aria-describedby="Search by bot description"
             class="mb-2"
           />
           <b-form-tags
@@ -173,7 +173,7 @@
         <div class="border-top my-3"></div>
 
         <h4 style="display: flex; justify-content: space-between">
-          Map Settings
+          {{ $t("Map Settings") }}
         </h4>
 
         <b-form-group :label="this.$t('Toggle marker types')" label-size="lg">
@@ -214,7 +214,7 @@
             size="lg"
             switch
           >
-            {{ $t("Hide when viewing connections.") }}
+            {{ $t("Hide when viewing connections") }}
           </b-form-checkbox>
 
           <b-form-checkbox
@@ -261,41 +261,43 @@ export default {
       cveValues: [],
       defaultSettings: this.$store.state.settings.defaultSettings,
       timeout: null,
-      checkboxFields: [
+    }
+  },
+  computed: {
+    checkboxFields: function () {
+      return [
         {
-          text: this.$t("Botnet Activity"),
+          text: this.$t("Bot-like Activity"),
           value: "Bot",
           icon: "marker-bot.svg",
         },
         {
-          text: this.$t("Malicious Bots"),
+          text: this.$t("Malicious Botnet Activity"),
           value: "Malicious Bot",
           icon: "marker-malicious-bot.svg",
         },
         {
-          text: this.$t("Report Servers"),
+          text: this.$t("Report Server Activity"),
           value: "Report Server",
           icon: "marker-report.svg",
         },
         {
-          text: this.$t("Payload Servers"),
+          text: this.$t("Payload Server Activity"),
           value: "Payload Server",
           icon: "marker-loader.svg",
         },
         {
-          text: `${this.$t("Peer-to-Peer Nodes")}`,
+          text: `${this.$t("Peer-to-peer Activity")}`,
           value: "P2P Node",
           icon: "marker-p2p.svg",
         },
         {
-          text: `${this.$t("Command & Control (C2) Servers")}`,
+          text: `${this.$t("Command and Control Activity")}`,
           value: "C2 Server",
           icon: "marker-c2.svg",
         },
-      ],
-    }
-  },
-  computed: {
+      ]
+    },
     sidebarSettings: {
       get() {
         return this.$store.state.settings.mapSidebarSettings
@@ -416,8 +418,8 @@ export default {
       this.search = ""
     },
     saveSettings() {
-      this.$bvToast.toast("Your settings have been saved.", {
-        title: "Save successful!",
+      this.$bvToast.toast(this.$t("Your settings have been saved."), {
+        title: this.$t("Save successful!"),
         autoHideDelay: 3000,
         appendToast: true,
         variant: "success",

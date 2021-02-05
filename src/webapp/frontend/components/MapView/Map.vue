@@ -138,7 +138,7 @@
     </b-overlay>
 
     <div v-if="!markersLoading" class="resultsCounter">
-      Markers:
+      {{ $t("Markers:") }}
       {{
         mapMarkers.length != markers.length
           ? `${mapMarkers.length} / ${markers.length}`
@@ -276,14 +276,17 @@ export default {
     activeMarkerError(isError) {
       if (isError) {
         this.showToast(
-          "Sorry, we're having some trouble.",
-          "We couldn't get some information for the marker.",
+          this.$t("Sorry, we're having some trouble."),
+          this.$t("We couldn't find any information for that marker."),
           "danger"
         )
       }
     },
   },
   mounted() {
+    this.$nuxt.$on("locale-changed", () => {
+      this.updateMapWithNewMarkers(this.mapMarkers)
+    })
     this.$nextTick(() => {
       if (this.$route.name == "info-ipAddr" && this.$route.params.ipAddr) {
         this.$refs.markerModal.show(this.$route.params.ipAddr)
@@ -304,6 +307,7 @@ export default {
       this.updateMapWithNewMarkers(this.mapMarkers)
     },
     popupClosed() {
+      this.selectedMarker = null
       this.hoverCircleMarker = null
     },
     updateMapWithNewMarkers: function (markers) {
@@ -322,8 +326,10 @@ export default {
 
       if (markers.length == 0) {
         this.showToast(
-          "No markers match your current settings.",
-          "Try changing your settings in the map sidebar to view more markers.",
+          this.$t("No markers match your current settings."),
+          this.$t(
+            "Try changing your settings in the map sidebar to view more markers."
+          ),
           "warning"
         )
       }
@@ -334,9 +340,9 @@ export default {
           marker.data.coordinates.lng
         )
         let lMarker = L.marker(markerLatLng, {
-          title: `${marker._id}`,
           icon: this.getIcon(marker),
-        }).bindTooltip(this.getTitleTranslation(marker), {
+        })
+        lMarker.bindTooltip(marker._id, {
           direction: "bottom",
         })
         lMarker
@@ -347,10 +353,11 @@ export default {
             this.$refs.clickPopup.mapObject.openPopup(markerLatLng)
           })
           .on("mouseover", () => {
+            this.hoverCircleMarker = marker
+
             if (!this.selectedMarker) {
               lMarker.openTooltip()
             }
-            // this.hoverCircleMarker = marker
 
             let isLoaded = this.markerConnectionsLoaded.includes(marker._id)
             let isLoading = this.markerConnectionsLoading.includes(marker._id)
@@ -369,11 +376,9 @@ export default {
         markerList.push(lMarker)
       }
       markerCluster.addLayers(markerList)
+      this.$refs.map.mapObject.removeLayer(markerCluster)
       this.$refs.map.mapObject.addLayer(markerCluster)
       this.currentClustered = markerCluster
-    },
-    getTitleTranslation: function (marker) {
-      return this.$t(marker.server_type)
     },
 
     getCircleMarkerColor: function (conn) {
@@ -463,6 +468,7 @@ export default {
         iconUrl: markerSvg,
         iconSize: [48, 48],
         iconAnchor: [24, 42],
+        tooltipAnchor: [0, 5],
       })
     },
     filterMarkers: function (markers) {

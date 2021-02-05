@@ -1,27 +1,41 @@
 <template>
   <div>
-    <h6 class="pt-1 font-weight-bold">Information:</h6>
+    <h6 class="pt-1 font-weight-bold">{{ $t("Information:") }}</h6>
     <p class="mb-2">
-      <small>Core honeypot data sourced from BadPackets.</small>
+      <small>
+        {{
+          $t(
+            "Cyber Threat Intelligence honeypot information provided by BadPackets."
+          )
+        }}
+      </small>
     </p>
     <pre><code v-highlight class="javascript codeblock">{{ getGeneralInformationJSON() }}</code></pre>
 
-    <h6 class="pt-2 font-weight-bold">Geography:</h6>
+    <h6 class="pt-2 font-weight-bold">{{ $t("Geography:") }}</h6>
     <p class="mb-2">
-      <small>Geographic information collected using MaxMinds Geo2IP.</small>
+      <small>{{
+        $t("Geographic information collected using MaxMinds Geo2IP.")
+      }}</small>
     </p>
     <code-block :content="getGeoInformationJSON()" />
 
-    <h6 class="pt-2 font-weight-bold">Autonomous System (AS):</h6>
+    <h6 class="pt-2 font-weight-bold">
+      {{ $t("Autonomous System (AS):") }}
+    </h6>
     <p class="mb-2">
       <small>
-        Autonomous System information sourced from MaxMinds Geo2IP and IpWHOIS.
+        {{
+          $t(
+            "Autonomous System information collected from the MaxMinds Geo2IP database and ipwhois."
+          )
+        }}
       </small>
     </p>
     <code-block :content="getASInfoJSON()" />
 
     <h6 v-if="getTags().size == 0" class="pt-2 font-weight-bold">
-      BadPackets Tags:
+      {{ $t("BadPackets Tags:") }}
     </h6>
     <template v-for="(tag, index) in getTags()">
       <b-tag v-if="tag" :key="index" variant="primary" class="mr-1">
@@ -77,32 +91,32 @@ export default {
     getGeneralInformationJSON() {
       let info = {
         hostname: this.activeMarker.geoInfo.hostname,
-        "first seen": formatDate(this, new Date()),
-        "last seen": formatDate(
+        first_seen: formatDate(
+          this,
+          new Date(this.activeMarker.geoInfo.created_at)
+        ),
+        last_seen: formatDate(
           this,
           new Date(this.activeMarker.geoInfo.updated_at)
         ),
-        "total occurrences": this.activeMarker.geoInfo.occurrences,
+        total_occurrences: this.activeMarker.geoInfo.occurrences,
       }
       if (this.activeMarker.c2 || this.activeMarker.p2p) {
-        info["identification"] = {}
-        info["identified in"] = []
+        info["analysis_heuristics"] = {}
+        info["identified_in"] = []
 
         if (this.activeMarker.c2) {
-          info["identified in"] = info["identified in"].concat(
+          info["identified_in"] = info["identified_in"].concat(
             this.activeMarker.c2.payloads.map((p) => this.safeURL(p))
           )
-          info["analysis heuristics"] = {
-            C2: this.activeMarker.c2.heuristics,
-          }
+          info["analysis_heuristics"].C2 = this.activeMarker.c2.heuristics
         }
+
         if (this.activeMarker.p2p) {
-          info["identified in"] = info["identified in"].concat(
+          info["identified in"] = info["identified_in"].concat(
             this.activeMarker.p2p.payloads.map((p) => this.safeURL(p))
           )
-          info["analysis heuristics"] = {
-            P2P: this.activeMarker.p2p.heuristics,
-          }
+          info["analysis_heuristics"].P2P = this.activeMarker.p2p.heuristics
         }
       }
 
@@ -117,17 +131,17 @@ export default {
           asn: this.geodata.asn.number,
           organisation: this.geodata.asn.organisation,
         },
-        IpWHOIS: this.asn
+        ipwhois: this.asn
           ? {
-              asn: this.asn._id,
+              asn: isNaN(this.asn._id) ? this.asn._id : parseInt(this.asn._id),
               cidr: this.asn.asn_cidr,
-              "country code": this.asn.asn_country_code,
+              country_code: this.asn.asn_country_code,
               date: this.asn.asn_date
                 ? formatDate(this, new Date(this.asn.asn_date))
                 : undefined,
               description: this.asn.asn_description,
               registry: this.asn.asn_registry,
-              "previous ASNs": this.activeMarker.geoInfo.prev_asns,
+              previous_asn: this.activeMarker.geoInfo.prev_asns,
             }
           : null,
       }

@@ -4,7 +4,7 @@
       <template #title>
         <div>
           <b-icon-info-square type="border" small />
-          <span class="pl-1">Information</span>
+          <span class="pl-1">{{ $t("Information") }}</span>
         </div>
       </template>
       <information-tab />
@@ -14,7 +14,7 @@
       <template #title>
         <div>
           <b-icon-flag type="border" small />
-          <span class="pl-1">Event Log</span>
+          <span class="pl-1">{{ $t("Event Log") }}</span>
         </div>
       </template>
       <events-tab />
@@ -24,7 +24,7 @@
       <template #title>
         <div>
           <b-icon-diagram-3 type="border" small />
-          <span class="pl-1">Connections</span>
+          <span class="pl-1">{{ $t("Connections") }}</span>
         </div>
       </template>
       <connections-tab />
@@ -34,7 +34,7 @@
       <template #title>
         <div>
           <b-icon-shield-exclamation type="border" small />
-          <span class="pl-1">Malware Analysis</span>
+          <span class="pl-1">{{ $t("Malware Analysis") }}</span>
         </div>
       </template>
       <malware-tab v-if="hasMalwareAnalysis()" />
