@@ -34,13 +34,15 @@
     </p>
     <code-block :content="getASInfoJSON()" />
 
-    <h6 v-if="getTags().size == 0" class="pt-2 font-weight-bold">
-      {{ $t("BadPackets Tags:") }}
-    </h6>
-    <template v-for="(tag, index) in getTags()">
-      <b-tag v-if="tag" :key="index" variant="primary" class="mr-1">
-        {{ tag }}
-      </b-tag>
+    <template v-if="getTags()">
+      <h6 class="pt-2 font-weight-bold">
+        {{ $t("BadPackets Tags:") }}
+      </h6>
+      <template v-for="(tag, index) in getTags()">
+        <b-tag v-if="tag" :key="index" variant="primary" class="mr-1">
+          {{ tag }}
+        </b-tag>
+      </template>
     </template>
   </div>
 </template>
