@@ -24,6 +24,11 @@
 
 <script>
 export default {
+  head() {
+    return {
+      title: "VisiBot - About",
+    }
+  },
   computed: {
     lightThemeEnabled() {
       return this.$store.state.settings.lightThemeEnabled

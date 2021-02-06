@@ -24,5 +24,10 @@ export default {
   async asyncData({ params }) {
     return { ipAddress: params.ipAddr }
   },
+  head() {
+    return {
+      title: "VisiBot - Botnet Visualisation Map",
+    }
+  },
 }
 </script>

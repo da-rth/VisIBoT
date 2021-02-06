@@ -16,5 +16,10 @@ export default {
       }
     },
   },
+  head() {
+    return {
+      title: "VisiBot - Botnet Visualisation Map",
+    }
+  },
 }
 </script>
