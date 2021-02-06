@@ -107,9 +107,13 @@ export default {
     },
     getTitleHtml() {
       if (this.activeMarkerLoading || !this.activeMarker) {
-        return `Loading: <a style="color: #919191" href='https://www.virustotal.com/gui/ip-address/${this.ipAddress}'>${this.ipAddress}</a>`
+        return `${this.$t(
+          "Loading:"
+        )} <a style="color: #919191" href='https://www.virustotal.com/gui/ip-address/${
+          this.ipAddress
+        }'>${this.ipAddress}</a>`
       } else if (this.activeMarkerError) {
-        return "Whoops, an error occurred!"
+        return this.$t("Sorry, we're having some trouble.")
       } else {
         let serverType = this.activeMarker.geoInfo.server_type
         return `${this.$t(serverActivity(serverType))} 

@@ -89,5 +89,6 @@
   "No markers match your current settings.": "Нет маркеров, соответствующих вашим текущим настройкам.",
   "Try changing your settings in the map sidebar to view more markers.": "Попробуйте изменить настройки на боковой панели карты, чтобы увидеть больше маркеров.",
   "There are no connections to show yet for this IP address.": "Для этого IP-адреса пока нет подключений.",
-  "There are no events to show yet for this IP address.": "Для этого IP-адреса пока нет событий."
+  "There are no events to show yet for this IP address.": "Для этого IP-адреса пока нет событий.",
+  "Loading": "Загрузка"
 }
