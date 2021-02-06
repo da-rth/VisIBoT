@@ -5,10 +5,17 @@
       <small>
         <i18n
           path="Cyber Threat Intelligence honeypot information provided by {bp_href}."
-          tag="p"
-          class="mb-2"
+          tag="span"
         >
           <a slot="bp_href" :href="badpacketsURL">BadPackets</a>
+        </i18n>
+
+        <i18n
+          v-if="activeMarker.ipInfo"
+          path="Privacy information provided by {ipinfo_href}."
+          tag="span"
+        >
+          <a slot="ipinfo_href" :href="ipinfoURL">ipinfo.io</a>
         </i18n>
       </small>
     </p>
@@ -86,6 +93,9 @@ export default {
     },
     badpacketsURL() {
       return "https://badpackets.net/"
+    },
+    ipinfoURL() {
+      return "https://ipinfo.io/"
     },
   },
   methods: {

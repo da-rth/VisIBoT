@@ -94,5 +94,6 @@
   "Whoops!": "おっと！",
   "Back to homepage": "ホームページに戻ります",
   "The page you are looking for could not be found.": "お探しのページが見つかりませんでした。",
-  "An error has occurred. Please try again later.": "エラーが発生しました。後でもう一度やり直してください。"
+  "An error has occurred. Please try again later.": "エラーが発生しました。後でもう一度やり直してください。",
+  "Privacy information provided by {ipinfo_href}.": "{ipinfo_href}によって提供されるプライバシー情報。"
 }

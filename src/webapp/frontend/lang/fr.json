@@ -94,5 +94,6 @@
   "Whoops!": "Oups!",
   "Back to homepage": "retour à la page d'accueil",
   "The page you are looking for could not be found.": "La page que vous recherchez est introuvable.",
-  "An error has occurred. Please try again later.": "Une erreur est survenue. Veuillez réessayer plus tard."
+  "An error has occurred. Please try again later.": "Une erreur est survenue. Veuillez réessayer plus tard.",
+  "Privacy information provided by {ipinfo_href}.": "Informations de confidentialité fournies par {ipinfo_href}."
 }

@@ -94,5 +94,6 @@
   "Whoops!": "Ой!",
   "Back to homepage": "Вернуться на главную",
   "The page you are looking for could not be found.": "Страница, которую вы ищете, не может быть найдена.",
-  "An error has occurred. Please try again later.": "Произошла ошибка. Пожалуйста, попробуйте позже."
+  "An error has occurred. Please try again later.": "Произошла ошибка. Пожалуйста, попробуйте позже.",
+  "Privacy information provided by {ipinfo_href}.": "Информация о конфиденциальности предоставлена ​​{ipinfo_href}."
 }

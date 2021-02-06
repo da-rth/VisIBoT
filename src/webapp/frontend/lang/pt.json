@@ -94,5 +94,6 @@
   "Whoops!": "Opa!",
   "Back to homepage": "Voltar à página inicial",
   "The page you are looking for could not be found.": "A página que você está procurando não foi encontrada.",
-  "An error has occurred. Please try again later.": "Ocorreu um erro. Por favor, tente novamente mais tarde."
+  "An error has occurred. Please try again later.": "Ocorreu um erro. Por favor, tente novamente mais tarde.",
+  "Privacy information provided by {ipinfo_href}.": "Informações de privacidade fornecidas por {ipinfo_href}."
 }

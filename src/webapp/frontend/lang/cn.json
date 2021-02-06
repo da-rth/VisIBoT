@@ -94,5 +94,6 @@
   "Whoops!": "不好了！",
   "Back to homepage": "返回首页",
   "The page you are looking for could not be found.": "找不到您要查找的页面",
-  "An error has occurred. Please try again later.": "发生了错误。请稍后再试。."
+  "An error has occurred. Please try again later.": "发生了错误。请稍后再试。.",
+  "Privacy information provided by {ipinfo_href}.": "{ipinfo_href}提供的隐私信息。"
 }
