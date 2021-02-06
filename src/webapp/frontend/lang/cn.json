@@ -90,5 +90,9 @@
   "Try changing your settings in the map sidebar to view more markers.": "尝试在地图侧边栏中更改设置以查看更多标记",
   "There are no connections to show yet for this IP address.": "该IP地址尚无连接可供显示。",
   "There are no events to show yet for this IP address.": "该IP地址尚无事件显示。",
-  "Loading": "载入中"
+  "Loading": "载入中",
+  "Whoops!": "不好了！",
+  "Back to homepage": "返回首页",
+  "The page you are looking for could not be found.": "找不到您要查找的页面",
+  "An error has occurred. Please try again later.": "发生了错误。请稍后再试。."
 }

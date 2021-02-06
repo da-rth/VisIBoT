@@ -90,5 +90,9 @@
   "Try changing your settings in the map sidebar to view more markers.": "より多くのマーカーを表示するには、マップサイドバーの設定を変更してみてください。",
   "There are no connections to show yet for this IP address.": "このIPアドレスに対して表示する接続はまだありません。",
   "There are no events to show yet for this IP address.": "このIPアドレスについて表示するイベントはまだありません。",
-  "Loading": "読み込み中"
+  "Loading": "読み込み中",
+  "Whoops!": "おっと！",
+  "Back to homepage": "ホームページに戻ります",
+  "The page you are looking for could not be found.": "お探しのページが見つかりませんでした。",
+  "An error has occurred. Please try again later.": "エラーが発生しました。後でもう一度やり直してください。"
 }

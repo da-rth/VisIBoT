@@ -90,5 +90,9 @@
   "Try changing your settings in the map sidebar to view more markers.": "Tente alterar suas configurações na barra lateral do mapa para ver mais marcadores.",
   "There are no connections to show yet for this IP address.": "Não há conexões para mostrar ainda para este endereço IP.",
   "There are no events to show yet for this IP address.": "Não há eventos para este endereço IP ainda.",
-  "Loading": "Carregando"
+  "Loading": "Carregando",
+  "Whoops!": "Opa!",
+  "Back to homepage": "Voltar à página inicial",
+  "The page you are looking for could not be found.": "A página que você está procurando não foi encontrada.",
+  "An error has occurred. Please try again later.": "Ocorreu um erro. Por favor, tente novamente mais tarde."
 }

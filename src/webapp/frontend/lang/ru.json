@@ -90,5 +90,9 @@
   "Try changing your settings in the map sidebar to view more markers.": "Попробуйте изменить настройки на боковой панели карты, чтобы увидеть больше маркеров.",
   "There are no connections to show yet for this IP address.": "Для этого IP-адреса пока нет подключений.",
   "There are no events to show yet for this IP address.": "Для этого IP-адреса пока нет событий.",
-  "Loading": "Загрузка"
+  "Loading": "Загрузка",
+  "Whoops!": "Ой!",
+  "Back to homepage": "Вернуться на главную",
+  "The page you are looking for could not be found.": "Страница, которую вы ищете, не может быть найдена.",
+  "An error has occurred. Please try again later.": "Произошла ошибка. Пожалуйста, попробуйте позже."
 }
