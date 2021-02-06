@@ -307,7 +307,6 @@ export default {
       this.updateMapWithNewMarkers(this.mapMarkers)
     },
     popupClosed() {
-      this.selectedMarker = null
       this.hoverCircleMarker = null
     },
     updateMapWithNewMarkers: function (markers) {
