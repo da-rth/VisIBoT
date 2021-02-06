@@ -52,7 +52,9 @@
 
     <div v-if="!activeMarker.connections.length" class="emptyTableMessage">
       <b-icon-emoji-dizzy style="font-size: 5rem" />
-      <p>There are no connections to show yet for this IP address.</p>
+      <p>
+        {{ $("There are no connections to show yet for this IP address.") }}
+      </p>
     </div>
   </div>
 </template>

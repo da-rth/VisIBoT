@@ -87,5 +87,7 @@
   "Sorry, we're having some trouble.": "Desculpe, estamos tendo alguns problemas.",
   "We couldn't find any information for that marker.": "Não foi possível encontrar nenhuma informação para esse marcador.",
   "No markers match your current settings.": "Nenhum marcador corresponde às configurações atuais.",
-  "Try changing your settings in the map sidebar to view more markers.": "Tente alterar suas configurações na barra lateral do mapa para ver mais marcadores."
+  "Try changing your settings in the map sidebar to view more markers.": "Tente alterar suas configurações na barra lateral do mapa para ver mais marcadores.",
+  "There are no connections to show yet for this IP address.": "Não há conexões para mostrar ainda para este endereço IP.",
+  "There are no events to show yet for this IP address.": "Não há eventos para este endereço IP ainda."
 }

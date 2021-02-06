@@ -87,5 +87,7 @@
   "Sorry, we're having some trouble.": "Sorry, we're having some trouble.",
   "We couldn't find any information for that marker.": "We couldn't find any information for that marker.",
   "No markers match your current settings.": "No markers match your current settings.",
-  "Try changing your settings in the map sidebar to view more markers.": "Try changing your settings in the map sidebar to view more markers."
+  "Try changing your settings in the map sidebar to view more markers.": "Try changing your settings in the map sidebar to view more markers.",
+  "There are no connections to show yet for this IP address.": "There are no connections to show yet for this IP address.",
+  "There are no events to show yet for this IP address.": "There are no events to show yet for this IP address."
 }

@@ -23,7 +23,7 @@
 
     <div v-if="!activeMarker.events.length" class="emptyTableMessage">
       <b-icon-emoji-dizzy style="font-size: 5rem" />
-      <p>There are no events to show yet for this IP address.</p>
+      <p>{{ $t("There are no events to show yet for this IP address.") }}</p>
     </div>
   </div>
 </template>

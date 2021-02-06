@@ -87,5 +87,7 @@
   "Sorry, we're having some trouble.": "抱歉，我们遇到了问题",
   "We couldn't find any information for that marker.": "我们找不到该标签的任何信息。",
   "No markers match your current settings.": "没有标记符合您当前的设置。",
-  "Try changing your settings in the map sidebar to view more markers.": "尝试在地图侧边栏中更改设置以查看更多标记"
+  "Try changing your settings in the map sidebar to view more markers.": "尝试在地图侧边栏中更改设置以查看更多标记",
+  "There are no connections to show yet for this IP address.": "该IP地址尚无连接可供显示。",
+  "There are no events to show yet for this IP address.": "该IP地址尚无事件显示。"
 }
