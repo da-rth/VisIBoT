@@ -11,7 +11,11 @@
       {{ $t("Change language") }}
     </b-tooltip>
 
-    <b-tooltip target="tooltip-sidebar-target" triggers="hover">
+    <b-tooltip
+      v-if="$nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')"
+      target="tooltip-sidebar-target"
+      triggers="hover"
+    >
       {{ sidebarEnabled ? $t("Hide sidebar") : $t("Show sidebar") }}
     </b-tooltip>
 

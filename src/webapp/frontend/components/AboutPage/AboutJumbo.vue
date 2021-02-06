@@ -1,11 +1,12 @@
 <template>
   <b-jumbotron
-    :bg-variant="lightThemeEnabled ? 'dark' : 'light'"
-    :text-variant="lightThemeEnabled ? 'light' : 'secondary'"
+    bg-variant="dark"
+    text-variant="light"
     class="text-center about-jumbotron"
-    header="VisiBot"
-    lead="Awesome Description here"
-  />
+    lead="Awesome Description here."
+  >
+    <template #header>Visi<span class="blue-bot">Bot</span></template>
+  </b-jumbotron>
 </template>
 
 <script>
@@ -29,5 +30,8 @@ export default {
 <style>
 .about-jumbotron {
   border-radius: 0;
+  border-bottom: 1px solid #000;
+  background-color: #1f1f1f !important;
+  user-select: none !important;
 }
 </style>
