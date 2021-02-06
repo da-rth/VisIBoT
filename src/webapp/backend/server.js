@@ -16,6 +16,7 @@ require("./models/LisaAnalysis")
 require("./models/AutonomousSystem")
 require("./models/IpGeoConnection")
 require("./models/IpGeoData")
+require("./models/IpInfo")
 
 if (process.env.NODE_ENV === "development") {
   console.log("Developer Mode")

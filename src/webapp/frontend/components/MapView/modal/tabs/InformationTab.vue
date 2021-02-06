@@ -3,20 +3,28 @@
     <h6 class="pt-1 font-weight-bold">{{ $t("Information:") }}</h6>
     <p class="mb-2">
       <small>
-        {{
-          $t(
-            "Cyber Threat Intelligence honeypot information provided by BadPackets."
-          )
-        }}
+        <i18n
+          path="Cyber Threat Intelligence honeypot information provided by {bp_href}."
+          tag="p"
+          class="mb-2"
+        >
+          <a slot="bp_href" :href="badpacketsURL">BadPackets</a>
+        </i18n>
       </small>
     </p>
     <pre><code v-highlight class="javascript codeblock">{{ getGeneralInformationJSON() }}</code></pre>
 
     <h6 class="pt-2 font-weight-bold">{{ $t("Geography:") }}</h6>
     <p class="mb-2">
-      <small>{{
-        $t("Geographic information collected using MaxMinds Geo2IP.")
-      }}</small>
+      <small>
+        <i18n
+          path="Geographic information collected using {maxminds_href}."
+          tag="p"
+          class="mb-2"
+        >
+          <a slot="maxminds_href" :href="ipwhosURL">MaxMinds GeoIP2</a>
+        </i18n>
+      </small>
     </p>
     <code-block :content="getGeoInformationJSON()" />
 
@@ -25,11 +33,14 @@
     </h6>
     <p class="mb-2">
       <small>
-        {{
-          $t(
-            "Autonomous System information collected from the MaxMinds Geo2IP database and ipwhois."
-          )
-        }}
+        <i18n
+          path="Autonomous System information collected from the {maxminds_href} database and {ipwhois_href}."
+          tag="p"
+          class="mb-2"
+        >
+          <a slot="maxminds_href" :href="maxmindURL">MaxMinds GeoIP2</a>
+          <a slot="ipwhois_href" :href="maxmindURL">ipwhois</a>
+        </i18n>
       </small>
     </p>
     <code-block :content="getASInfoJSON()" />
@@ -67,6 +78,15 @@ export default {
     asn() {
       return this.activeMarker.geoInfo.asn
     },
+    maxmindURL() {
+      return "https://www.maxmind.com/en/geoip2-databases"
+    },
+    ipwhosURL() {
+      return "https://www.maxmind.com/en/geoip2-databases"
+    },
+    badpacketsURL() {
+      return "https://badpackets.net/"
+    },
   },
   methods: {
     getTags() {
@@ -103,22 +123,34 @@ export default {
         ),
         total_occurrences: this.activeMarker.geoInfo.occurrences,
       }
+
+      if (this.activeMarker.latestResult) {
+        delete this.activeMarker.latestResult.user_agent.str
+        info.badpackets_events = this.activeMarker.latestResult.event_count
+        info.taget_port = this.activeMarker.latestResult.target_port
+        info.user_agent = this.activeMarker.latestResult.user_agent
+      }
+
+      if (this.activeMarker.ipInfo) {
+        info.privacy = this.activeMarker.ipInfo.privacy
+      }
+
       if (this.activeMarker.c2 || this.activeMarker.p2p) {
-        info["analysis_heuristics"] = {}
-        info["identified_in"] = []
+        info.analysis_heuristics = {}
+        info.identified_in = []
 
         if (this.activeMarker.c2) {
-          info["identified_in"] = info["identified_in"].concat(
+          info.identified_in = info.identified_in.concat(
             this.activeMarker.c2.payloads.map((p) => this.safeURL(p))
           )
-          info["analysis_heuristics"].C2 = this.activeMarker.c2.heuristics
+          info.analysis_heuristics.C2 = this.activeMarker.c2.heuristics
         }
 
         if (this.activeMarker.p2p) {
-          info["identified in"] = info["identified_in"].concat(
+          info.identified_in = info.identified_in.concat(
             this.activeMarker.p2p.payloads.map((p) => this.safeURL(p))
           )
-          info["analysis_heuristics"].P2P = this.activeMarker.p2p.heuristics
+          info.analysis_heuristics.P2P = this.activeMarker.p2p.heuristics
         }
       }
 

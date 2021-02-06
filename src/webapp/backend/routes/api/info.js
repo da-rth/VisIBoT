@@ -3,6 +3,7 @@ const express = require("express")
 
 const IpGeoData = require("../../models/IpGeoData")
 const IpEvent = require("../../models/IpEvent")
+const IpInfo = require("../../models/IpInfo")
 const BadpacketsResult = require("../../models/BadpacketsResult")
 const MalwarePayload = require("../../models/MalwarePayload")
 const IpGeoConnection = require("../../models/IpGeoConnection")
@@ -54,7 +55,9 @@ router.route("/summary/:ip").get(async (req, res) => {
   let ip = req.params.ip
   Promise.all([
     IpGeoData.findOne({ _id: ip }).populate("asn"),
-    BadpacketsResult.find({ source_ip_address: ip }),
+    BadpacketsResult.findOne({ source_ip_address: ip }).sort({
+      last_seen: "desc",
+    }),
     MalwarePayload.find({ ip_address: ip }).populate({
       path: "lisa",
       select:
@@ -69,25 +72,29 @@ router.route("/summary/:ip").get(async (req, res) => {
     ]),
     CandidateC2Server.findOne({ ip_address: ip }),
     CandidateP2PNode.findOne({ ip_address: ip }),
+    IpInfo.findOne({ ip_address: ip }).select("privacy"),
   ])
     .then((all_results) => {
       const [
         geoInfo,
-        results,
+        latestResult,
         payloads,
         events,
         connections,
         c2,
         p2p,
+        ipInfo,
       ] = all_results
+
       return res.json({
         geoInfo,
-        results,
+        latestResult,
         payloads,
         events,
         connections,
         c2,
         p2p,
+        ipInfo,
       })
     })
     .catch((err) => {

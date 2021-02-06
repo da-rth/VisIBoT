@@ -108,7 +108,7 @@ export default {
     getTitleHtml() {
       if (this.activeMarkerLoading || !this.activeMarker) {
         return `${this.$t(
-          "Loading:"
+          "Loading"
         )} <a style="color: #919191" href='https://www.virustotal.com/gui/ip-address/${
           this.ipAddress
         }'>${this.ipAddress}</a>`
