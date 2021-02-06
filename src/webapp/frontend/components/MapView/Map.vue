@@ -666,7 +666,7 @@ export default {
   position: absolute;
   background-color: #fff;
   border-radius: 5px;
-  z-index: 999 !important;
+  z-index: 4 !important;
   bottom: 10px;
   left: 10px;
   border: 1px solid var(--primary);

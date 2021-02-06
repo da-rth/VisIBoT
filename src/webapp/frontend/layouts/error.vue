@@ -9,7 +9,7 @@
     >
       <b-jumbotron
         :bg-variant="lightThemeEnabled ? 'light' : 'dark'"
-        :text-variant="lightThemeEnabled ? 'dark' : 'light'"
+        :text-variant="lightThemeEnabled ? 'secondary' : 'light'"
         :header="$t('Whoops!')"
         :lead="bodyMessage"
       >

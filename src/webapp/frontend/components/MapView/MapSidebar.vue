@@ -16,7 +16,7 @@
       }"
       width="460px"
     >
-      <b-form style="padding: 20px" @submit.stop.prevent>
+      <b-form style="padding: 20px; margin-bottom: 80px" @submit.stop.prevent>
         <b-form-group :label="this.$t('Filter Results')" label-size="lg">
           <v-autocomplete
             v-model="searchIpAddress"

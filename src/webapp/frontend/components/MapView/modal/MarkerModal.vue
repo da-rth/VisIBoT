@@ -148,7 +148,8 @@ export default {
   background-color: #f3f3f3;
   min-height: 480px;
   max-height: 620px;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 .modalBody .nav-link {
   color: #6e6e6e;

@@ -54,8 +54,8 @@
     </b-navbar-nav>
 
     <b-collapse id="collapse-area" is-nav>
-      <b-navbar-nav>
-        <b-nav-item href="/info">{{ $t("information") }}</b-nav-item>
+      <b-navbar-nav v-if="$nuxt.$route.path != '/about'">
+        <b-nav-item href="/about">{{ $t("information") }}</b-nav-item>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto">
         <b-navbar-nav v-if="$device.isMobile" right>

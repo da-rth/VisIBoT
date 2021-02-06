@@ -52,7 +52,7 @@
     </p>
     <code-block :content="getASInfoJSON()" />
 
-    <template v-if="getTags()">
+    <template v-if="getTags().size == 0">
       <h6 class="pt-2 font-weight-bold">
         {{ $t("BadPackets Tags:") }}
       </h6>
