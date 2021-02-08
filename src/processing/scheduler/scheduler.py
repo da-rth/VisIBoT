@@ -50,13 +50,13 @@ def get_badpackets_results(first_run: bool = False):
         print(f"Queried {len(results)}/{total_results} results")
 
         while results_json.get('next', False):
+            time.sleep(1)
             results_json = bp_api.get_url(results_json['next']).json()
             results += results_json['results']
 
             print(f"Queried {len(results)}/{total_results} results")
-
-    except Exception:
-        print("Error! Failed to obtain BadPackets results for last query.")
+    except Exception as e:
+        print("Error! Failed to obtain BadPackets results for last query:", e)
 
     for result in results:
         celery_worker.send_task('tasks.process_result', args=[result], kwargs={})
