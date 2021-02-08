@@ -2,7 +2,7 @@ require("dotenv").config()
 
 export default {
   env: {
-    baseUrl: process.env.BASE_URL || "http://localhost:8080",
+    baseUrl: "http://localhost:8080",
   },
   srcDir: "frontend/",
   router: {
