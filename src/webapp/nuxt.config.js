@@ -1,6 +1,9 @@
 require("dotenv").config()
 
 export default {
+  env: {
+    baseUrl: process.env.BASE_URL || "http://localhost:8080",
+  },
   srcDir: "frontend/",
   router: {
     extendRoutes(routes) {
@@ -135,5 +138,6 @@ export default {
   },
   build: {
     transpile: ["vue-flag-icon"],
+    babel: { compact: true },
   },
 }

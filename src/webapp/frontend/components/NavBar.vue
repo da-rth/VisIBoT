@@ -12,7 +12,9 @@
     </b-tooltip>
 
     <b-tooltip
-      v-if="$nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')"
+      v-show="
+        $nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')
+      "
       target="tooltip-sidebar-target"
       triggers="hover"
     >
@@ -31,7 +33,7 @@
     </b-navbar-brand>
 
     <b-navbar-nav
-      v-if="$device.isMobile"
+      v-show="$device.isMobile"
       class="ml-auto"
       style="
         flex-direction: row;
@@ -40,17 +42,17 @@
       "
     >
       <b-nav-item style="margin-right: 14px" @click="toggleTheme()">
-        <b-icon-brightness-high v-if="lightThemeEnabled" />
-        <b-icon-brightness-high-fill v-else />
+        <b-icon-brightness-high v-show="lightThemeEnabled" />
+        <b-icon-brightness-high-fill v-show="!lightThemeEnabled" />
       </b-nav-item>
       <b-nav-item
-        v-if="
+        v-show="
           $nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')
         "
         @click="toggleSidebar()"
       >
-        <b-icon-layout-sidebar-inset-reverse v-if="sidebarEnabled" />
-        <b-icon-layout-sidebar-reverse v-else />
+        <b-icon-layout-sidebar-inset-reverse v-show="sidebarEnabled" />
+        <b-icon-layout-sidebar-reverse v-show="!sidebarEnabled" />
       </b-nav-item>
       <b-navbar-toggle target="collapse-area">
         <b-icon-three-dots />
@@ -58,11 +60,11 @@
     </b-navbar-nav>
 
     <b-collapse id="collapse-area" is-nav>
-      <b-navbar-nav v-if="$nuxt.$route.path != '/about'">
+      <b-navbar-nav v-show="$nuxt.$route.path != '/about'">
         <b-nav-item href="/about">{{ $t("information") }}</b-nav-item>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto">
-        <b-navbar-nav v-if="$device.isMobile" right>
+        <b-navbar-nav v-show="$device.isMobile" right>
           <b-nav-item-dropdown
             id="tooltip-lang-target"
             right
@@ -79,7 +81,7 @@
           </b-nav-item-dropdown>
         </b-navbar-nav>
 
-        <b-navbar-nav v-else right>
+        <b-navbar-nav v-show="!$device.isMobile" right>
           <b-nav-item-dropdown
             id="tooltip-lang-target"
             right
@@ -96,19 +98,19 @@
           </b-nav-item-dropdown>
 
           <b-nav-item id="tooltip-theme-target" @click="toggleTheme()">
-            <b-icon-brightness-high v-if="lightThemeEnabled" />
-            <b-icon-brightness-high-fill v-else />
+            <b-icon-brightness-high v-show="lightThemeEnabled" />
+            <b-icon-brightness-high-fill v-show="!lightThemeEnabled" />
           </b-nav-item>
 
           <b-nav-item
-            v-if="
+            v-show="
               $nuxt.$route.path == '/' || $nuxt.$route.path.startsWith('/info/')
             "
             id="tooltip-sidebar-target"
             @click="toggleSidebar()"
           >
-            <b-icon-layout-sidebar-inset-reverse v-if="sidebarEnabled" />
-            <b-icon-layout-sidebar-reverse v-else />
+            <b-icon-layout-sidebar-inset-reverse v-show="sidebarEnabled" />
+            <b-icon-layout-sidebar-reverse v-show="!sidebarEnabled" />
           </b-nav-item>
         </b-navbar-nav>
       </b-navbar-nav>

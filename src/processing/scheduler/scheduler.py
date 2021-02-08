@@ -58,6 +58,8 @@ def get_badpackets_results(first_run: bool = False):
     except Exception as e:
         print("Error! Failed to obtain BadPackets results for last query:", e)
 
+    print(f"Creating processing tasks for {len(results)} results.")
+
     for result in results:
         celery_worker.send_task('tasks.process_result', args=[result], kwargs={})
 

@@ -1,23 +1,25 @@
 <template>
-  <div
-    :class="{
-      aboutContainerDark: !lightThemeEnabled,
-      aboutContainerLight: lightThemeEnabled,
-    }"
-  >
+  <div>
     <client-only>
-      <about-jumbo :light-theme="lightThemeEnabled" />
-      <b-container class="pb-5">
-        <project-section />
-        <div class="border-top my-3"></div>
-        <author-section />
-        <div class="border-top my-3"></div>
-        <collab-section />
-        <div class="border-top my-3"></div>
-        <development-section />
-        <div class="border-top my-3"></div>
-        <statistics-section />
-      </b-container>
+      <div
+        :class="{
+          aboutContainerDark: !lightThemeEnabled,
+          aboutContainerLight: lightThemeEnabled,
+        }"
+      >
+        <about-jumbo :light-theme="lightThemeEnabled" />
+        <b-container class="pb-5">
+          <project-section />
+          <div class="border-top my-3"></div>
+          <author-section />
+          <div class="border-top my-3"></div>
+          <collab-section />
+          <div class="border-top my-3"></div>
+          <development-section />
+          <div class="border-top my-3"></div>
+          <statistics-section />
+        </b-container>
+      </div>
     </client-only>
   </div>
 </template>

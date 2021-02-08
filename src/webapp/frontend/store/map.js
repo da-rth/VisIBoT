@@ -118,7 +118,7 @@ export const actions = {
   async fetchMarkers(context) {
     context.commit("MARKERS_LOADING")
     await axios
-      .get("http://localhost:8080/api/geolocations")
+      .get(`${process.env.baseUrl}/api/geolocations`)
       .then(async (response) => {
         context.commit("MARKERS_STORE", response.data)
       })
@@ -130,7 +130,7 @@ export const actions = {
   async fetchActiveMarker(context, ipAddress) {
     context.commit("ACTIVE_MARKER_LOADING")
     await axios
-      .get(`http://localhost:8080/api/info/summary/${ipAddress}`)
+      .get(`${process.env.baseUrl}/api/info/summary/${ipAddress}`)
       .then(async (response) => {
         if (!response.data.geoInfo) {
           context.commit("ACTIVE_MARKER_ERROR", response.data)
@@ -144,7 +144,7 @@ export const actions = {
   },
   async fetchSearchTags(context) {
     await axios
-      .get("http://localhost:8080/api/info/search-tags")
+      .get(`${process.env.baseUrl}/api/info/search-tags`)
       .then(async (response) => {
         context.commit("SEARCH_TAGS_STORE", response.data)
       })
@@ -155,7 +155,7 @@ export const actions = {
   async fetchMarkerConnections(context, marker) {
     context.commit("MARKER_CONNECTIONS_LOADING", marker)
     await axios
-      .get(`http://localhost:8080/api/geolocations/connections/${marker._id}`)
+      .get(`${process.env.baseUrl}/api/geolocations/connections/${marker._id}`)
       .then(async (response) => {
         marker.connections = response.data
         context.commit("MARKER_CONNECTIONS_STORE", marker)
