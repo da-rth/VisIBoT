@@ -1,7 +1,8 @@
 <template>
   <b-jumbotron
-    bg-variant="dark"
-    text-variant="light"
+    :bg-variant="lightThemeEnabled ? 'light' : 'dark'"
+    :class="{ lightJumbo: lightThemeEnabled, darkJumbo: !lightThemeEnabled }"
+    :text-variant="lightThemeEnabled ? 'dark' : 'light'"
     class="text-center about-jumbotron"
     lead="Awesome Description here."
   >
@@ -31,7 +32,13 @@ export default {
 .about-jumbotron {
   border-radius: 0;
   border-bottom: 1px solid #000;
-  background-color: #1f1f1f !important;
   user-select: none !important;
+}
+
+.lightJumbo {
+  background-color: #d7d7d7 !important;
+}
+.darkJumbo {
+  background-color: #1f1f1f !important;
 }
 </style>

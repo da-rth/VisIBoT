@@ -43,14 +43,11 @@ router.route("/search-tags").get(async (req, res) => {
         allTags.push(tags)
       }
 
-      allTags = allTags
-        ? [
-            ...new Map(
-              allTags.flat().map((item) => [item.description, item])
-            ).values(),
-          ]
-        : []
-      return getDocsResponse(res, allTags)
+      return getDocsResponse(res, [
+        ...new Map(
+          allTags.flat().map((item) => [item.description, item])
+        ).values(),
+      ])
     })
 })
 
