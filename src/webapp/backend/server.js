@@ -2,12 +2,13 @@ const express = require("express")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 const { connectDB } = require("./database")
+const staticServe = express.static(`${__dirname}/dist`)
 const app = express()
+const port = 8080
 
 require("dotenv").config({ path: "backend/.env" })
-const staticServe = express.static(`${__dirname}/dist`)
+
 const frontendBaseUrl = process.env.FRONTEND_BASE_URL || "http://localhost:3000"
-const port = 8080
 
 connectDB()
 
@@ -25,11 +26,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(require("morgan")("dev"))
 }
 
-app.use(
-  cors({
-    origin: frontendBaseUrl,
-  })
-)
+app.use(cors({ origin: frontendBaseUrl }))
 app.use(require("./routes"))
 app.use("/", staticServe)
 app.use("*", staticServe)

@@ -47,6 +47,7 @@ services:
       args:
         - GEO_ACCOUNT_ID=${GEO_ACCOUNT_ID:?Env var GEO_ACCOUNT_ID is not set.}
         - GEO_LICENSE_KEY=${GEO_LICENSE_KEY:?Env var GEO_LICENSE_KEY is not set.}
+    restart: always
     volumes:
       - geo_data:/usr/local/share/GeoIP
 
@@ -54,6 +55,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.worker
+    restart: always
     environment:
       - LISA_API_URL=${LISA_API_URL:?Env var LISA_API_URL is not set.}
       - LISA_EXEC_TIME_SEC=${LISA_EXEC_TIME_SEC:?Env var LISA_EXEC_TIME_SEC is not set.}
