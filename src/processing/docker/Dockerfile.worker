@@ -1,14 +1,16 @@
 FROM python:3.9-slim
 
+ARG REDIS_PASSWORD
+
 ENV PYTHONUNBUFFERED 1
-ENV CELERY_BROKER_URL redis://redis:6379/0
-ENV CELERY_RESULT_BACKEND redis://redis:6379/0
+ENV CELERY_BROKER_URL redis://:${REDIS_PASSWORD}@redis:6379/0
+ENV CELERY_RESULT_BACKEND redis://:${REDIS_PASSWORD}@redis:6379/0
 ENV C_FORCE_ROOT true
 
 COPY ./worker /queue
 WORKDIR /queue
 
-RUN apt-get update && apt-get install -y gcc g++ && \
+RUN apt-get update && apt-get install -y gcc g++ curl && \
     pip install -r requirements.txt && \
     mkdir -p /queue/tld-cache/
 

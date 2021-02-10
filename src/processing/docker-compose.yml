@@ -16,6 +16,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.scheduler
+      args:
+        - REDIS_PASSWORD=${REDIS_PASSWORD}
     restart: always
     environment:
       - FIRST_RUN=${FIRST_RUN}
@@ -32,9 +34,11 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.api
+      args:
+        - REDIS_PASSWORD=${REDIS_PASSWORD}
     restart: always
     ports:
-     - "5001:5001"
+      - "5001:5001"
     depends_on:
       - redis
       - worker
@@ -55,6 +59,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile.worker
+      args:
+        - REDIS_PASSWORD=${REDIS_PASSWORD}
     restart: always
     environment:
       - LISA_API_URL=${LISA_API_URL:?Env var LISA_API_URL is not set.}
@@ -75,15 +81,15 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile.worker
     ports:
-     - "5555:5555"
+      - "5555:5555"
     entrypoint: flower
-    command:  -A tasks --port=5555 --broker=redis://redis:6379/0 --basic_auth=${FLOWER_USER}:${FLOWER_PASS}
+    command:  -A tasks --port=5555 --broker=redis://:${REDIS_PASSWORD}@redis:6379/0 --basic_auth=${FLOWER_USER}:${FLOWER_PASS}
     depends_on:
       - redis
     volumes: ['./worker:/queue']
 
   redis:
     image: redis
-    command: redis-server --loglevel warning
+    command: redis-server --loglevel warning --requirepass ${REDIS_PASSWORD}
     ports:
      - "6379:6379"
