@@ -42,21 +42,18 @@ def get_badpackets_results(first_run: bool = False):
 
     results = []
 
-    try:
-        results_json = bp_api.query({"last_seen_after": after_dt, "limit": 1000}).json()
-        results += results_json['results']
-        total_results = results_json['count']
+    results_json = bp_api.query({"last_seen_after": after_dt, "limit": 1000}).json()
+    results += results_json.get('results', [])
+    total_results = results_json.get('count', 0)
+
+    print(f"Queried {len(results)}/{total_results} results")
+
+    while results_json.get('next', False):
+        time.sleep(2)
+        results_json = bp_api.get_url(results_json['next']).json()
+        results += results_json.get('results', [])
 
         print(f"Queried {len(results)}/{total_results} results")
-
-        while results_json.get('next', False):
-            time.sleep(1)
-            results_json = bp_api.get_url(results_json['next']).json()
-            results += results_json['results']
-
-            print(f"Queried {len(results)}/{total_results} results")
-    except Exception as e:
-        print("Error! Failed to obtain BadPackets results for last query:", e)
 
     print(f"Creating processing tasks for {len(results)} results.")
 
