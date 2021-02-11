@@ -52,18 +52,22 @@ def get_badpackets_results(first_run: bool = False):
         time.sleep(2)
         next_url = results_json['next']
         results_json = bp_api.get_url(next_url).json()
-        results_list = results_json.get('results', [])
+        results_list = results_json.get('results', None)
 
         # If we encoutner a KeyError, try querying API once more.
-        if not results_list:
+        if results_list is None:
             print(f"Failed to query results for {next_url}. Trying again.")
             time.sleep(2)
             results_json = bp_api.get_url(next_url).json()
-            results_list = results_json.get('results', [])
+            results_list = results_json.get('results', None)
 
-        results += results_list
+            # If still no results, log and continue...
+            if results_list is None:
+                print(f"KeyError: 'results' not in results_json: {results_json}")
 
-        print(f"Queried {len(results)}/{total_results} results")
+        if results_list:
+            print(f"Queried {len(results)}/{total_results} results")
+            results += results_list
 
     print(f"Creating processing tasks for {len(results)} results.")
 
