@@ -50,8 +50,17 @@ def get_badpackets_results(first_run: bool = False):
 
     while results_json.get('next', False):
         time.sleep(2)
-        results_json = bp_api.get_url(results_json['next']).json()
-        results += results_json.get('results', [])
+        next_url = results_json['next']
+        results_json = bp_api.get_url(next_url).json()
+        results_list = results_json.get('results', [])
+
+        # If we encoutner a KeyError, try querying API once more.
+        if not results_list:
+            time.sleep(2)
+            results_json = bp_api.get_url(next_url).json()
+            results_list = results_json.get('results', [])
+
+        results += results_list
 
         print(f"Queried {len(results)}/{total_results} results")
 
