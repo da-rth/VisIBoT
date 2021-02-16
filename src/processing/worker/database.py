@@ -222,7 +222,8 @@ def result_create_or_update(result_data):
     except (NotUniqueError, DuplicateKeyError):
         result = BadpacketsResult.objects(event_id=result_data['event_id']).first()
         result.update(
-            add_to_set__scanned_payloads=result_data.get('scanned_payloads',[]),
+            add_to_set__scanned_urls=result_data.get('scanned_urls', []),
+            add_to_set__affiliated_ips=result_data.get('affiliated_ips', []),
             set__updated_at=datetime.utcnow()
         )
         result.reload()
