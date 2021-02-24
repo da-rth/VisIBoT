@@ -49,7 +49,7 @@
   "Malware Analysis": "恶意软件分析",
   "Information:": "信息：",
   "Cyber Threat Intelligence honeypot information provided by {bp_href}.": "{bp_href}提供的网络威胁情报蜜罐信息。",
-  "BadPackets Tags:": "BadPackets标签：",
+  "Bad Packets Tags:": "Bad Packets标签：",
   "Data exchange between malware binary and IP address": "恶意软件二进制文件和IP地址之间的数据交换",
   "Malware binary connection to hardcoded IP address": "恶意软件二进制连接到硬编码的IP地址",
   "Malware binary connection to blacklisted C2 IP address": "恶意软件二进制连接到列入黑名单的C2 IP地址",

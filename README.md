@@ -3,9 +3,9 @@
 * Author: [Daniel Arthur](mailto:2086380a@student.gla.ac.uk)
 * Supervisor: [Angelos Marnerides](mailto:angelos.marnerides@glasgow.ac.uk)
 
-VisIBoT is an automated solution to Command & Control Server (C2) Identifiaction. This project combines a variety of information sources and services, including the [BadPackets](https://badpackets.net/) Cyber Threat Intelligence API, [VirusTotal](https://virustotal.com/), [ipinfo.io](https://ipinfo.io/), the [LiSa Sandbox](https://github.com/danieluhricek/LiSa) and various [MaxMind](https://www.maxmind.com/en/home) GeoIP2 databases.
+VisIBoT is an automated solution to Command & Control Server (C2) Identifiaction. This project combines a variety of information sources and services, including the [Bad Packets](https://badpackets.net/) Cyber Threat Intelligence API, [VirusTotal](https://virustotal.com/), [ipinfo.io](https://ipinfo.io/), the [LiSa Sandbox](https://github.com/danieluhricek/LiSa) and various [MaxMind](https://www.maxmind.com/en/home) GeoIP2 databases.
 
-The VisIBoT processing scheduler will automatically collect BadPackets honeypot data and extract, execute and analyse botnet malware payloads using the LiSa sandbox on an hourly basis. Through combined static and dynamic analysis of malware payloads, we identify potential (candidate) Command & Control (C2) servers. Contained in various docker images, celery tasks are created from collected BadPackets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
+The VisIBoT processing scheduler will automatically collect Bad Packets honeypot data and extract, execute and analyse botnet malware payloads using the LiSa sandbox on an hourly basis. Through combined static and dynamic analysis of malware payloads, we identify potential (candidate) Command & Control (C2) servers. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
 
 The VisIBoT web-application is a browser-based visualisation tool that maps geolocation of identified potential bots, payload servers, peer-to-peer nodes and command-and-control servers. Written in Nuxt.js and hosted using Express.js, the main service uses Leaflet.js to cluster and annotate the geolocations of any identified botnet activity.
 
@@ -14,7 +14,7 @@ The VisIBoT web-application is a browser-based visualisation tool that maps geol
 - A remotely accessible MongoDB Database (e.g. [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
 - A [MaxMind GeoIP Update API Key](https://www.maxmind.com/en/accounts/current/license-key):
     - Go to Account > My License Key > Generate New License Key > Yes > [1st Option] > Confirm
-- A [BadPackets API Key](https://badpackets.net/)
+- A [Bad Packets API Key](https://badpackets.net/)
 - A [VirusTotal API Key](https://virustotal.com/)
 - A [ipinfo.io API Key](https://ipinfo.io)
 - A modified fork of the [LiSa Sandbox Server](https://github.com/denBot/LiSa)
@@ -89,8 +89,8 @@ Important notes:
 
 --- 
 
-# Setting up the badpackets processing service
-Execute the below commands to run the BadPackets processing script. This script processes all honeypot entities caught by BadPackets and exports API data into a MongoDB schema format. Payloads are automatically extracted from BP Results and are analysed using the `LiSa` malware sandbox mentioned above.
+# Setting up the bad packets processing service
+Execute the below commands to run the Bad Packets processing script. This script processes all honeypot entities caught by Bad Packets and exports API data into a MongoDB schema format. Payloads are automatically extracted from BP Results and are analysed using the `LiSa` malware sandbox mentioned above.
 
 ```bash
 # Install Docker and Docker-compose (e.g. on ubuntu using apt-get)
@@ -98,7 +98,7 @@ Execute the below commands to run the BadPackets processing script. This script 
 ➜  ~ cd src/processing
 
 # Copy env example template and edit it.
-# Add in your MongoDB URL and GeoIP2, BadPackets and ipinfo.io API keys.
+# Add in your MongoDB URL and GeoIP2, Bad Packets and ipinfo.io API keys.
 ➜  ~ cp .env.example .env
 ➜  ~ vim .env
 

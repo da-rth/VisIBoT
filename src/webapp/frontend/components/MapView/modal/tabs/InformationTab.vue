@@ -7,7 +7,7 @@
           path="Cyber Threat Intelligence honeypot information provided by {bp_href}."
           tag="span"
         >
-          <a slot="bp_href" :href="badpacketsURL">BadPackets</a>
+          <a slot="bp_href" :href="badpacketsURL">Bad Packets</a>
         </i18n>
 
         <i18n
@@ -54,7 +54,7 @@
 
     <template v-if="getTags().size == 0">
       <h6 class="pt-2 font-weight-bold">
-        {{ $t("BadPackets Tags:") }}
+        {{ $t("Bad Packets Tags:") }}
       </h6>
       <template v-for="(tag, index) in getTags()">
         <b-tag v-if="tag" :key="index" variant="primary" class="mr-1">

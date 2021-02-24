@@ -31,7 +31,7 @@ class AutonomousSystem(mongo.DynamicDocument):
 class IpGeoData(mongo.Document):
     """
     Server/IP Address information pulled from payload data of
-    BadPackets results
+    Bad Packets results
     """
     ip_address        = mongo.StringField(required=True, primary_key=True)
     ip_info           = mongo.ReferenceField('IpInfo', required=False)
@@ -58,7 +58,7 @@ class IpInfo(mongo.DynamicDocument):
 class IpEvent(mongo.Document):
     """
     Server/IP Address information pulled from payload data of
-    BadPackets results
+    Bad Packets results
     """
     ip_address        = mongo.ReferenceField(IpGeoData, required=True, reverse_delete_rule=mongo.CASCADE)
     created_at        = mongo.DateTimeField(default=datetime.utcnow)

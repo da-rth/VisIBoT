@@ -49,7 +49,7 @@
   "Malware Analysis": "Анализ вредоносного ПО",
   "Information:": "Информация:",
   "Cyber Threat Intelligence honeypot information provided by {bp_href}.": "Информация о приманке Cyber ​​Threat Intelligence, предоставляемая {bp_href}.",
-  "BadPackets Tags:": "Теги BadPackets:",
+  "Bad Packets Tags:": "Теги Bad Packets:",
   "Data exchange between malware binary and IP address": "Обмен данными между двоичным кодом вредоносного ПО и IP-адресом",
   "Malware binary connection to hardcoded IP address": "Бинарное соединение вредоносного ПО с жестко заданным IP-адресом",
   "Malware binary connection to blacklisted C2 IP address": "Двоичное соединение вредоносной программы с IP-адресом C2 из черного списка",

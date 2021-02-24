@@ -49,7 +49,7 @@
   "Malware Analysis": "マルウェア分析",
   "Information:": "情報：",
   "Cyber Threat Intelligence honeypot information provided by {bp_href}.": "{bp_href}が提供するサイバー脅威インテリジェンスのハニーポット情報。",
-  "BadPackets Tags:": "BadPacketsタグ：",
+  "Bad Packets Tags:": "Bad Packetsタグ：",
   "Data exchange between malware binary and IP address": "マルウェアバイナリとIPアドレス間のデータ交換",
   "Malware binary connection to hardcoded IP address": "ハードコードされたIPアドレスへのマルウェアバイナリ接続",
   "Malware binary connection to blacklisted C2 IP address": "ブラックリストに登録されたC2IPアドレスへのマルウェアバイナリ接続",

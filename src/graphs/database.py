@@ -24,7 +24,7 @@ class AutonomousSystem(mongo.DynamicDocument):
 class IpGeoData(mongo.Document):
     """
     Server/IP Address information pulled from payload data of
-    BadPackets results
+    Bad Packets results
     """
     ip_address        = mongo.StringField(required=True, primary_key=True)
     ip_info           = mongo.ReferenceField('IpInfo', required=False)
@@ -66,7 +66,7 @@ class IpGeoConnection(mongo.Document):
 
 class MalwarePayload(mongo.Document):
     """
-    Malware payload information retrieved from BadPackets results
+    Malware payload information retrieved from Bad Packets results
     """
     url               = mongo.StringField(required=True, primary_key=True)
     occurrences       = mongo.IntField(default=1)

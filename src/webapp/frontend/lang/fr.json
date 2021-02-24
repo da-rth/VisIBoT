@@ -49,7 +49,7 @@
   "Malware Analysis": "Analyse des logiciels malveillants",
   "Information:": "Information:",
   "Cyber Threat Intelligence honeypot information provided by {bp_href}.": "Informations sur le pot de miel Cyber ​​Threat Intelligence fournies par {bp_href}.",
-  "BadPackets Tags:": "Balises BadPackets:",
+  "Bad Packets Tags:": "Balises Bad Packets:",
   "Data exchange between malware binary and IP address": "Échange de données entre le binaire du malware et l'adresse IP",
   "Malware binary connection to hardcoded IP address": "Connexion binaire malveillante à une adresse IP codée en dur",
   "Malware binary connection to blacklisted C2 IP address": "Connexion binaire malveillante à l'adresse IP C2 sur liste noire",
