@@ -1,6 +1,5 @@
 "use strict"
 const express = require("express")
-const { uniqWith, isEqual } = require("lodash")
 const IpGeoData = require("../../models/IpGeoData")
 const IpGeoConnection = require("../../models/IpGeoConnection")
 
@@ -133,8 +132,7 @@ router.route("/connections/:ip").get(async (req, res) => {
   connections = connections.concat(await goUpTree(ipAddress))
   connections = connections.concat(await goDownTree(ipAddress))
 
-  let uniqueConnections = uniqWith(connections, isEqual)
-  return res.status(200).send(uniqueConnections)
+  return res.status(200).send(connections)
 })
 
 module.exports = router
