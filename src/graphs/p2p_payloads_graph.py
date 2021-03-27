@@ -1,39 +1,18 @@
-import db
 import matplotlib.pyplot as plt
 import networkx as nx
-
+import pandas as pd
 G = nx.Graph()
 
-print("Getting Payload Data")
-payloads = db.MalwarePayload.objects(candidate_P2Ps__exists=True, candidate_P2Ps__not__size=0, keyword="mirai")
-
-print(len(payloads), "payloads pulled")
-
+payloads_df = pd.read_csv('p2p_payloads.csv')
 source_conns = []
 dest_conns = []
 dest_edges = {}
-sum_dests = 0
-min_dests = len(payloads[0].candidate_P2Ps)
-max_dests = len(payloads[0].candidate_P2Ps)
 
-print("Generating Graph...")
-
-for payload in payloads:
-    source_ip = payload.ip_address.ip_address
+for payload in payloads_df.iterrows():
+    source_ip = payload['ip_address']
     source_conns.append(source_ip)
-    
-    num_nodes = len(payload.candidate_P2Ps)
-    
-    if num_nodes > max_dests:
-        max_dests = num_nodes
-    
-    if num_nodes < min_dests:
-        min_dests = num_nodes
 
-    for p in payload.candidate_P2Ps:
-        sum_dests += 1
-        dest_ip = p.ip_address
-
+    for dest_ip in payload['candidate_P2Ps']:
         if dest_ip not in dest_edges:
             dest_edges[dest_ip] = []
 
@@ -42,9 +21,6 @@ for payload in payloads:
 
 G.add_nodes_from(source_conns, fillcolor='red', node_size=30)
 G.add_nodes_from(dest_conns, fillcolor='blue', node_size=5)
-
-avg_nodes = int(sum_dests / len(source_conns))
-print(f"Payloads: {len(source_conns)} | P2P Nodes: {len(dest_conns)} | Min: {min_dests} | Max: {max_dests} | Avg: {avg_nodes}")
 
 def zip_with_scalar(l, o):
     return ((i, o) for i in l)
@@ -82,6 +58,3 @@ patches = [
 plt.legend(handles=patches)
 plt.title("This is a title")
 plt.show()
-
-# plt.savefig("ConnectionsGraph.png", format="PNG", dpi=1200)
-# print("Saved graph to ConnectionsGraph.png")

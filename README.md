@@ -1,13 +1,17 @@
-# VisIBoT - Visualisation of IoT botnets
+# VisiBot - Visualisation of IoT botnets
 ![Main Build Status](https://travis-ci.com/denBot/VisIBoT.svg?token=pMfMcyEQzGJGFRQDBST5&branch=main)
-* Author: [Daniel Arthur](mailto:2086380a@student.gla.ac.uk)
+* Author: [Daniel Arthur (2086380a)](mailto:2086380a@student.gla.ac.uk)
 * Supervisor: [Angelos Marnerides](mailto:angelos.marnerides@glasgow.ac.uk)
 
-VisIBoT is an automated solution to Command & Control Server (C2) Identifiaction. This project combines a variety of information sources and services, including the [Bad Packets](https://badpackets.net/) Cyber Threat Intelligence API, [VirusTotal](https://virustotal.com/), [ipinfo.io](https://ipinfo.io/), the [LiSa Sandbox](https://github.com/danieluhricek/LiSa) and various [MaxMind](https://www.maxmind.com/en/home) GeoIP2 databases.
+VisiBot is an automated solution to Command & Control Server (C2) Identification. This project combines a variety of information sources and services, including the [Bad Packets](https://badpackets.net/) Cyber-Threat Intelligence API, [VirusTotal](https://virustotal.com/), [ipinfo.io](https://ipinfo.io/), the [LiSa Sandbox](https://github.com/danieluhricek/LiSa) and various [MaxMind](https://www.maxmind.com/en/home) Geo IP2 databases.
 
-The VisIBoT processing scheduler will automatically collect Bad Packets honeypot data and extract, execute and analyse botnet malware payloads using the LiSa sandbox on an hourly basis. Through combined static and dynamic analysis of malware payloads, we identify potential (candidate) Command & Control (C2) servers. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
+The VisIBot processing scheduler will automatically collect Bad Packets honeypot data and extract, execute and analyse botnet malware payloads using the LiSa sandbox on an hourly basis. Through combined static and dynamic analysis of malware payloads, we identify potential (candidate) Command & Control (C2) servers. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
 
-The VisIBoT web-application is a browser-based visualisation tool that maps geolocation of identified potential bots, payload servers, peer-to-peer nodes and command-and-control servers. Written in Nuxt.js and hosted using Express.js, the main service uses Leaflet.js to cluster and annotate the geolocations of any identified botnet activity.
+The VisiBot web-application is a browser-based visualisation tool that maps geolocation of identified potential bots, payload servers, peer-to-peer nodes and command-and-control servers. Written in Nuxt.js and hosted using Express.js, the main service uses Leaflet.js to cluster and annotate the geolocations of any identified botnet activity.
+
+![VisiBot Web Application](docs/assets/visibot_webapp.png)
+
+
 
 
 # Requirements
@@ -20,7 +24,7 @@ The VisIBoT web-application is a browser-based visualisation tool that maps geol
 - A modified fork of the [LiSa Sandbox Server](https://github.com/denBot/LiSa)
     - (optional) An active VPN service connectable through a OpenVPN .ovpn file
 
---- 
+---
 
 # Setting up modified LiSa server
 [LiSa](https://github.com/danieluhricek/LiSa) is a Linux Sandbox project created by [Daniel Uhříček](https://github.com/danieluhricek) which provides automated Linux malware analysis on various CPU architectures. I have modified this project ([AVAILABLE HERE](https://github.com/denBot/LiSa)) to allow for the following additional features:
@@ -35,7 +39,7 @@ The VisIBoT web-application is a browser-based visualisation tool that maps geol
     ➜  ~ git clone https://github.com/denBot/LiSa-modified
     ➜  ~ cd LiSa
     ```
-2. (Optional - skip if unsure) Edit `docker-compose.yml` and update `API_SUCCESS_URL` and `API_FAILURE_URL` environment variables to the IP address where the VisIBoT processing service Flask API is running. This should be running on port 5001 by default. The URL must contain the substring `<task_id>` at the end.
+2. (Optional - skip if unsure) Edit `docker-compose.yml` and update `API_SUCCESS_URL` and `API_FAILURE_URL` environment variables to the IP address where the VisiBot processing service Flask API is running. This should be running on port 5001 by default. The URL must contain the sub-string `<task_id>` at the end.
     ```yml
     worker:
       ...
@@ -68,8 +72,8 @@ The VisIBoT web-application is a browser-based visualisation tool that maps geol
       ...
     ```
     - **Note**: if your VPN only allows X connections at one time, you should not use more than X workers. Otherwise, workers may fail to connect to the VPN.
-4. Configure the VirusTotal Analyzer to use your VirusTotal API KEY in `lisa/config.py`
-    - Uncomment `'lisa.analysis.virustotal.VirusTotalAnalyzer'`
+4. Configure the VirusTotal Analyser to use your VirusTotal API KEY in `lisa/config.py`
+    - Un-comment `'lisa.analysis.virustotal.VirusTotalAnalyzer'`
     - Assign variable `virus_total_key` to your VirusTotal API Key
 5. Build docker images. This will take a while. You might need to use `sudo` too.
     ```bash
@@ -83,11 +87,11 @@ The VisIBoT web-application is a browser-based visualisation tool that maps geol
 6. Once running, visit `http://localhost:4242` (or whatever you set in `docker-compose.yml` and verify that LiSa is online.
 
 Important notes:
-- if you modify any LiSa code or the nginx webhost in `docker-compose.yml`, you will need to `docker-compose build` before running the services again.
+- if you modify any LiSa code or the nginx web-host in `docker-compose.yml`, you will need to `docker-compose build` before running the services again.
 - You can specify the number of **workers** used for running malware analysis tasks using the `--scale worker=NUM` docker-compose argument. The default is 1 but I recommend at least 2 or more.
 - If you need to access any host (non-docker container) ports, such as the VisIBoT API port 5001, use the IP address `172.42.0.1` instead of `localhost` or `127.0.0.1`.
 
---- 
+---
 
 # Setting up the bad packets processing service
 Execute the below commands to run the Bad Packets processing script. This script processes all honeypot entities caught by Bad Packets and exports API data into a MongoDB schema format. Payloads are automatically extracted from BP Results and are analysed using the `LiSa` malware sandbox mentioned above.
