@@ -323,3 +323,161 @@
 * *2.0 hours* Fixed various pylama and eslint errors
 * *2.0 hours* Updated frontend popup modal to include information about candidate C2/P2P nodes
 * *0.5 hours* Updating README.md with link to new (modified) LiSa fork
+
+### 05 Feb 2020
+* *4.0 hours* Refactoring and fixing bugs in lisa.py
+
+### 06 Feb 2020
+* *3.0 hours* Updated translations for locales fr, jp, pt, ru
+* *1.0 hours* Fixing typos in translations
+* *1.0 hours* Created custom 404 page with translations
+* *1.0 hours* Added hrefs for Bad Packets, Geo IP2, etc...
+* *2.0 hours* Fixed nuxt.js routes and styled about page
+
+
+## Week 21
+
+### 08 Feb 2020
+* *1.0 hours* Updated .env.example to reflect new changes
+* *0.5 hours* Added sleep between badpackets API calls to prevent throttling
+* *3.0 hours* Made several changes to nuxt.js and express.js for deployment
+* *2.0 hours* Fixed bug with alltags API in express.js caused by flat()
+* *1.0 hours* Additional cahnges to about page (light mode)
+
+### 09 Feb 2020
+* *1.0 hours* Added 'restart: always' to docker worker container to ensure that failed analysis tasks can recover
+* *2.0 hours* Planning dissertation structure and creating overleaf project
+
+### 10 Feb 2020
+* *1.0 hours* Configured REDIS to use password protection for security
+* *2.0 hours* Read Chapter 1 of Peer-to-Peer Botnets https://www.eecs.ucf.edu/~czou/research/P2PBotnets-bookChapter.pdf
+
+### 11 Feb 2020
+* *1.0 hours* Created revised flow/architecture diagram to documentation
+* *2.0 hours* Modified visibot scheduler to fix bug and increase wait time between API calls
+* *0.5 hours* Added restart: always to flower container docker config
+
+
+## Week 22
+
+### 16 Feb 2020
+* *2.0 hours* Fixed database.py bug caused by KeyError in scanned_playloads
+* *2.0 hours* Fixed KeyError encountered in database.py and fixed several pylama errors
+
+### 19 Feb 2020
+* *3.0 hours* Creating system architecture diagrams for dissertation
+
+
+## Week 24
+
+### 24 Feb 2020
+* *2.0 hours* Added starting code for graph generation using NetworkX
+* *3.5 hours* Fixed slow loading bug for P2P connections on Web App dashboard (express.js issue caused by lodash)
+* *1.0 hours* Renamed all instances of 'BadPackets' with 'Bad Packets', to ensure correct trademark is used
+
+### 26 Feb 2020
+* *5.0 hours* Researching and writing background for dissertation
+
+### 27 Feb 2020
+* *6.0 hours* Researching and writing background for dissertation
+
+### 28 Feb 2020
+* *4.0 hours* Finishing first iteration of background section
+
+
+## Week 25
+
+### 02 Mar 2020
+* *1.0 hours* Meeting with supervisor regarding current state of disseration
+* *3.0 hours* Planning and restructuring disseration contents following meeting with supervisor
+* *3.0 hours* Read papers recommended by supervisor: https://dl.acm.org/doi/10.1145/3307772.3328305 https://ieeexplore.ieee.org/document/9014300
+
+### 04 Mar 2020
+* *3.0 hours* Researching background texts on the evolution of botnets
+* *2.0 hours* Writing initial sub-section on evolution of botnets
+
+### 05 Mar 2020
+* *3.0 hours* Researching how to create an ER Diagram for MongoDB Databases
+* *2.0 hours* Re-captioning and screen-shotting several graphs for dissertation
+* *1.0 hours* Re-structuring of latex document to allow for increased readability
+
+### 06 Mar 2020
+* *2.0 hours* Generating ER diagram for dissertation section
+* *1.0 hours* Generating docker image diagram
+* *6.0 hours* Writing implementation section for dissertation
+
+
+## Week 26
+### 08 Mar 2020
+* *6.0 hours* Writing implementation section for dissertation
+* *0.5 hours* Adding screenshots of web application into implementation and appendix sections
+
+### 09 Mar 2020
+* *2.0 hours* Re-formatting bibliography
+* *2.0 hours* Referencing resources mentioned in implementation section
+
+### 10 Mar 2020
+* *3.0 hours* Created several low-level and high-level flow diagrams used within dissertation
+* *2.0 hours* Added diagrams to dissertation as figures (in appendix and implementation sections)
+* *3.0 hours* Finished writing implementation section
+
+### 13 Mar 2020
+* *4.0 hours* Started re-writing background of dissertation based on advice from supervisor
+* *3.0 hours* Researching papers whilst writing
+
+### 14 Mar 2020
+* *7.0 hours* Continued writing of the background section of the dissertation
+
+
+## Week 27
+### 15 Mar 2020
+* *1.0 hours* Re-structuring dissertation sub-sections, headings, etc.
+* *4.0 hours* Researching relevant papers for background
+* *4.0 hours* Finishing background section of dissertation
+
+### 16 Mar 2020
+* *4.0 hours* Re-writing graph code to produce C2 ASN and P2P Payload graphs/stats tables
+* *3.0 hours* Writing results section of dissertation
+* *2.0 hours* Writing problem analysis section of dissertation
+
+### 17 Mar 2020
+* *6.0 hours* Writing results section of dissertation
+* *1.0 hours* Re-structuring results section to fit in necessary visualisations/graphs
+* *3.0 hours* Finished problem analysis section
+
+### 18 Mar 2020
+* *4.0 hours* Writing evaluation sub-section of results dissertation section
+* *3.0 hours* Writing design overview section of dissertation
+
+### 19 Mar 2020
+* *3.0 hours* Finishing evaluation section
+* *5.0 hours* Writing conclusion section of dissertation
+
+### 20 Mar 2020
+* *4.0 hours* Re-writing/shortening parts of the conclusion
+* *3.0 hours* Writing future work section
+* *1.5 hours* Finishing design overview section of dissertation
+
+### 21 Mar 2020
+* *2.0 hours* Proof reading results, evaluation, and conclusion
+* *2.0 hours* Fixing typos, grammatical errors and re-phrasing paragraphs
+
+
+## Week 28
+
+### 22 Mar 2020
+* *5.0 hours* Continued research and writing of introduction chapter for dissertation
+
+### 23 Mar 2020
+* *3.0 hours* Cleaning and double-checking references
+* *1.0 hours* Fixing overlapping URL bug in latex document
+* *3.0 hours* Finishing introduction chapter of dissertation
+
+### 24 Mar 2020
+* *2.0 hours* Re-deploying VisiBot for future data-collection
+* *2.0 hours* Proof-reading dissertation
+* *2.0 hours* Spell-checking dissertation (completed first draft)
+* *0.5 hours* Notified supervisor of first draft completion
+
+### 27 Mar 2020
+* *1.0 hours* Updating README.md and removing unused graph code
