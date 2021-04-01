@@ -1,0 +1,41 @@
+% REMEMBER: You must not plagiarise anything in your report. Be extremely careful.
+
+\documentclass{l4proj}
+% Additional Packages here
+\usepackage{todonotes}
+\usepackage{enumerate}
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-}
+\urlstyle{same}
+
+\DeclareFontShape{OT1}{cmtt}{bx}{n}{<5><6><7><8><9><10><10.95><12><14.4><17.28><20.74><24.88>cmttb10}{}
+
+\begin{document}
+\title{VisiBot:\\automated detection of IoT botnets using heuristic analysis techniques.}
+\author{Daniel Arthur}
+\date{\today}
+
+\maketitle
+
+\include{sections/0_abstract}
+
+\def\consentname {Daniel Arthur}
+\def\consentdate {\today}
+\educationalconsent
+
+\tableofcontents
+
+\include{sections/1_introduction}
+\include{sections/2_background}
+\include{sections/3_problem_analysis}
+\include{sections/4_design_overview}
+\include{sections/5_implementation}
+\include{sections/6_results}
+\include{sections/7_conclusion}
+\include{sections/8_appendix}
+
+% \bibliographystyle{abbrvnat}
+\bibliographystyle{unsrtnat}
+\bibliography{l4proj}
+
+\end{document}

@@ -1,0 +1,986 @@
+% Introduction References:
+
+@Misc{Lexico2021,
+  author        = "Lexico",
+  title         = {Definition of Botnet},
+  publisher     = {{Lexico}},
+  url           = {https://www.lexico.com/definition/botnet},
+  note          = "[Accessed \today]",
+  year          = {2021}
+}
+
+@Misc{ITU2012,
+  author        = "The International Telecommunication Union",
+  title         = {Internet of Things Global Standards Initiative},
+  publisher     = {{ITU}},
+  url           = {https://www.itu.int/en/ITU-T/gsi/iot/Pages/default.aspx},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2012}
+}
+
+@Misc{Oracle2021,
+  author        = "Oracle",
+  title         = {What Is IoT?},
+  publisher     = {{oracle}},
+  url           = {https://www.oracle.com/uk/internet-of-things/what-is-iot/},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2021}
+}
+
+@Misc{Threatpost2016,
+  author        = "Mimoso, Michael",
+  title         = {What Is IoT?},
+  publisher     = {{ThreatPost}},
+  url           = {https://threatpost.com/dyn-ddos-could-have-topped-1-tbps/121609/},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@Misc{Lueth2020,
+  author        = "Lueth, Knud Lasse",
+  title         = {State of the IoT 2020: 12 billion IoT connections, surpassing non-IoT for the first time},
+  publisher     = {{IoT Analytics GmbH.}},
+  howpublished = {\url{https://iot-analytics.com/state-of-the-iot-2020-12-billion-iot-connections-surpassing-non-iot-for-the-first-time/}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2020}
+}
+
+@Misc{Kochetkova2016,
+  author        = "Kochetkova, Kate",
+  title         = {How to not break the Internet},
+  publisher     = {{Kaspersky Lab}},
+  url           = {https://www.kaspersky.co.uk/blog/attack-on-dyn-explained/7867/},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@Misc{Maunder2016,
+  author        = "Maunder, Mark",
+  title         = {DynDNS is currently being DDoS’d – May affect your site},
+  publisher     = {{DEFIANT INC.}},
+  url           = {https://www.wordfence.com/blog/2016/10/dyndns-currently-ddosd-may-affect-site/},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@Misc{Krebs2016,
+  author        = "Krebs, Brian",
+  title         = {Source Code for IoT Botnet ‘Mirai’ Released},
+  publisher     = {{Krebs on Security}},
+  url           = {https://krebsonsecurity.com/2016/10/source-code-for-iot-botnet-mirai-released/},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@Misc{Misra2021,
+  author        = "Misra, Nirmal",
+  title         = {OWASP’s Top 10 IoT Vulnerabilities},
+  publisher     = {{ Device Authority Ltd. }},
+  url           = {https://www.deviceauthority.com/blog/owasp-s-top-10-iot-vulnerabilities},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2021}
+}
+
+@Misc{Arm2021,
+  author        = "Arm",
+  title         = {IOT Devices},
+  publisher     = {{ Arm Ltd. }},
+  url           = {https://www.arm.com/glossary/iot-devices},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2021}
+}
+
+@Article{Putman2018,
+  author        = {{C.G.J Putman, Nieuwenhuis, and J. M. Lambert}},
+  title         = {Business Model of a Botnet},
+  journal       = {26th Euromicro International Conference on Parallel, Distributed, and Network-Based Processing},
+  publisher     = {IEEE},
+  doi           = {10.1109/PDP2018.2018.00077},
+  url           = {https://doi.org/10.1109/PDP2018.2018.00077},
+  year          = {2018}
+}
+
+
+% =========================================================
+% Background References:
+
+% ======================
+% Evolution of Botnets
+
+@Misc{Ferguson2010,
+  author        = "Ferguson, Rik",
+  title         = {The Botnet Chronicles: A journey to infamy},
+  journal       = {Trend Micro White Paper},
+  publisher     = {{Trend Micro, Inc.}},
+  url           = {https://www.trendmicro.co.uk/media/wp/botnet-chronicles-whitepaper-en.pdf},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2010}
+}
+
+@Article{Schiller2007,
+  author        = "Schiller, Craig A and Binkley, Jim and Harley, David and Evron, Gadi and Bradley, Tony and Willems, Carsten and Cross, Michael",
+  title         = {Chapter 8 - IRC and Botnets},
+  journal       = {Botnets: The Killer Web App},
+  publisher     = {Syngress},
+  pages         = {285-311},
+  doi           = {10.1016/B978-159749135-8/50005-6},
+  url           = {https://doi.org/10.1016/B978-159749135-8/50005-6},
+  year          = {2007}
+}
+
+@Article{Holz2008,
+  author        = "Holz, Thorsten and Steiner, Moritz and Dahl, Frederic and Biersack, Ernst and Freiling, Felix",
+  title         = {Measurements and Mitigation of Peer-to-Peer-based Botnets: A Case Study on Storm Worm},
+  journal       = {LEET'08: Proceedings of the 1st Usenix Workshop on Large-Scale Exploits and Emergent Threats},
+  publisher     = {USENIX},
+  pages         = {1--9},
+  doi           = {10.5555/1387709.1387718},
+  url           = {https://dl.acm.org/doi/10.5555/1387709.1387718},
+  year          = {2008}
+}
+
+@misc{Morton2017,
+  author        = "Morton, Rob and Barth, Tom",
+  title         = {Fast Flux Botnets Still Wreaking Havoc On The Internet According To Akamai Research},
+  journal       = {Akamai 2017 Press Releases},
+  publisher     = {Akamai Technologies},
+  howpublished = {\url{https://www.akamai.com/uk/en/about/news/press/2017-press/fast-flux-botnets-still-wreaking-havoc-on-internet-according-to-akamai-research.jsp}},
+  note          = "[Accessed March 24, 2021]",
+  year = {2017}
+}
+
+@misc{Cencus2012,
+  author        = "Anon",
+  title         = {Port scanning /0 using insecure embedded devices: Carna Botnet},
+  journal       = {Internet Cencus 2012},
+  howpublished  = {\url{http://census2012.sourceforge.net/paper.html}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2012}
+}
+
+@misc{NJCCIC2016,
+  author        = "NJCCIC",
+  title         = {Aidra Botnet},
+  howpublished  = {\url{https://www.cyber.nj.gov/threat-center/threat-profiles/botnet-variants/aidra-botnet}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@misc{AidraSource,
+  author        = "Fazzi, Federico and Kirsche, Kevin",
+  title         = {Lightaidra},
+  howpublished  = {\url{https://github.com/eurialo/lightaidra}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@misc{ATMA2012,
+  author        = "Anon",
+  title         = {ATMA - darknet - securite internet - deepweb - darkweb},
+  howpublished  = {\url{http://atma.es/}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2012}
+}
+
+@misc{Kovacs2014,
+  author        = "Kovacs, Eduard",
+  title         = {BASHLITE Malware Uses ShellShock to Hijack Devices Running BusyBox},
+  publisher     = {SecurityWeek},
+  howpublished  = {\url{https://www.securityweek.com/bashlite-malware-uses-shellshock-hijack-devices-running-busybox}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2014}
+}
+
+
+% ======================
+% Overview of IoT Botnets
+@Article{Marzano2018,
+  author        = {Marzano, Artur and Alexander, David and Fonseca, Osvaldo and Fazzion, Elverton C and Steding-Jessen, Klaus and Chaves, Marcio Jose and Cunha, Italo and Guedes, Dorgival Olavo and Meira Jr, Wagner},
+  title         = {Understanding the Mirai Botnet},
+  publisher     = {IEEE},
+  journal       = {2018 IEEE Symposium on Computers and Communications (ISCC)},
+  pages         = {1093--1100},
+  doi           = {10.1109/ISCC.2018.8538636},
+  url           = {https://doi.org/10.1109/ISCC.2018.8538636},
+  year          = {2018}
+}
+
+@misc{CVE20146271,
+  author        = {{The MITRE Corporation.}},
+  title         = {CVE-2014-6271},
+  howpublished  = {\url{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-6271}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2014}
+}
+
+@misc{Malwaremustdie2016,
+  author        = {{MalwareMustDie}},
+  title         = {BASHLITE Linux Botnet},
+  howpublished  = {\url{https://blog.malwaremustdie.org/2016/08/mmd-0056-2016-linuxmirai-just.html}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@misc{NHS2018,
+  author        = {{NHS Digital}},
+  title         = {MMD-0056-2016 - Linux/Mirai, how an old ELF malcode is recycled..},
+  howpublished  = {\url{https://blog.malwaremustdie.org/2016/08/mmd-0056-2016-linuxmirai-just.html}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2016}
+}
+
+@Article{Bertino2017,
+  author        = "Bertino, Elisa and Islam, Nayeem",
+  title         = {Botnets and Internet of Things Security},
+  publisher     = {IEEE},
+  journal       = {Computer},
+  volume        = {50},
+  issue         = {2},
+  pages         = {76--79},
+  doi           = {10.1109/MC.2017.62},
+  url           = {https://doi.org/10.1109/MC.2017.62},
+  year          = {2017}
+}
+
+@Article{Antonakakis2017,
+  author        = "Antonakakis, Manos and April, Tim and Bailey, Michael and Bernhard, Matthew and Bursztein, Elie and Cochran, Jaime and Durumeric, Zakir and Halderman, Alex and Invernizzi, Luca and Kallitsis, Michalis and Kumar, Deepak and Lever, Chaz and Ma, Zone and Mason, Joshua and Menscher, Damian and Seaman, Chad and Sullivan, Nick and Thomas, Kurt and Zhou, Yi",
+  title         = {Understanding the Mirai Botnet},
+  publisher     = {USENIX Association},
+  journal       = {26th USENIX Security Symposium},
+  pages         = {1093--1100},
+  doi           = {10.5555/3241189.3241275},
+  url           = {https://dl.acm.org/doi/10.5555/3241189.3241275},
+  year          = {2017}
+}
+
+@Article{Herwig2019,
+  author        = "Herwig, Stephen and Harvey, Katura and Hughey, George and Roberts, Richard and Levin, Dave",
+  title         = {Measurement and Analysis of Hajime, a Peer-to-peer IoT Botnet},
+  journal       = {Network and Distributed Systems Security (NDSS) Symposium 2019},
+  publisher     = {NDSS Symposium},
+  doi           = {10.14722/ndss.2019.23488},
+  url           = {https://dx.doi.org/10.14722/ndss.2019.23488},
+  year          = {2019}
+}
+
+@Article{Dwyer2019,
+  author        = "Dwyer, Owen P and Marnerides, Angelos K and Giotsas, Vasileios and Mursch, Troy",
+  title         = {Profiling IoT-Based Botnet Traffic Using DNS},
+  journal       = {2019 IEEE Global Communications Conference (GLOBECOM)},
+  publisher     = {IEEE},
+  doi           = {10.1109/GLOBECOM38437.2019.9014300},
+  url           = {10.1109/GLOBECOM38437.2019.9014300},
+  year          = {2019}
+}
+
+% ======================================
+% Defence against IoT Botnets
+
+@Article{Lividas2006,
+  author        = "Lividas, Carl. and Walsh, Robert. and Lapsley, David. and Strayer, W. Timothy.",
+  title         = {Proceedings. 2006 31st IEEE Conference on Local Computer Networks},
+  publisher     = {IEEE},
+  journal       = {Proceedings. 2006 31st IEEE Conference on Local Computer Networks},
+  pages         = {1094--1101},
+  doi           = {10.1109/LCN.2006.322210},
+  url           = {https://doi.org/10.1109/LCN.2006.322210},
+  year          = {2006}
+}
+
+@Article{Moon2012,
+  author        = "Moon, Young Hoon. and Kim, Eunjin. and Hur, Suh Mahn. and Kim, Huy Kang.",
+  title         = {Detection of botnets before activation: an enhanced honeypot system for intentional infection and behavioral observation of malware},
+  publisher     = {John Wiley \& Sons, Ltd.},
+  journal       = {Next Generation Communication and Network Security},
+  volume        = {5},
+  issue         = {10},
+  pages         = {1094--1101},
+  doi           = {10.1002/sec.431},
+  url           = {https://doi.org/10.1002/sec.431},
+  year          = {2012}
+}
+
+
+@Article{PaPa2016,
+  author        = "Pa Pa, Yin Minn and Suzuki, Shogo and Yoshioka, Katsunari and Matsumoto, Tsutomu and Kasama, Takahiro and Rossow, Christian",
+  title         = {IoTPOT: A novel honeypot for revealing current IoT threats},
+  journal       = {Journal of Information Processing},
+  volume        = {24},
+  issue         = {3},
+  publisher     = {NDSS Symposium},
+  pages         = {522--533},
+  doi           = {10.2197/ipsjjip.24.522},
+  url           = {https://dx.doi.org/10.2197/ipsjjip.24.522},
+  year          = {2016}
+}
+
+
+@Article{Bastos2019,
+  author        = "Bastos, Gabriel and Marzano, Artur and Fonseca, Osvaldo and Fazzion, Elverton and Hoepers, Cristine and Steding-Jessen, Klaus and H.P.C, Chaves Marcelo and Cunha, Italo and Guedes, Dorgival and Meira, Wagner",
+  title         = {Identifying and Characterizing Bashlite and Mirai C\&C Servers},
+  journal       = {2019 IEEE Symposium on Computers and Communications (ISCC)},
+  publisher     = {IEEE},
+  pages         = {1--6},
+  doi           = {10.1109/ISCC47284.2019.8969728},
+  url           = {https://doi.org/10.1109/ISCC47284.2019.8969728},
+  year          = {2019}
+}
+
+
+@Article{Ceron2019,
+  author        = "Ceron, João Marcelo and Steding-Jessen, Klaus and Hoepers, Cristine and Granville, Lisandro Zambenedetti and Margi, Cíntia Borges",
+  title         = {Improving IoT Botnet Investigation Using an Adaptive Network Layer},
+  journal       = {Sensors 2019, 19, 727},
+  publisher     = {MDPI},
+  doi           = {10.3390/s19030727},
+  url           = {https://doi.org/10.3390/s19030727},
+  year          = {2019}
+}
+
+
+@Article{Darki2020,
+  author        = "Darki, Ahmad and Faloutsos, Michalis",
+  title         = {RIoTMAN: a systematic analysis of IoT malware behavior},
+  journal       = {CoNEXT '20: Proceedings of the 16th International Conference on emerging Networking EXperiments and Technologies},
+  publisher     = {ACM},
+  pages         = {169--182},
+  doi           = {10.1145/3386367.3431317},
+  url           = {https://doi.org/10.1145/3386367.3431317},
+  year          = {2020}
+}
+
+
+@Article{Zhou2020,
+  author        = "Zhou, Jiawei and Xu, Zhiying and Rush, Alexander M and Yu, Minlan",
+  title         = {Automating Botnet Detection with Graph Neural Networks},
+  journal       = {AutoML for Networking and Systems Workshop of MLSys 2020 Conference},
+  archivePrefix = {arXiv},
+  eprint        = {abs/2003.06344},
+  url           = {https://arxiv.org/abs/2003.06344},
+  year          = {2020}
+}
+
+
+@Article{ElDefrawy2007,
+  author        = "El Defrawy, Karim and Gjoka, Minas and Markopoulo, Athina",
+  title         = {BotTorrent: Misusing BitTorrent to Launch DDoS Attacks},
+  journal       = {3rd Workshop on Steps to Reducing Unwanted Traffic on the Internet},
+  publisher     = {USENIX Association},
+  url           = {https://www.usenix.org/biblio-8505},
+  year          = {2007}
+}
+
+@Article{Tegeler2012,
+  author        = "Tegeler, Florian and Fu, Xioming and Vigna, Giovanni and Kruegel, Christopher",
+  title         = {An Automated Bot Detection System through Honeypots for Large-Scale},
+  journal       = {CoNEXT '12: Proceedings of the 8th international conference on Emerging networking experiments and technologies},
+  publisher     = {ACM},
+  pages         = {349--360},
+  doi           = {10.1145/2413176.2413217},
+  url           = {https://doi.org/10.1145/2413176.2413217},
+  year          = {2012}
+}
+
+@Article{Haltas2014,
+  author        = "Haltaş, Fatih and Uzuin, Erkam and Şişeci, Necati and Poşul, Abdulkadir and Emre, Bakır",
+  title         = {An Automated Bot Detection System through Honeypots for Large-Scale},
+  journal       = {2014 6th International Conference On Cyber Conflict (CyCon 2014)},
+  publisher     = {IEEE},
+  doi           = {10.1109/CYCON.2014.6916407},
+  url           = {https://doi.org/10.1109/CYCON.2014.6916407},
+  year          = {2014}
+}
+
+
+
+
+@Article{Wang2017,
+  author        = "Wang, Jiajia and Chen, Yu",
+  title         = {P2P Botnet Detection Method Based on Data Flow},
+  journal       = {2017 2nd International Symposium on Advances in Electrical, Electronics and Computer Engineering (ISAEECE 2017)},
+  publisher     = {Atlantis Press},
+  doi           = {10.2991/isaeece-17.2017.44},
+  url           = {https://doi.org/10.2991/isaeece-17.2017.44},
+  year          = {2017}
+} 
+
+@Article{Li2019,
+  author        = "Li, Jiabin and Xue, Zhi",
+  title         = {Distributed Threat Intelligence Sharing System: A New Sight of P2P Botnet Detection},
+  journal       = {2019 2nd International Conference on Computer Applications \& Information Security (ICCAIS)},
+  publisher     = {IEEE},
+  doi           = {10.1109/CAIS.2019.8769511},
+  url           = {https://doi.org/10.1109/CAIS.2019.8769511},
+  year          = {2019}
+}
+
+
+@misc{Detux2016,
+  author = "Iyengar, Vikas and Binjve, Rahul",
+  title = {Detux Sandbox},
+  year = 2016,
+  url = {https://github.com/detuxsandbox/detux},
+  note          = "[Accessed March 24, 2021]",
+}
+
+@misc{Honeyd2008,
+  author = "Provos, Niels",
+  title = {Detux Sandbox},
+  year = 2008,
+  url = {http://www.honeyd.org/},
+  note          = "[Accessed March 24, 2021]",
+}
+
+@misc{Netlab2019,
+  author        = {{Netlab 360}},
+  title         = {Mozi, Another Botnet Using DHT},
+  howpublished  = {\url{https://blog.netlab.360.com/mozi-another-botnet-using-dht/}},
+  note          = "[Accessed March 24, 2021]",
+  year          = {2019}
+}
+
+
+
+
+% =========================================================
+% Problem Analysis References:
+
+
+
+
+% =========================================================
+% Design Overview References:
+
+@misc{IBDefinition,
+  author = {{Gartner, Inc.}},
+  title = {Definition of IB (Integration Broker)},
+  year = 2021,
+  url = {https://www.gartner.com/en/information-technology/glossary/ib-integration-broker},
+  note          = "[Accessed March 24, 2021]"
+}
+
+@misc{MarkerClustering,
+  author = {Agafonkin, Vladimir},
+  title = {Leaflet.MarkerCluster 0.1 Released},
+  year = 2012,
+  url = {https://leafletjs.com/2012/08/20/guest-post-markerclusterer-0-1-released.html},
+  note          = "[Accessed March 24, 2021]"
+}
+
+
+% =========================================================
+% Implementation References:
+
+@Misc{DockerCompose,
+    author =   {{Docker, Inc.}},
+    title =    {Overview of Docker Compose},
+    howpublished = {\url{https://docs.docker.com/compose/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2013--2021}
+}
+
+@Misc{Python39,
+    author =   {{Python Software Foundation}},
+    title =    {What's New In Python 3.9},
+    howpublished = {\url{https://docs.python.org/3/whatsnew/3.9.html}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021},
+}
+
+@Misc{Celery,
+    author =   {Solem, Ask and contributors},
+    title =    {Celery - Distributed Task Queue},
+    howpublished = {\url{https://docs.celeryproject.org/en/stable/index.html}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2009--2021},
+}
+
+@Misc{CeleryFlower,
+    author =   {Movsisyan, Mher and contributors},
+    title =    {Flower},
+    howpublished = {\url{https://github.com/mher/flower}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2016--2021}
+}
+
+@Misc{Redis,
+    author =   {{Redis Labs}},
+    title =    {Redis},
+    howpublished = {\url{https://redis.io/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2009--2021}
+}
+
+@Misc{MaxMind,
+    author =   {{MaxMind, Inc.}},
+    title =    {GeoIP2 Databases},
+    howpublished = {\url{https://man7.org/linux/man-pages/man5/crontab.5.html}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2002--2021}
+}
+
+@Misc{Crontab,
+    author =   {Vixie, Paul and contributors},
+    title =    {crontab(5) — Linux manual page},
+    howpublished = {\url{https://www.maxmind.com/en/geoip2-databases}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2012--2020}
+}
+
+@Misc{MongoDB,
+    author =   {{MongoDB Inc.}},
+    title =    {MongoDB},
+    howpublished = {\url{https://www.mongodb.com/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2009--2021}
+}
+
+@Misc{MongoEngine,
+    author =   {Marr, Harry and contributors},
+    title =    {mongoengine},
+    howpublished = {\url{https://github.com/MongoEngine/mongoengine}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2013--2021}
+}
+
+@Misc{MongoDBAtlas,
+    author =   {{MongoDB Inc.}},
+    title =    {MongoDB Atlas},
+    howpublished = {\url{https://www.mongodb.com/cloud/atlas}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{MongoDBCharts,
+    author =   {{MongoDB Inc.}},
+    title =    {MongoDB Atlas},
+    howpublished = {\url{https://www.mongodb.com/cloud/atlas}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{URLExtract,
+    author =   {Lipovský, Jan},
+    title =    {urlextract - PyPI},
+    howpublished = {\url{https://pypi.org/project/urlextract/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2020}
+}
+
+@Misc{Shebang,
+    author =   {CyberCiti},
+    title =    {Shebang},
+    howpublished = {\url{https://bash.cyberciti.biz/guide/Shebang}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2020}
+}
+
+@Misc{TLD,
+    author =   {Barseghyan, Artur and contributors},
+    title =    {tld},
+    howpublished = {\url{https://github.com/barseghyanartur/tld}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{TLDExtract,
+    author =   {Kurkowski, John and contributors},
+    title =    {tldextract},
+    howpublished = {\url{https://github.com/john-kurkowski/tldextract}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2020}
+}
+
+@Misc{PythonSocket,
+    author =   {{Python Software Foundation}},
+    title =    {socket - Low-level Network Interface},
+    howpublished = {\url{https://docs.python.org/3/library/socket.html}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{BadPacketsMirai,
+    author =   {Mursch, Troy},
+    title =    {Bad Packets - What does Mirai-Like scan mean?},
+    howpublished = {\url{https://badpackets.net/mirai-like-botnet-one-year-review-and-a-new-website/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{Afrinic,
+    author =   {AFRINIC},
+    title =    {AFRINIC the Region Internet Registry (RIR) for Africa},
+    howpublished = {\url{https://afrinic.net/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{Apnic,
+    author =   {APNIC},
+    title =    {APNIC},
+    howpublished = {\url{https://www.apnic.net/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{RipeNCC,
+    author =   {RIPE NCC},
+    title =    {RIPE Network Coordination Centre},
+    howpublished = {\url{https://www.ripe.net/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{LiSa,
+    author =   {Uhříček, Daniel},
+    title =    {LiSa - Linux Sandbox},
+    howpublished = {\url{https://github.com/danieluhricek/LiSa}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2019--2020}
+}
+
+@Misc{LiSaModified,
+    author =   {Uhříček, Daniel and Arthur, Daniel},
+    title =    {LiSa - Linux Sandbox},
+    howpublished = {\url{https://github.com/denBot/LiSa}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2020--2021}
+}
+
+@Misc{VirusTotal,
+    author =   {VirusTotal},
+    title =    {VirusTotal},
+    howpublished = {\url{https://www.virustotal.com/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2004--2021}
+}
+
+@Misc{Flask,
+    author =   {Armin Ronacher and contributors},
+    title =    {Flask Documentation (1.1.x)},
+    howpublished = {\url{https://flask.palletsprojects.com/en/1.1.x/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2010--2021}
+}
+
+@Misc{UPX,
+    author =   {Oberhumer, Markus and Molnár, László and Reiser, John F.},
+    title =    {UPX - the Ultimate Packer for eXecutables},
+    howpublished = {\url{https://upx.github.io/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {1996--2020}
+}
+
+@Misc{BadPackets,
+    author =   {{Bad Packets LLC}},
+    title =    {Bad Packets® Cyber Threat Intelligence},
+    howpublished = {\url{https://badpackets.net/threat-intelligence/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2017--2021}
+}
+
+@Misc{PythonRequests,
+    author =   {Reitz, Kenneth and contributors},
+    title =    {requests - PyPI},
+    howpublished = {\url{https://pypi.org/project/requests/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2011--2021}
+}
+
+@Misc{IPInfo,
+    author =   {IPinfo},
+    title =    {IPInfo - Developers API},
+    howpublished = {\url{https://ipinfo.io/developers}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2013--2021}
+}
+
+@Misc{ipwhois,
+    author =   {Hane, Philip and contributors},
+    title =    {IP ASN Lookup - ipwhois 1.2.0 documentation},
+    howpublished = {\url{https://ipinfo.io/developers}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2013--2020}
+}
+
+@Misc{TorProject,
+    author =   {{The Tor Project\, Inc.}},
+    title =    {Tor Project: Anonymity Online},
+    howpublished = {\url{https://www.torproject.org/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2002--2021}
+}
+
+% Web App Sources
+
+@Misc{ExpressJS,
+    author =   {{OpenJS Foundation}},
+    title =    {Express - Node.js web application framework},
+    howpublished = {\url{https://expressjs.com/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2010--2021}
+}
+
+@Misc{NodeJS,
+    author =   {{OpenJS Foundation}},
+    title =    {Node.js},
+    howpublished = {\url{https://nodejs.org/en/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2009--2021}
+}
+
+@Misc{NuxtJS,
+    author =   {Chopin, Alexandre and Chopin, Sebastien and Pooya Parsa},
+    title =    {Nuxt.js - The Intuitive Vue Framework},
+    howpublished = {\url{https://nuxtjs.org/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2016--2021}
+}
+
+@Misc{Mongoose,
+    author =   {{Automaticc, Inc.}},
+    title =    {Mongoose ODM},
+    howpublished = {\url{https://mongoosejs.com/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{OpenStreetMap,
+    author =   {Coast, Steve and contributors},
+    title =    {OpenStreetMap},
+    howpublished = {\url{https://www.openstreetmap.org/about}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2004--2021}
+}
+
+@Misc{LeafletJS,
+    author =   {Agafonkin, Vladimir and contributors},
+    title =    {Leaflet.js},
+    howpublished = {\url{https://leafletjs.com/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2010--2021}
+}
+
+@Misc{BootstrapVue,
+    author =   {Regan, Alex and Müller, Jacob and Mosin, Vitaly and Parsa, Pooya and Morehouse, Troy},
+    title =    {BootstrapVue},
+    howpublished = {\url{https://bootstrap-vue.org/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2017--2021}
+}
+
+@Misc{graphLookup,
+    author = {{MongoDB Inc.}},
+    title  = {\$graphLookup aggregation},
+    note          = "[Accessed March 24, 2021]",
+    howpublished = {\url{https://docs.mongodb.com/manual/reference/operator/aggregation/graphLookup/}},
+    year = {2009--2021}
+}
+
+% LiSa Sources
+
+@Misc{RabbitMQ,
+    author =   {{Pivotal Software}},
+    title =    {RabbitMQ},
+    howpublished = {\url{https://www.rabbitmq.com/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2007--2020}
+}
+
+@Misc{Radare2,
+    author =   {Alvarez, Sergi and contributors},
+    title =    {Radare2 (r2)},
+    howpublished = {\url{https://github.com/radareorg/radare2}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2006--2021}
+}
+
+@Misc{Buildroot,
+    author =   {Korsgaard, Peter and contributors},
+    title =    {Buildroot - Making Embedded Linux Easy},
+    howpublished = {\url{https://buildroot.org/}},
+    year = {2005--2021}
+}
+
+@Misc{Qemu,
+    author =   {Bellard, Fabrice},
+    title =    {https://www.qemu.org/},
+    howpublished = {\url{https://www.qemu.org/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2011 --2020}
+}
+
+@Article{Roundy2013,
+  author        = "Roundy, Kevin A. and Miller, Barton P.",
+  title         = {Binary-code obfuscations in prevalent packer tools},
+  journal       = {ACM Computing Surveys - October 2013},
+  publisher     = {ACM},
+  pages         = {3},
+  doi           = {10.1145/2522968.2522972},
+  url           = {https://doi.org/10.1145/2522968.2522972},
+  year          = {2013}
+}
+
+@Misc{Strings,
+    author =   {{Free Software Foundation, Inc.}},
+    title =    {strings(1) - Linux man page},
+    howpublished = {\url{https://linux.die.net/man/1/strings}},
+    note          = "[Accessed March 24, 2021]",
+    year = {1991--2009}
+}
+
+
+% Blacklist Sources
+
+@Misc{BarracudaCentral,
+    author =   {{Barracuda Networks}},
+    title =    {Barracuda Reputation Block List (BRBL)},
+    howpublished = {\url{https://www.barracudacentral.org/rbl}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2009--2020}
+}
+
+@Misc{AbuseCh,
+    author =   {{abuse.ch}},
+    title =    {Abuse.ch: Fighting malware and botnets},
+    howpublished = {\url{https://abuse.ch/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2017}
+}
+
+@Misc{Spamrats,
+    author =   {{Spam Rats}},
+    title =    {Spam Rats: Really Annoying Trouble Spots},
+    howpublished = {\url{https://www.spamrats.com/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2021}
+}
+
+@Misc{SorbsDnsbl,
+    author =   {SORBS},
+    title =    {SORBS (Spam and Open-Relay Blocking System},
+    howpublished = {\url{http://www.sorbs.net/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2002--2019}
+}
+
+@Misc{SpamhausZen,
+    author =   {{The Spamhaus Project SLU}},
+    title =    {The Spamhaus Project: Zen},
+    howpublished = {\url{https://www.spamhaus.org/zen/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {1998--2021}
+}
+
+% Soft Dev Practices
+
+@Misc{Git,
+    author =   {Torvalds, Linus and contributors},
+    title =    {Git},
+    howpublished = {\url{https://git-scm.com/}},
+    note          = "[Accessed March 29, 2021]",
+    year = {2005--2021}
+}
+
+@Misc{GitHub,
+    author =   {{GitHub, Inc.}},
+    title =    {GitHub},
+    howpublished = {\url{https://github.com/}},
+    note          = "[Accessed March 30, 2021]",
+    year = {2008--2021}
+}
+
+@Misc{Trello,
+    author =   {{Atlassian}},
+    title =    {Trello},
+    howpublished = {\url{https://trello.com/}},
+    note          = "[Accessed March 29, 2021]",
+    year = {2011--2021}
+}
+
+@Misc{uniittest,
+    author =   {{Python Software Foundation}},
+    title =    {unittest - Unit testing framework - Python 3.9.2 documentation},
+    howpublished = {\url{https://docs.python.org/3/library/unittest.html}},
+    note          = "[Accessed March 29, 2021]",
+    year = {2021}
+}
+
+@Misc{pylama,
+    author =   {Klenov, Kirill and contributors},
+    title =    {pylama},
+    howpublished = {\url{https://github.com/klen/pylama}},
+    note          = "[Accessed March 29, 2021]",
+    year = {2013--2019}
+}
+
+@Misc{PEP8,
+    author =   {van Rossum, Guido and Warsaw, Barry and Coghlan, Nick },
+    title =    {PEP-8 -- Style Guide for Python Code},
+    howpublished = {\url{https://www.python.org/dev/peps/pep-0008/}},
+    note          = "[Accessed March 30, 2021]",
+    year = {2001--2013}
+}
+
+@Misc{ESLint,
+    author =   {{OpenJS Foundation}},
+    title =    {ESLint},
+    howpublished = {\url{https://eslint.org/}},
+    note          = "[Accessed March 29, 2021]",
+    year = {2013--2021}
+}
+
+@Misc{TravisCI,
+    author =   {{Travis CI, GmbH}},
+    title =    {Travis CI},
+    howpublished = {\url{https://travis-ci.com/}},
+    note          = "[Accessed March 29, 2021]",
+    year = {2011--2021}
+}
+
+@Misc{PrePushHooks,
+    author =   {Torvalds, Linus and contributors},
+    title =    {Git Hooks},
+    howpublished = {\url{https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks}},
+    note          = "[Accessed March 29, 2021]",
+    year = {2005--2021}
+}
+
+@Misc{TrunkBasedDev,
+    author =   {Zettler, Kev},
+    title =    {Trunk-based Development},
+    publisher = {Atlassian},
+    howpublished = {\url{https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development}},
+    note          = "[Accessed March 29, 2021]",
+    year = {n.d.}
+}
+
+
+
+
+% =========================================================
+% Results References:
+
+@Misc{SpeedguidePort53,
+    author =   {{speedguide.net}},
+    title =    {Port 53 Details},
+    howpublished = {\url{https://www.speedguide.net/port.php?port=53}},
+    note          = "[Accessed March 24, 2021]",
+    year = {1999--2021}
+}
+
+@Misc{NetworkX,
+    author =   {{NetworkX Developers and contributors.}},
+    title =    {NetworkX documentation},
+    howpublished = {\url{https://networkx.org/}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2014--2020}
+}
+
+@Misc{NetworkXKComponents,
+    author =   {{NetworkX Developers and contributors.}},
+    title =    {NetworkX KComponents Approximation Algorithm},
+    howpublished = {\url{https://networkx.org/documentation/stable//reference/algorithms/generated/networkx.algorithms.approximation.kcomponents.k_components.html}},
+    note          = "[Accessed March 24, 2021]",
+    year = {2014--2020}
+}

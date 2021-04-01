@@ -1,15 +1,30 @@
-# VisiBot - Visualisation of IoT botnets
+# VisiBot - Automated Detection of IoT Botnets
+
 ![Main Build Status](https://travis-ci.com/denBot/VisIBoT.svg?token=pMfMcyEQzGJGFRQDBST5&branch=main)
-* Author: [Daniel Arthur (2086380a)](mailto:2086380a@student.gla.ac.uk)
-* Supervisor: [Angelos Marnerides](mailto:angelos.marnerides@glasgow.ac.uk)
+
+- **Level 4 Project** - [School of Computing Science, University of Glasgow](https://www.gla.ac.uk/schools/computing/)
+
+- **Author**: [Daniel Arthur (2086380a)](mailto:2086380a@student.gla.ac.uk)
+
+- **Supervisor**: [Angelos Marnerides](mailto:angelos.marnerides@glasgow.ac.uk)
+
+
+
+### Project Outline:
 
 VisiBot is an automated solution to Command & Control Server (C2) Identification. This project combines a variety of information sources and services, including the [Bad Packets](https://badpackets.net/) Cyber-Threat Intelligence API, [VirusTotal](https://virustotal.com/), [ipinfo.io](https://ipinfo.io/), the [LiSa Sandbox](https://github.com/danieluhricek/LiSa) and various [MaxMind](https://www.maxmind.com/en/home) Geo IP2 databases.
 
 The VisIBot processing scheduler will automatically collect Bad Packets honeypot data and extract, execute and analyse botnet malware payloads using the LiSa sandbox on an hourly basis. Through combined static and dynamic analysis of malware payloads, we identify potential (candidate) Command & Control (C2) servers. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
 
-The VisiBot web-application is a browser-based visualisation tool that maps geolocation of identified potential bots, payload servers, peer-to-peer nodes and command-and-control servers. Written in Nuxt.js and hosted using Express.js, the main service uses Leaflet.js to cluster and annotate the geolocations of any identified botnet activity.
 
-![VisiBot Web Application](docs/assets/visibot_webapp.png)
+
+### Web Application:
+
+The VisiBot web-application is a browser-based visualisation tool that maps geo-location of identified potential bots, payload servers, peer-to-peer nodes and command-and-control servers. Written in Nuxt.js and hosted using Express.js, the main service uses Leaflet.js to cluster and annotate the geo-locations of any identified botnet activity.
+
+![VisiBot Web Application](dissertation/images/visibot_screenshot_cluster.png)
+
+
 
 
 
@@ -24,15 +39,19 @@ The VisiBot web-application is a browser-based visualisation tool that maps geol
 - A modified fork of the [LiSa Sandbox Server](https://github.com/denBot/LiSa)
     - (optional) An active VPN service connectable through a OpenVPN .ovpn file
 
----
+
 
 # Setting up modified LiSa server
+
 [LiSa](https://github.com/danieluhricek/LiSa) is a Linux Sandbox project created by [Daniel Uhříček](https://github.com/danieluhricek) which provides automated Linux malware analysis on various CPU architectures. I have modified this project ([AVAILABLE HERE](https://github.com/denBot/LiSa)) to allow for the following additional features:
 - Ability to create analysis tasks by submitting a malware URL instead of uploading a file
 - Added binary unpacking for any binaries packed using the UPX packer software
 - Added ability to provide external service API endpoints. POST requests are made to these endpoints when a given task fails/succeeds.
 
+
+
 ## Setup steps:
+
 - install docker and docker-compose onto your host
 1. Clone into `LiSa` repository and enter File-URL-Support branch
     ```bash
