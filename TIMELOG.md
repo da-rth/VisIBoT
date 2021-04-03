@@ -481,3 +481,6 @@
 ### 01 Apr 2020
 * *2.0 hours* Cleaning up repository structure and README
 * *1.0 hours* Final meeting with supervisor
+
+### 03 Apr 2020
+* *2.0 hours* Re-writing README.md and MANUAL.md
