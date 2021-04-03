@@ -8,8 +8,11 @@
 
 - **Supervisor**: [Angelos Marnerides](mailto:angelos.marnerides@glasgow.ac.uk)
 
-# Installation Instructions
+## Installation Instructions
 Please refer to [MANUAL.md](/MANUAL.md) for setup/installation instructions.
+
+## Timelog
+Please refer to [TIMELOG.md](/MANUAL.md) for a full time-log of activity throughout development.
 
 # Project Outline
 
