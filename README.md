@@ -1,48 +1,53 @@
-# VisiBot - Automated Detection of IoT Botnets
-
 ![Main Build Status](https://travis-ci.com/denBot/VisIBoT.svg?token=pMfMcyEQzGJGFRQDBST5&branch=main)
 
-- **Level 4 Project** - [School of Computing Science, University of Glasgow](https://www.gla.ac.uk/schools/computing/)
+# VisiBot - Automated Detection of IoT Botnets
+
+- **Level 4 Individual Project** - [SoCS - University of Glasgow](https://www.gla.ac.uk/schools/computing/)
 
 - **Author**: [Daniel Arthur (2086380a)](mailto:2086380a@student.gla.ac.uk)
 
 - **Supervisor**: [Angelos Marnerides](mailto:angelos.marnerides@glasgow.ac.uk)
 
+# Installation Instructions
+Please refer to [MANUAL.md](/MANUAL.md) for setup/installation instructions.
+
+# Project Outline
+
+VisiBot is an automated IoT botnet detection system used for real-time identification  and visualisation of Internet of Things (IoT) Botnets.
 
 
-### Project Outline:
+## VisiBot Processing System
 
-VisiBot is an automated solution to Command & Control Server (C2) Identification. This project combines a variety of information sources and services, including the [Bad Packets](https://badpackets.net/) Cyber-Threat Intelligence API, [VirusTotal](https://virustotal.com/), [ipinfo.io](https://ipinfo.io/), the [LiSa Sandbox](https://github.com/danieluhricek/LiSa) and various [MaxMind](https://www.maxmind.com/en/home) Geo IP2 databases.
+The VisIBot Processing System automatically collects Bad Packets honeypot data and extracts, executes and analyses botnet malware payloads using the LiSa sandbox in real-time. Through combined static and dynamic analysis of malware payloads, the proposed system is capable of identifying potential (candidate) Command & Control (C2) servers and Peer-to-Peer networks for IoT Botnets. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
 
-The VisIBot processing scheduler will automatically collect Bad Packets honeypot data and extract, execute and analyse botnet malware payloads using the LiSa sandbox on an hourly basis. Through combined static and dynamic analysis of malware payloads, we identify potential (candidate) Command & Control (C2) servers. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
+### Tools and Frameworks:
+- [Python](https://www.python.org/) - Interpreted, high-level programming language
+- [Celery](https://docs.celeryproject.org/en/stable/getting-started/introduction.html) - Python-based distributable task queueing system
+- [Flower](https://flower.readthedocs.io/en/latest/) - Celery Monitoring Tool
+- [Redis](https://redis.io/) - In-memory data store used as a broker for Celery
+- [Docker](https://www.docker.com/) - Platform and container service
 
+### Services
+- [Bad Packets](https://badpackets.net/) - Cyber-threat Intelligence honeypot service
+- [VirusTotal](https://www.virustotal.com/) - Anti-virus vendor aggregation
+- [MaxMind GeoIP2](https://www.maxmind.com/en/geoip2-databases) - Locally maintained databases for IP geographic information
+- [IPInfo](https://ipinfo.io/) - IP address data API service
 
-
-### Web Application:
+## VisiBot Web Application
 
 The VisiBot web-application is a browser-based visualisation tool that maps geo-location of identified potential bots, payload servers, peer-to-peer nodes and command-and-control servers. Written in Nuxt.js and hosted using Express.js, the main service uses Leaflet.js to cluster and annotate the geo-locations of any identified botnet activity.
 
 ![VisiBot Web Application](dissertation/images/visibot_screenshot_cluster.png)
 
+### Tools and Frameworks:
+- [NodeJS](https://nodejs.org/en/) - JavaScript runtime
+- [Nuxt.js](https://nuxtjs.org/) - Frontend JavaScript Framework
+- [Express.js](https://expressjs.com/) - Backend Web Server for Node.js
+- [Mongoose](https://mongoosejs.com/docs/) - MongoDB object modelling framework for Node.js
+- [Leaflet.js](https://leafletjs.com/) - JavaScript library for interactive maps
+- [BootstrapVue](https://bootstrap-vue.org/) - Bootstrap CSS/JS Framework vue integration
 
-
-
-
-
-# Requirements
-- A remotely accessible MongoDB Database (e.g. [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
-- A [MaxMind GeoIP Update API Key](https://www.maxmind.com/en/accounts/current/license-key):
-    - Go to Account > My License Key > Generate New License Key > Yes > [1st Option] > Confirm
-- A [Bad Packets API Key](https://badpackets.net/)
-- A [VirusTotal API Key](https://virustotal.com/)
-- A [ipinfo.io API Key](https://ipinfo.io)
-- A modified fork of the [LiSa Sandbox Server](https://github.com/denBot/LiSa)
-    - (optional) An active VPN service connectable through a OpenVPN .ovpn file
-
-
-
-# Setting up modified LiSa server
-
+## LiSa Sandbox
 [LiSa](https://github.com/danieluhricek/LiSa) is a Linux Sandbox project created by [Daniel Uhříček](https://github.com/danieluhricek) which provides automated Linux malware analysis on various CPU architectures. I have modified this project ([AVAILABLE HERE](https://github.com/denBot/LiSa)) to allow for the following additional features:
 - Ability to create analysis tasks by submitting a malware URL instead of uploading a file
 - Added binary unpacking for any binaries packed using the UPX packer software
@@ -50,109 +55,5 @@ The VisiBot web-application is a browser-based visualisation tool that maps geo-
 
 
 
-## Setup steps:
 
-- install docker and docker-compose onto your host
-1. Clone into `LiSa` repository and enter File-URL-Support branch
-    ```bash
-    ➜  ~ git clone https://github.com/denBot/LiSa-modified
-    ➜  ~ cd LiSa
-    ```
-2. (Optional - skip if unsure) Edit `docker-compose.yml` and update `API_SUCCESS_URL` and `API_FAILURE_URL` environment variables to the IP address where the VisiBot processing service Flask API is running. This should be running on port 5001 by default. The URL must contain the sub-string `<task_id>` at the end.
-    ```yml
-    worker:
-      ...
-      environment:
-        - API_SUCCESS_URL=http://172.42.0.1:5001/api/lisa-analysis/success/<task_id>
-        - API_FAILURE_URL=http://172.42.0.1:5001/api/lisa-analysis/failure/<task_id>
-    ```
-3. (Optional) Configure LiSa to use a VPN during analysis
-    ```bash
-    - mkdir vpn
-    - mv ~/path/to/my_vpn.opvn vpn/config.ovpn
-    ```
-    - If your VPN requires a username and password to connect, edit the config.ovpn file and change the `auth-user-pass` line to `auth-user-pass /vpn/pass.txt`
-    - Create a file in the `vpn` folder called `pass.txt` and put your login username/email on the first line of the file and your password on the second
-    ```bash
-    # pass.txt
-    some-email@example.com
-    some-password-1234
-    ```
-    - Lastly, edit `docker-compose.yml` and edit the `worker` section to include the following:
-    ```yml
-    worker:
-      ...
-      environment:
-        - ...
-        - VPN=/vpn
-      volumes:
-        - ...
-        - "./vpn:/vpn"
-      ...
-    ```
-    - **Note**: if your VPN only allows X connections at one time, you should not use more than X workers. Otherwise, workers may fail to connect to the VPN.
-4. Configure the VirusTotal Analyser to use your VirusTotal API KEY in `lisa/config.py`
-    - Un-comment `'lisa.analysis.virustotal.VirusTotalAnalyzer'`
-    - Assign variable `virus_total_key` to your VirusTotal API Key
-5. Build docker images. This will take a while. You might need to use `sudo` too.
-    ```bash
-    ➜  ~ docker-compose build
-    ```
-6. Run the docker images (rebuild whenever you modify LiSa code, config, yml, etc...)
-    ```bash
-    ➜  ~ docker-compose build
-    ➜  ~ docker-compose up # --scale worker={NUM_WORKERS_HERE}
-    ```
-6. Once running, visit `http://localhost:4242` (or whatever you set in `docker-compose.yml` and verify that LiSa is online.
 
-Important notes:
-- if you modify any LiSa code or the nginx web-host in `docker-compose.yml`, you will need to `docker-compose build` before running the services again.
-- You can specify the number of **workers** used for running malware analysis tasks using the `--scale worker=NUM` docker-compose argument. The default is 1 but I recommend at least 2 or more.
-- If you need to access any host (non-docker container) ports, such as the VisIBoT API port 5001, use the IP address `172.42.0.1` instead of `localhost` or `127.0.0.1`.
-
----
-
-# Setting up the bad packets processing service
-Execute the below commands to run the Bad Packets processing script. This script processes all honeypot entities caught by Bad Packets and exports API data into a MongoDB schema format. Payloads are automatically extracted from BP Results and are analysed using the `LiSa` malware sandbox mentioned above.
-
-```bash
-# Install Docker and Docker-compose (e.g. on ubuntu using apt-get)
-➜  ~ sudo apt-get update && apt-get install docker docker-compose
-➜  ~ cd src/processing
-
-# Copy env example template and edit it.
-# Add in your MongoDB URL and GeoIP2, Bad Packets and ipinfo.io API keys.
-➜  ~ cp .env.example .env
-➜  ~ vim .env
-
-# Build docker images and start-up the processing service
-➜  ~ docker-compose build
-➜  ~ docker-compose up --scale worker=NUM_OF_WORKERS
-```
-**Note:**
-- You can specify the number of workers used when processing results. I would recommend 2 or more (I use 6).
-- Edit the `.env` file to your liking. It contains useful comments explaining what each argument is for. The docker container will not run without specific environment variables being set.
-
-# Setting up nuxt.js and express.js
-Execute the below commands to run local development servers for nuxt.js (frontend) and express.js (backend).
-
-**Note**: building nuxt.js will generate a `dist` folder which is then loaded as a static directory by `express.js`, mapped to the base route `/`
-```bash
-# Install nodejs modules
-➜  ~ cd src
-➜  ~ npm install
-
-# Run nuxt and express servers
-➜  ~ npm run nuxt-dev
-➜  ~ npm run exp-dev
-```
-To run eslint, enter the following:
-```bash
-➜  ~ npm run eslint
-```
-To deploy the web application, build the nuxt.js app and start express.js:
-```bash
-➜  ~ npm run nuxt-generate
-➜  ~ npm run exp-start
-```
-This will build the nuxt app into backend/dist which is then served via the express.js server at route `/`.
