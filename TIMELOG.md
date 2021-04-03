@@ -482,5 +482,9 @@
 * *2.0 hours* Cleaning up repository structure and README
 * *1.0 hours* Final meeting with supervisor
 
+### 02 Apr 2020
+* *1.5 hours* Writing acknowledgements
+* *1.0 hours* Re-structuring introduction
+
 ### 03 Apr 2020
 * *2.0 hours* Re-writing README.md and MANUAL.md
