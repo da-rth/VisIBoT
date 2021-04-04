@@ -488,3 +488,6 @@
 
 ### 03 Apr 2020
 * *2.0 hours* Re-writing README.md and MANUAL.md
+
+### 04 Apr 2020
+* *2.0 hours* Wrote abstract and proof-read introduction+background
