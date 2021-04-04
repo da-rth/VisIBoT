@@ -71,6 +71,6 @@ The VisiBot web-application is a browser-based visualisation tool that maps geo-
 ## Acknowledgements
 - [Bad Packets](https://badpackets.net/) provided access to distributed honeypot data through their Cyber Threat Intelligence API service
 - [IPInfo](https://ipinfo.io/) provided access to their [Privacy Detection API](https://ipinfo.io/proxy-vpn-detection-api)
-- [Virus Total](https://www.virustotal.com/gui/) provided access to an academic API with increased request limits
+- [VirusTotal](https://www.virustotal.com/gui/) provided access to an academic API with increased request limits
 - [LiSa](https://github.com/danieluhricek/LiSa) is used for automated linux malware analysis
 - [MaxMind GeoIP2](https://www.maxmind.com/en/home) is used for performing IP geo-location look-ups
