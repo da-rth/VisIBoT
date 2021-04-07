@@ -31,7 +31,7 @@ VisiBot is an automated IoT botnet detection system used for real-time identific
 
 ### VisiBot Processing System
 
-The VisIBot Processing System automatically collects Bad Packets honeypot data and extracts, executes and analyses botnet malware payloads using the LiSa sandbox in real-time. Through combined static and dynamic analysis of malware payloads, the proposed system is capable of identifying potential (candidate) Command & Control (C2) servers and Peer-to-Peer networks for IoT Botnets. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
+The VisIBot Processing System automatically collects Bad Packets honeypot data and extracts, executes and analyses botnet malware payloads using the LiSa sandbox in real-time. Through combined static, dynamic, and heuristic-based analysis of malware payloads, the proposed system is capable of identifying potential (candidate) Command & Control (C2) servers and Peer-to-Peer networks for IoT Botnets. Contained in various docker images, celery tasks are created from collected Bad Packets results and are processed using a scalable number of celery workers. The task queue is maintained using redis and is designed to work with various celery workers. This ensures that even if a single worker fails, the task queue will not be halted and processing will continue.
 
 #### Tools and Frameworks:
 - [Python](https://www.python.org/) - Interpreted, high-level programming language
