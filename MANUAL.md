@@ -5,7 +5,7 @@
 - For ease of setup, I have included **pre-configured .env files** in the source code .zip submitted for marking
 - These .env files contain API keys, usernames, and passwords and should therefore be kept private and secure
 - **As .env files are provided, you can skip .env related instructions for the setup of the VisiBot Processing System and Web App**
-- IMPORTANT: You will have to copy `VisiBot/src/.env.lisa` to `/path/to/LiSa/.env` to make use of the VirusTotal API key included in the lisa .env file
+- IMPORTANT! You will have to copy `VisiBot/src/.env.lisa` to `/path/to/LiSa/.env` to make use of the VirusTotal API key included in the lisa .env file
 
 ## Setup Requirements
 - The [URI](https://docs.mongodb.com/manual/reference/connection-string/) for a remotely accessible [MongoDB](https://www.mongodb.com/) Database (e.g. [MongoDB Atlas](https://www.mongodb.com/cloud/atlas))
