@@ -9,15 +9,22 @@
       >
         <about-jumbo :light-theme="lightThemeEnabled" />
         <b-container class="pb-5">
-          <project-section />
-          <div class="border-top my-3"></div>
           <author-section />
+          <div class="border-top my-3"></div>
+          <project-section />
           <div class="border-top my-3"></div>
           <collab-section />
           <div class="border-top my-3"></div>
           <development-section />
           <div class="border-top my-3"></div>
-          <statistics-section />
+
+          <h1>Privacy and Cookies</h1>
+          <p>
+            We do not store any information about website visitors, nor do we
+            use cookies :) If you have any questions, you can contact the site
+            owner
+            <a href="mailto:den.xyz@pm.me">here</a>.
+          </p>
         </b-container>
       </div>
     </client-only>

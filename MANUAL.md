@@ -120,6 +120,18 @@ FLOWER_PASS=[ENTER_A_SECURE_PASSWORD]
 ```
 **Note:** variable assignments in **\[brackets\]** should be replaced with relevant credentials.
 
+## Using the Processing System
+Once staarting the Processing System using the `docker-compose up` command shown above, you can:
+- View a list of all running docker apps by running `docker ps`
+- View logs for a specific application by running `docker logs <container_id>` 
+- Run the processor as a daemon by adding `-d` to the `docker-compose` command
+    - If you do this, use `docker-compose down` to shut down the docker application
+- View Celery Worker progress by visiting the Flower Web Dashboard
+    - Visit the URL: http://localhost:5555/
+    - The default username/password for logging in is included in the `.env` file
+
+You can also monitor progress by viewing the MongoDB Atlas dash-board of the database you have included in the `.env` file.
+
 # VisiBot Web Application
 
 ## Running Nuxt.js and Express.js locally
@@ -142,8 +154,8 @@ FLOWER_PASS=[ENTER_A_SECURE_PASSWORD]
 # Open a new terminal at src/webapp and run:
 ➜  ~ npm run nuxt-dev
 ```
-
-Following these steps, You will be able to view the development server for VisiBot Web App at http://localhost:3000
+- **Note**: If you encounter any issues related to `node-fibers`, try deleting `node_modules` and re-running `npm install`
+- Following these steps, You will be able to view the development server for VisiBot Web App at http://localhost:3000
 
 
 ### Example contents for .env
@@ -156,3 +168,21 @@ FRONTEND_BASE_URL=http://localhost:3000
 NODE_ENV=development
 ```
 **Note:** variable assignments in **\[brackets\]** should be replaced with relevant credentials.
+
+
+## Using the Web App
+Once the web application loads, a map will be presented with a number of clusters and markers which you can interact with.
+- When a cluster is clicked, it the map will zoom in and expand the cluster into markers or sub-clusters
+- When a marker is clicked, a sub-menu will pop up allowing you to either
+    - View network interactions between the marker and other logged IP addresses
+    - View additional information about the marker via a pop-up panel
+    - View VirusTotal information about the selected IP address
+- When the map slidebar toggle button is clicked at the top of the application navbar, you can:
+    - Toggle markers on and off based on the marker type
+    - Change the clustering radius
+    - Toggle clustering settings like automatic zoom-in
+    - Search for a specific IP address
+    - Filter markers based on CVE, category, or description
+- The site theme (light/dark mode) can be toggled by clicking the 'sun' icon in the navbar
+- The site language can be toggled by selecting a new language from the drop-down menu
+- Information about the website can also be viewed by clicking the 'information' tab in the navbar
