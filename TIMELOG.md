@@ -491,3 +491,17 @@
 
 ### 04 Apr 2020
 * *2.0 hours* Wrote abstract and proof-read introduction+background
+
+## Week 30
+
+### 06 Apr 2020
+* *4.0 hours* Proof reading and spell-checking
+* *1.0 hours* Re-structuring project directory
+
+### 07 Apr 2020
+* *3.0 hours* Created VisiBot presentation slides
+* *2.0 hours* Editing paper following proof reading comments
+
+### 08 Apr 2020
+* *1.0 hours* Editing paper following proof reading comments
+* *4.0 hours* Recording and editing video presentation
